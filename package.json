@@ -11,6 +11,7 @@
     "clean": "turbo run clean"
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "turbo": "^2.0.0"
   },
   "engines": {
