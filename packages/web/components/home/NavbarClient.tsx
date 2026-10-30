@@ -11,23 +11,29 @@ const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 interface NavbarClientProps {
-  starCount: number
+  starCount?: number
+  isAuth?: boolean
+  authType?: string
 }
 
-export default function NavbarClient({ starCount }: NavbarClientProps) {
+export default function NavbarClient({
+  starCount,
+  isAuth,
+  authType,
+}: NavbarClientProps) {
   const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const [canAnimate, setCanAnimate] = useState(false)
   const { theme, toggleTheme } = useTheme()
 
   const scrollToTop = () => {
+    router.push('/')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   useIsomorphicLayoutEffect(() => {
     const isScrolled =
-      window.scrollY > 20 ||
-      sessionStorage.getItem('klyro_scrolled') === 'true'
+      window.scrollY > 20 || sessionStorage.getItem('klyro_scrolled') === 'true'
 
     if (isScrolled) {
       setScrolled(true)
@@ -127,25 +133,50 @@ export default function NavbarClient({ starCount }: NavbarClientProps) {
             Docs
           </button>
           <button
+            suppressHydrationWarning
             onClick={toggleTheme}
             aria-label="Toggle theme"
             className="text-white flex items-center justify-center p-3 bg-[#343a40] text-base font-bold transition-all duration-500 hover:bg-[#1a1d27] hover:rounded-lg cursor-pointer"
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          <button
-            onClick={() => router.push('/editor')}
-            className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-base font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
-          >
-            Get Started
-            <Image
-              src="/diagonal-arrow.svg"
-              alt="Arrow"
-              width={16}
-              height={16}
-              className="aspect-square"
-            />
-          </button>
+          {isAuth ? (
+            <>
+              <button
+                onClick={() =>
+                  router.push(
+                    authType === 'login' ? '/auth/signup' : '/auth/login'
+                  )
+                }
+                className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-base font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
+              >
+                {authType === 'login' ? 'Sign Up' : 'Login'}
+                <Image
+                  src="/diagonal-arrow.svg"
+                  alt="Arrow"
+                  width={16}
+                  height={16}
+                  className="aspect-square"
+                />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => router.push('/auth/login')}
+                className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-base font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
+              >
+                Get Started
+                <Image
+                  src="/diagonal-arrow.svg"
+                  alt="Arrow"
+                  width={16}
+                  height={16}
+                  className="aspect-square"
+                />
+              </button>
+            </>
+          )}
         </div>
       </motion.nav>
     </div>
