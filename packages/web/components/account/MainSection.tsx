@@ -13,6 +13,7 @@ import Image from 'next/image'
 import { CircuitHistory } from './CircuitHistory'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
 
 interface Profile {
   designation?: string | null
@@ -25,6 +26,7 @@ interface Circuit {
   name: string
   module: string
   last_edited: string
+  project_id: string
 }
 
 interface Props {
@@ -35,6 +37,8 @@ interface Props {
 
 export default function MainSection({ user, profile, circuits }: Props) {
   const supabase = createClient()
+
+  const router = useRouter()
 
   const name = user.user_metadata?.full_name ?? user.email ?? 'Anonymous'
   const email = user.email ?? ''
@@ -62,6 +66,7 @@ export default function MainSection({ user, profile, circuits }: Props) {
       day: 'numeric',
       year: 'numeric',
     }),
+    projectId: c.project_id,
   }))
 
   async function handleSave() {
@@ -168,7 +173,10 @@ export default function MainSection({ user, profile, circuits }: Props) {
 
         {/* Circuit history */}
         <div className="flex w-full p-7 bg-neutral-100 dark:bg-[#171717] rounded-lg border border-neutral-200 dark:border-transparent">
-          <CircuitHistory circuits={formattedCircuits} />
+          <CircuitHistory
+            circuits={formattedCircuits}
+            onOpen={(projectId) => router.push(`/editor/${projectId}`)}
+          />
         </div>
       </div>
 
