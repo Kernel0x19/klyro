@@ -1,26 +1,26 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { openOrCreateProject } from '@/lib/supabase/projects'
 
 export default function HeroActions() {
-  const router = useRouter()
-
   return (
     <div className="flex gap-4 mt-2 select-none">
-      <button
-        onClick={() => router.push('/editor')}
-        className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
-      >
-        Launch Editor
-        <Image
-          src="/diagonal-arrow.svg"
-          alt="Arrow"
-          width={16}
-          height={16}
-          className="aspect-square"
-        />
-      </button>
+      <form action={openOrCreateProject}>
+        <button
+          type="submit"
+          className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
+        >
+          Launch Editor
+          <Image
+            src="/diagonal-arrow.svg"
+            alt="Arrow"
+            width={16}
+            height={16}
+            className="aspect-square"
+          />
+        </button>
+      </form>
 
       <button
         className="text-white flex items-center justify-center px-4 py-3 bg-black border-3 border-[#4F6EF7] text-xl font-bold gap-2 transition-all duration-500 hover:rounded-xl cursor-pointer"
