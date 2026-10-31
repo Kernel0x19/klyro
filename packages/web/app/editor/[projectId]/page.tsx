@@ -37,6 +37,7 @@ export default async function EditorPage({ params }: Props) {
         name={name}
         projectName={projectName}
         projectId={projectId}
+        userId={user?.id}
       />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />

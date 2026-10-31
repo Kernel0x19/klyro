@@ -8,12 +8,21 @@ import { Suspense } from 'react'
 interface TopbarProps {
   avatarUrl: string | null
   name: string
-  projectName?: string
-  projectId?: string
+  projectName?: string | undefined
+  projectId?: string | undefined
+  userId?: string | undefined
 }
 
-
-export default function Topbar({ avatarUrl, name, projectName, projectId }: TopbarProps) {
+export default function Topbar({
+  avatarUrl,
+  name,
+  projectName,
+  projectId,
+  userId,
+}: TopbarProps) {
+  const title = projectName ?? 'Untitled Project'
+  const pid = projectId ?? ''
+  const uid = userId ?? ''
   return (
     <nav className="w-full h-25 flex items-center justify-between pl-5 pr-12 shrink-0">
       <div className="h-full flex items-center justify-center gap-4 py-4">
@@ -34,7 +43,7 @@ export default function Topbar({ avatarUrl, name, projectName, projectId }: Topb
           </div>
         </Link>
         <div className="w-0.5 h-full bg-neutral-600" />
-        <ProjectTitle initialTitle={projectName} />
+        <ProjectTitle initialTitle={title} projectId={pid} userId={uid} />
       </div>
       <Suspense fallback={null}>
         <ModuleSelection />
