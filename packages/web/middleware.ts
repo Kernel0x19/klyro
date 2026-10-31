@@ -35,6 +35,11 @@ export async function middleware(request: NextRequest) {
 
   console.log('user:', user?.email)
 
+  if (!user && request.nextUrl.pathname.startsWith('/editor')) {
+    // Allow access — unauthenticated users can still use the editor
+    // just don't save their work
+  }
+
   if (!user && request.nextUrl.pathname.startsWith('/account')) {
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
@@ -43,5 +48,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/account/:path*'],
+  matcher: ['/account/:path*', '/editor/:path*'],
 }
