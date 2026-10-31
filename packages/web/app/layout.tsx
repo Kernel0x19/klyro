@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { Space_Grotesk, Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/hooks/useTheme'
+import { Suspense } from 'react'
+import { NavigationProgress } from '@/components/ui/NavigationProgress'
+import ProgressStarter from '@/components/ui/ProgressStarter'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -46,6 +49,10 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className={`${spaceGrotesk.variable} ${inter.variable}`}>
+        <Suspense fallback={null}>
+          <NavigationProgress />
+          <ProgressStarter />
+        </Suspense>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
