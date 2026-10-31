@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   Search,
   ChevronDown,
@@ -378,6 +378,12 @@ type Tool = 'select' | 'wire' | 'pan' | 'delete'
 
 export default function SidebarClient() {
   const { theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const t = tokens[theme]
 
   const [collapsed, setCollapsed] = useState(false)
@@ -410,6 +416,17 @@ export default function SidebarClient() {
     { id: 'pan', icon: <Hand size={18} />, label: 'Pan' },
     { id: 'delete', icon: <Trash2 size={18} />, label: 'Delete' },
   ]
+
+  if (!mounted) {
+    return (
+      <aside
+        className="h-full shrink-0 invisible"
+        style={{
+          width: collapsed ? '3rem' : '16.75rem',
+        }}
+      />
+    )
+  }
 
   return (
     <aside

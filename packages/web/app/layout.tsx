@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/hooks/useTheme'
 import { Suspense } from 'react'
 import { NavigationProgress } from '@/components/ui/NavigationProgress'
 import ProgressStarter from '@/components/ui/ProgressStarter'
+import ScrollToTop from '@/components/ScrollToTop'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -53,7 +54,10 @@ export default function RootLayout({
           <NavigationProgress />
           <ProgressStarter />
         </Suspense>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <ScrollToTop />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

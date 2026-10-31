@@ -32,6 +32,11 @@ export default function NavbarClient({
   const [scrolled, setScrolled] = useState(false)
   const [canAnimate, setCanAnimate] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const scrollToTop = () => {
     router.push('/')
@@ -140,12 +145,19 @@ export default function NavbarClient({
             Docs
           </button>
           <button
-            suppressHydrationWarning
             onClick={toggleTheme}
             aria-label="Toggle theme"
             className="text-white flex items-center justify-center p-3 bg-[#343a40] text-base font-bold transition-all duration-500 hover:bg-[#1a1d27] hover:rounded-lg cursor-pointer"
           >
-            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            {mounted ? (
+              theme === 'dark' ? (
+                <Sun size={20} />
+              ) : (
+                <Moon size={20} />
+              )
+            ) : (
+              <Sun size={20} />
+            )}
           </button>
           {isAuth ? (
             <button

@@ -1,6 +1,12 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  createElement,
+} from 'react'
 
 type Theme = 'dark' | 'light'
 
@@ -12,23 +18,36 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'dark'
-    return (localStorage.getItem('klyro-theme') as Theme) || 'dark'
-  })
+  // Same initial value on server and client
+  const [theme, setTheme] = useState<Theme>('dark')
+  const [mounted, setMounted] = useState(false)
+
+  // Restore saved theme after hydration
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('klyro-theme')
+
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      setTheme(savedTheme)
+    }
+
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
+    if (!mounted) return
+
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('klyro-theme', theme)
-  }, [theme])
+  }, [theme, mounted])
 
-  const toggleTheme = () =>
+  const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+  }
 
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
+  return createElement(
+    ThemeContext.Provider,
+    { value: { theme, toggleTheme } },
+    children
   )
 }
 
