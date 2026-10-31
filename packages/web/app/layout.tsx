@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Space_Grotesk, Inter } from 'next/font/google'
 import './globals.css'
+import { ThemeProvider } from '@/components/hooks/useTheme'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -25,7 +26,6 @@ export const metadata: Metadata = {
   },
 }
 
-// Inline script to set data-theme before React hydrates, preventing flash
 const themeScript = `
   (function() {
     try {
@@ -46,7 +46,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className={`${spaceGrotesk.variable} ${inter.variable}`}>
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )

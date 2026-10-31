@@ -1,5 +1,5 @@
 {
-  "name": "@dls/web",
+  "name": "@klyro/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
