@@ -1,6 +1,7 @@
 import { Cpu, Grid3x3, Workflow } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { openOrCreateProject } from '@/lib/supabase/projects'
 
 const cards = [
   {
@@ -8,21 +9,21 @@ const cards = [
     title: 'IC Circuit Board',
     desc: 'Place real 74LS and 74HC series ICs on a virtual breadboard and wire them up.',
     cta: 'Open Board',
-    href: '/editor?module=board',
+    module: 'board',
   },
   {
     Icon: Grid3x3,
     title: 'K-Map Solver',
     desc: 'Minimize boolean expressions up to 5 variables with Quine-McCluskey.',
     cta: 'Open K-Map',
-    href: '/editor?module=k-map-visualiser',
+    module: 'k-map-visualiser',
   },
   {
     Icon: Workflow,
     title: 'FSM Builder',
     desc: 'Design finite state machines visually and auto-generate ASM charts.',
     cta: 'Open FSM',
-    href: '/editor?module=fsm',
+    module: 'fsm',
   },
 ]
 
@@ -65,19 +66,22 @@ export default function QuickStartGuides() {
               </h2>
               <p className="text-lg leading-relaxed">{card.desc}</p>
             </div>
-            <Link
-              href={card.href}
-              className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-2xl cursor-pointer group"
-            >
-              {card.cta}
-              <Image
-                src="/diagonal-arrow.svg"
-                alt="Arrow"
-                width={16}
-                height={16}
-                className="aspect-square"
-              />
-            </Link>
+            <form action={openOrCreateProject} className="w-full">
+              <input type="hidden" name="module" value={card.module} />
+              <button
+                type="submit"
+                className="w-full text-white flex items-center justify-center px-4 py-3 bg-get-started text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-2xl cursor-pointer group"
+              >
+                {card.cta}
+                <Image
+                  src="/diagonal-arrow.svg"
+                  alt="Arrow"
+                  width={16}
+                  height={16}
+                  className="aspect-square"
+                />
+              </button>
+            </form>
           </div>
         ))}
       </div>

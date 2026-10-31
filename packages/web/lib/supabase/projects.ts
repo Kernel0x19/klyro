@@ -12,7 +12,10 @@ function generateProjectId(): string {
   ).join('')
 }
 
-export async function openOrCreateProject() {
+type Module = 'board' | 'k-map-visualiser' | 'fsm' | 'pld' | 'hdl' | 'learn'
+
+export async function openOrCreateProject(formData: FormData) {
+  const module = (formData.get('module') as Module) ?? 'board'
   const supabase = await createServerSupabaseClient()
   const {
     data: { user },
@@ -20,7 +23,7 @@ export async function openOrCreateProject() {
 
   if (!user) {
     const tempId = generateProjectId()
-    redirect(`/editor/${tempId}`)
+    redirect(`/editor/${tempId}?module=${module}`)
   }
 
   const { data: existing } = await supabase
@@ -33,7 +36,7 @@ export async function openOrCreateProject() {
     .single()
 
   if (existing?.project_id) {
-    redirect(`/editor/${existing.project_id}`)
+    redirect(`/editor/${existing.project_id}?module=${module}`)
   }
 
   const projectId = generateProjectId()
@@ -41,12 +44,12 @@ export async function openOrCreateProject() {
   await supabase.from('circuits').insert({
     user_id: user.id,
     name: 'Untitled Project',
-    module: 'board',
+    module,
     project_id: projectId,
     last_edited: new Date().toISOString(),
   })
 
-  redirect(`/editor/${projectId}`)
+  redirect(`/editor/${projectId}?module=${module}`)
 }
 
 export async function deleteProject(projectId: string) {
@@ -61,7 +64,7 @@ export async function deleteProject(projectId: string) {
     .from('circuits')
     .delete()
     .eq('project_id', projectId)
-    .eq('user_id', user.id) // critical — prevents deleting other users' projects
+    .eq('user_id', user.id)
 
   if (error) return { error: error.message }
   return { success: true }

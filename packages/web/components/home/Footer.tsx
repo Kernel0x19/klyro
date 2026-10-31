@@ -1,16 +1,17 @@
 // Server Component — pure static footer with Next.js Link
 import Link from 'next/link'
 import Image from 'next/image'
+import { openOrCreateProject } from '@/lib/supabase/projects'
 
 const links = {
   Product: [
-    { label: 'IC Circuit Board', href: '/editor?module=board' },
-    { label: 'K-Map Solver', href: '/editor?module=kmap' },
-    { label: 'FSM Builder', href: '/editor?module=fsm' },
-    { label: 'Changelog', href: '/changelog' },
+    { label: 'IC Circuit Board', module: 'board' },
+    { label: 'K-Map Solver', module: 'k-map-visualiser' },
+    { label: 'FSM Builder', module: 'fsm' },
   ],
   Resources: [
     { label: 'Docs', href: '/docs' },
+    { label: 'Changelog', href: '/changelog' },
     { label: 'GitHub', href: 'https://github.com/Kernel0x19/klyro' },
     { label: 'Desktop App', href: '/download' },
     { label: 'Plugin API', href: '/docs/plugins' },
@@ -81,25 +82,47 @@ export default function Footer() {
 
           {/* Link columns */}
           <div className="flex flex-wrap gap-16">
-            {Object.entries(links).map(([heading, items]) => (
-              <div key={heading} className="flex flex-col gap-3">
-                <h3 className="text-sm font-bold text-label tracking-wider uppercase">
-                  {heading}
-                </h3>
-                <ul className="flex flex-col gap-2.5">
-                  {items.map((item) => (
-                    <li key={item.label}>
-                      <Link
-                        href={item.href}
-                        className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            <div className="flex flex-col gap-3">
+              <h3 className="text-sm font-bold text-label tracking-wider uppercase">
+                Product
+              </h3>
+              <ul className="flex flex-col gap-2.5">
+                {links.Product.map((item) => (
+                  <li key={item.label}>
+                    <form action={openOrCreateProject}>
+                      <input type="hidden" name="module" value={item.module} />
+                      <button
+                        type="submit"
+                        className="text-sm text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
                       >
                         {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex gap-16">
+              {(['Resources', 'Project'] as const).map((heading) => (
+                <div key={heading} className="flex flex-col gap-3">
+                  <h3 className="text-sm font-bold text-label tracking-wider uppercase">
+                    {heading}
+                  </h3>
+                  <ul className="flex flex-col gap-2.5">
+                    {links[heading].map((item) => (
+                      <li key={item.label}>
+                        <Link
+                          href={item.href}
+                          className="text-sm text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

@@ -7,6 +7,7 @@ export default function HeroActions() {
   return (
     <div className="flex gap-4 mt-2 select-none">
       <form action={openOrCreateProject}>
+        <input type="hidden" name="module" value="board" />
         <button
           type="submit"
           className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
