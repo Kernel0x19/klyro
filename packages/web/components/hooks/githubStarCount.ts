@@ -1,7 +1,7 @@
 export default async function getGitHubStars(): Promise<number> {
   try {
     const res = await fetch('https://api.github.com/repos/Kernel0x19/klyro', {
-      next: { revalidate: 60 },
+      next: { revalidate: 0 },
       headers: {
         Accept: 'application/vnd.github.v3+json',
         Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
