@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect
@@ -14,12 +15,18 @@ interface NavbarClientProps {
   starCount?: number
   isAuth?: boolean
   authType?: string
+  isLoggedIn?: boolean
+  avatarUrl?: string | null
+  name?: string
 }
 
 export default function NavbarClient({
   starCount,
   isAuth,
   authType,
+  isLoggedIn,
+  avatarUrl,
+  name,
 }: NavbarClientProps) {
   const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
@@ -141,41 +148,56 @@ export default function NavbarClient({
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
           {isAuth ? (
-            <>
-              <button
-                onClick={() =>
-                  router.push(
-                    authType === 'login' ? '/auth/signup' : '/auth/login'
-                  )
-                }
-                className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-base font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
-              >
-                {authType === 'login' ? 'Sign Up' : 'Login'}
+            <button
+              suppressHydrationWarning
+              onClick={() =>
+                router.push(
+                  authType === 'login' ? '/auth/signup' : '/auth/login'
+                )
+              }
+              className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-base font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
+            >
+              {authType === 'login' ? 'Sign Up' : 'Login'}
+              <Image
+                src="/diagonal-arrow.svg"
+                alt="Arrow"
+                width={16}
+                height={16}
+                className="aspect-square"
+              />
+            </button>
+          ) : isLoggedIn ? (
+            <Link href="/account">
+              {avatarUrl ? (
                 <Image
-                  src="/diagonal-arrow.svg"
-                  alt="Arrow"
-                  width={16}
-                  height={16}
-                  className="aspect-square"
+                  src={avatarUrl}
+                  alt="Profile"
+                  width={36}
+                  height={36}
+                  className="rounded-full hover:ring-2 hover:ring-[#4F6EF7] transition-all duration-200 cursor-pointer"
                 />
-              </button>
-            </>
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-[#343a40] border border-neutral-600 flex items-center justify-center hover:ring-2 hover:ring-[#4F6EF7] transition-all duration-200 cursor-pointer">
+                  <span className="text-sm font-bold text-neutral-300">
+                    {name?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </Link>
           ) : (
-            <>
-              <button
-                onClick={() => router.push('/auth/login')}
-                className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-base font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
-              >
-                Get Started
-                <Image
-                  src="/diagonal-arrow.svg"
-                  alt="Arrow"
-                  width={16}
-                  height={16}
-                  className="aspect-square"
-                />
-              </button>
-            </>
+            <button
+              onClick={() => router.push('/auth/login')}
+              className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-base font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
+            >
+              Get Started
+              <Image
+                src="/diagonal-arrow.svg"
+                alt="Arrow"
+                width={16}
+                height={16}
+                className="aspect-square"
+              />
+            </button>
           )}
         </div>
       </motion.nav>

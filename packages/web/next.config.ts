@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
 
   // Use the app directory (default in Next.js 13+, explicit for clarity)
   experimental: {},
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+    ],
+  },
 }
 
 export default nextConfig

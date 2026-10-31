@@ -1,4 +1,3 @@
-// Server Component — uses Next.js Link for navigation instead of useNavigate
 import { Cpu, Grid3x3, Workflow } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -16,7 +15,7 @@ const cards = [
     title: 'K-Map Solver',
     desc: 'Minimize boolean expressions up to 5 variables with Quine-McCluskey.',
     cta: 'Open K-Map',
-    href: '/editor?module=kmap',
+    href: '/editor?module=k-map-visualiser',
   },
   {
     Icon: Workflow,
