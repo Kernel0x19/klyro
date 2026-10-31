@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "turbo run dev --filter=@dls/web",
+    "dev": "turbo run dev --filter=@klyro/web",
     "dev:desktop": "turbo run dev --filter=@dls/desktop",
     "build": "turbo run build",
     "test": "turbo run test",
