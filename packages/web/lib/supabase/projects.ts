@@ -3,13 +3,29 @@
 import { createServerSupabaseClient } from './server'
 import { redirect } from 'next/navigation'
 
-function generateProjectId(): string {
+async function generateUniqueProjectId(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>
+): Promise<string> {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
-  const length = Math.floor(Math.random() * 5) + 8
-  return Array.from(
-    { length },
-    () => chars[Math.floor(Math.random() * chars.length)]
-  ).join('')
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const length = Math.floor(Math.random() * 5) + 8
+    const id = Array.from(
+      { length },
+      () => chars[Math.floor(Math.random() * chars.length)]
+    ).join('')
+
+    const { data } = await supabase
+      .from('circuits')
+      .select('project_id')
+      .eq('project_id', id)
+      .single()
+
+    if (!data) return id // no collision — use it
+  }
+
+  // Fallback: use timestamp + random to guarantee uniqueness
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
 }
 
 type Module = 'board' | 'k-map-visualiser' | 'fsm' | 'pld' | 'hdl' | 'learn'
@@ -22,7 +38,7 @@ export async function openOrCreateProject(formData: FormData) {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    const tempId = generateProjectId()
+    const tempId = await generateUniqueProjectId(supabase)
     redirect(`/editor/${tempId}?module=${module}`)
   }
 
@@ -39,7 +55,7 @@ export async function openOrCreateProject(formData: FormData) {
     redirect(`/editor/${existing.project_id}?module=${module}`)
   }
 
-  const projectId = generateProjectId()
+  const projectId = await generateUniqueProjectId(supabase)
 
   await supabase.from('circuits').insert({
     user_id: user.id,

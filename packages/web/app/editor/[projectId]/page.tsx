@@ -3,6 +3,7 @@ import Topbar from '@/components/editor/Topbar'
 import ProjectSync from '@/components/editor/ProjectSync'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import EditorCanvas from '@/components/editor/EditorCanvas'
+import GuestRedirect from '@/components/editor/GuestRedirect'
 
 interface Props {
   params: Promise<{ projectId: string }>
@@ -32,6 +33,7 @@ export default async function EditorPage({ params }: Props) {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <ProjectSync projectId={projectId} isLoggedIn={!!user} />
+      {!user && <GuestRedirect currentProjectId={projectId} />}
       <Topbar
         avatarUrl={avatarUrl}
         name={name}
