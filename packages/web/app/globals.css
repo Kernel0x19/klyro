@@ -131,3 +131,14 @@ body {
   opacity: 1;
   transform: rotate(3deg) translate(0px, -4px);
 }
+
+.react-flow__controls-button {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--surface-elevated) !important;
+  color: #4F6EF7 !important;
+}

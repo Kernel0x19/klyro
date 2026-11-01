@@ -1,8 +1,8 @@
-// app/editor/[projectId]/page.tsx
 import Sidebar from '@/components/editor/Sidebar'
 import Topbar from '@/components/editor/Topbar'
 import ProjectSync from '@/components/editor/ProjectSync'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import EditorCanvas from '@/components/editor/EditorCanvas'
 
 interface Props {
   params: Promise<{ projectId: string }>
@@ -31,7 +31,7 @@ export default async function EditorPage({ params }: Props) {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      <ProjectSync projectId={projectId} isLoggedIn={!!user} /> 
+      <ProjectSync projectId={projectId} isLoggedIn={!!user} />
       <Topbar
         avatarUrl={avatarUrl}
         name={name}
@@ -39,9 +39,11 @@ export default async function EditorPage({ params }: Props) {
         projectId={projectId}
         userId={user?.id}
       />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden gap-1">
         <Sidebar />
-        <main className="flex-1 overflow-hidden" />
+        <main className="flex-1 overflow-hidden border-l-2 border-t-2 border-[#d9dce6] dark:border-[#2e3148]">
+          <EditorCanvas />
+        </main>
       </div>
     </div>
   )
