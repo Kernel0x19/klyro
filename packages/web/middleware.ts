@@ -65,6 +65,10 @@ export async function middleware(request: NextRequest) {
     })
   }
 
+  if (request.nextUrl.pathname === '/editor') {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+
   if (!user && request.nextUrl.pathname.startsWith('/editor')) {
     // Allow access — unauthenticated users can still use the editor
     // just don't save their work
@@ -73,10 +77,9 @@ export async function middleware(request: NextRequest) {
   if (!user && request.nextUrl.pathname.startsWith('/account')) {
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
-
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/account/:path*', '/editor/:path*'],
+  matcher: ['/account/:path*', '/editor/:path*', '/editor'],
 }
