@@ -1,31 +1,96 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useMemo } from 'react'
 import {
   ReactFlow,
   Background,
   BackgroundVariant,
   Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   ReactFlowProvider,
   Panel,
+  type Node,
+  type Edge,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useTheme } from '@/components/hooks/useTheme'
+import OutputSectionNode from './canvas/OutputSectionNode'
+import ICBaseNode from './canvas/ICBaseNode'
+import InputClockSectionNode from './canvas/InputClockSectionNode'
+
+const NODE_TYPES = {
+  hardwareOutputPanel: OutputSectionNode,
+  icBaseNode: ICBaseNode,
+  inputClockPanel: InputClockSectionNode,
+}
+
+const CANVAS_X_ALIGN = 50
+
+const initialNodes: Node[] = [
+  {
+    id: 'main-output-panel',
+    type: 'hardwareOutputPanel',
+    position: { x: CANVAS_X_ALIGN, y: 20 },
+    draggable: false,
+    deletable: false,
+    data: { pinStates: {}, displayValues: ['0', '0'], isPowerOn: true },
+  },
+  {
+    id: 'ic-workspace-panel',
+    type: 'group',
+    position: { x: CANVAS_X_ALIGN, y: 150 },
+    style: {
+      width: 1100,
+      height: 420,
+      backgroundColor: '#0ca5d7',
+      borderRadius: '12px',
+      border: 'none',
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+    },
+    draggable: false,
+    deletable: false,
+    data: {},
+  },
+  ...[1, 2, 3, 4, 5].map((index) => ({
+    id: `ic-chip-${index}`,
+    type: 'icBaseNode',
+    position: { x: 58 + (index - 1) * 208, y: 80 },
+    parentId: 'ic-workspace-panel',
+    extent: 'parent' as const,
+    data: { label: `IC BASE ${index}` },
+  })),
+  {
+    id: 'main-input-clock-panel',
+    type: 'inputClockPanel',
+    position: { x: CANVAS_X_ALIGN, y: 590 },
+    draggable: false,
+    deletable: false,
+    data: {
+      inputStates: {},
+      clockStates: {},
+    },
+  },
+]
 
 function Canvas() {
   const { theme } = useTheme()
-  const [nodes, , onNodesChange] = useNodesState([])
-  const [edges, , onEdgesChange] = useEdgesState([])
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const nodeTypes = useMemo(() => NODE_TYPES, [])
+
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
   const isDark = theme === 'dark'
 
   return (
     <ReactFlow
       nodes={nodes}
+      nodesDraggable={false}
+      fitView={true}
+      nodesConnectable={true}
       edges={edges}
+      nodeTypes={nodeTypes}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       minZoom={0.1}
@@ -34,16 +99,20 @@ function Canvas() {
       snapToGrid
       snapGrid={[20, 20]}
       colorMode={isDark ? 'dark' : 'light'}
-      fitView={false}
+      fitViewOptions={{
+        padding: 0.1,
+        includeHiddenNodes: false,
+        duration: 0,
+      }}
       proOptions={{ hideAttribution: false }}
       style={{ width: '100%', height: '100%' }}
     >
       <Background
         variant={BackgroundVariant.Dots}
         gap={20}
-        size={1.5}
-        color={isDark ? 'rgba(100,116,139,0.9)' : 'rgba(100,116,139,0.7)'}
-        style={{ backgroundColor: isDark ? '#000000' : '#f8f9fa' }}
+        size={1.2}
+        color={isDark ? 'rgba(100,116,139,0.8)' : 'rgba(100,116,139,1)'}
+        style={{ backgroundColor: isDark ? '#000000' : '#ffffff' }}
       />
 
       <Controls
@@ -61,21 +130,6 @@ function Canvas() {
           marginBottom: '1rem',
           marginRight: '1rem',
         }}
-      />
-
-      <MiniMap
-        position="bottom-left"
-        nodeColor="#4F6EF7"
-        maskColor={isDark ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)'}
-        style={{
-          background: isDark ? '#1a1d27' : '#f5f6fa',
-          border: `1px solid ${isDark ? '#2e3148' : '#d9dce6'}`,
-          borderRadius: 8,
-          marginBottom: '1rem',
-          marginLeft: '1rem',
-        }}
-        zoomable
-        pannable
       />
 
       <Panel position="bottom-center">

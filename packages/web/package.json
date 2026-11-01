@@ -26,7 +26,7 @@
     "file-saver": "^2.0.5",
     "framer-motion": "^14.7.1",
     "html-to-image": "^1.11.13",
-    "konva": "^10.9.0",
+    "konva": "^10.9.1",
     "lucide-react": "^1.64.0",
     "motion": "^14.7.1",
     "next": "^15.3.0",
