@@ -66,7 +66,8 @@ export function CircuitHistory({ circuits = [], onDelete }: CirHis) {
             Circuit History
           </h2>
           <span className="text-neutral-500 font-bold bg-neutral-200 dark:bg-[#262626] border border-neutral-300 dark:border-neutral-700 px-2.5 py-0.5 rounded-lg">
-            {localCircuits.length} circuit{localCircuits.length !== 1 ? 's' : ''}
+            {localCircuits.length} circuit
+            {localCircuits.length !== 1 ? 's' : ''}
           </span>
         </div>
 
@@ -128,11 +129,15 @@ export function CircuitHistory({ circuits = [], onDelete }: CirHis) {
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     <Link href={`/editor/${c.projectId}`}>
-                      <button className="w-10 h-10 rounded-md bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-neutral-700 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] hover:border-neutral-300 dark:hover:border-neutral-600 hover:text-blue-500 dark:hover:text-blue-400 text-neutral-400 dark:text-neutral-500 hover:cursor-pointer">
+                      <button
+                        title="Open Circuit"
+                        className="w-10 h-10 rounded-md bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-neutral-700 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] hover:border-neutral-300 dark:hover:border-neutral-600 hover:text-blue-500 dark:hover:text-blue-400 text-neutral-400 dark:text-neutral-500 hover:cursor-pointer"
+                      >
                         <ExternalLink className="w-5 h-5" />
                       </button>
                     </Link>
                     <button
+                      title="Delete Circuit"
                       onClick={() => setPendingDelete(c)}
                       className="w-10 h-10 rounded-md bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-neutral-700 flex items-center justify-center hover:bg-red-50 dark:hover:bg-[#3d1b1b] hover:border-red-200 dark:hover:border-[#7a2626] hover:text-red-500 dark:hover:text-red-400 text-neutral-400 dark:text-neutral-500 hover:cursor-pointer"
                     >

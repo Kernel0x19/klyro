@@ -160,6 +160,7 @@ export default function MainSection({ user, profile, circuits }: Props) {
 
           <div className="h-full flex items-start">
             <button
+              title="Edit Profile"
               onClick={() => {
                 setForm({ ...localProfile })
                 setEditOpen(true)
