@@ -184,12 +184,12 @@ export default function MainSection({ user, profile, circuits }: Props) {
       {/* Edit modal */}
       {editOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-[#1a1a1a] border border-neutral-700/60 rounded-2xl p-8 flex flex-col gap-6">
+          <div className="w-full max-w-md bg-neutral-100 dark:bg-[#171717] border border-neutral-700/60 rounded-2xl p-8 flex flex-col gap-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold">Edit Profile</h2>
               <button
                 onClick={() => setEditOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white "
+                className="p-1.5 rounded-lg text-neutral-600 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -214,7 +214,7 @@ export default function MainSection({ user, profile, circuits }: Props) {
                 },
               ].map(({ label, key, placeholder }) => (
                 <div key={key} className="flex flex-col gap-1.5">
-                  <label className="text-sm font-bold text-neutral-300">
+                  <label className="text-sm font-bold dark:text-neutral-300">
                     {label}
                   </label>
                   <input
@@ -224,7 +224,7 @@ export default function MainSection({ user, profile, circuits }: Props) {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, [key]: e.target.value }))
                     }
-                    className="px-4 py-2.5 bg-[#111111] text-white border border-neutral-700/60 rounded-lg outline-none transition-all duration-200 focus:border-[#4F6EF7] focus:ring-2 focus:ring-[#4F6EF7]/20 placeholder:text-neutral-600"
+                    className="px-4 py-2.5 bg-neutral-300 dark:bg-[#111111] dark:text-white border border-neutral-700/60 rounded-lg outline-none transition-all duration-200 focus:border-[#4F6EF7] focus:ring-2 focus:ring-[#4F6EF7]/20 placeholder:text-neutral-600"
                   />
                 </div>
               ))}
@@ -233,14 +233,14 @@ export default function MainSection({ user, profile, circuits }: Props) {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setEditOpen(false)}
-                className="px-4 py-2 text-sm font-semibold text-neutral-400 hover:text-white bg-neutral-800 rounded-lg "
+                className="px-4 py-2 text-sm font-semibold text-neutral-400 hover:text-white bg-neutral-800 rounded-lg cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-4 py-2 text-sm font-bold bg-[#4F6EF7] hover:bg-[#3A57E8] disabled:opacity-60 text-white rounded-lg  flex items-center gap-2"
+                className="px-4 py-2 text-sm font-bold bg-[#4F6EF7] hover:bg-[#3A57E8] disabled:opacity-60 text-white rounded-lg  flex items-center gap-2 cursor-pointer"
               >
                 {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                 {saving ? 'Saving...' : 'Save'}

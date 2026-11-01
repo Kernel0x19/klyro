@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useTheme } from '@/components/hooks/useTheme'
 import { Sun, Moon, LogOut } from 'lucide-react'
+import { signOut } from '@/lib/supabase/auth'
 export default function Topbar() {
   const { theme, toggleTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -31,9 +32,6 @@ export default function Topbar() {
       </Link>
       <div className="flex items-center gap-3">
         <button
-          title={
-            theme === 'dark' ? 'Change to Light Theme' : 'Change to Dark Theme'
-          }
           onClick={toggleTheme}
           aria-label="Toggle theme"
           className="text-white flex items-center justify-center p-3 bg-[#343a40] text-base font-bold transition-all duration-500 hover:bg-[#1a1d27] hover:rounded-lg cursor-pointer"
@@ -49,6 +47,7 @@ export default function Topbar() {
           )}
         </button>
         <button
+          onClick={() => signOut()}
           title="Log out"
           className="text-white flex items-center justify-center p-3 bg-red-500 text-base font-bold transition-all duration-500 hover:bg-red-600 hover:rounded-lg cursor-pointer"
         >
