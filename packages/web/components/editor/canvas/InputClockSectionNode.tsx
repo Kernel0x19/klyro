@@ -21,7 +21,7 @@ export default function InputClockSectionNode({
   return (
     <div
       className="relative bg-[#0ca5d7] rounded-xl shadow-lg border border-[#0a8cb8] px-6 py-4 flex items-center select-none"
-      style={{ width: '1100px', height: '110px', color: '#111' }}
+      style={{ width: '1400px', height: '110px', color: '#111' }}
     >
       <div className="flex items-center gap-4.5 mt-3">
         {INPUT_PINS.map((pinName) => {

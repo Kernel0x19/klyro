@@ -26,7 +26,7 @@ export default function OutputSectionNode({
   return (
     <div
       className="relative bg-[#0ca5d7] rounded-xl shadow-lg border border-[#0a8cb8] px-6 py-4 flex items-center select-none"
-      style={{ width: '1100px', height: '110px', color: '#111' }}
+      style={{ width: '1400px', height: '110px', color: '#111' }}
     >
       <div className="absolute top-2 left-[25%] transform -translate-x-1/2 text-[11px] font-black tracking-wider text-[#054358]">
         OUTPUT SECTION

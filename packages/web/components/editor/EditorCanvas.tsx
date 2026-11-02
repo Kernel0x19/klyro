@@ -41,7 +41,7 @@ const initialNodes: Node[] = [
     type: 'group',
     position: { x: CANVAS_X_ALIGN, y: 150 },
     style: {
-      width: 1100,
+      width: 1400,
       height: 420,
       backgroundColor: '#0ca5d7',
       borderRadius: '12px',
@@ -55,7 +55,7 @@ const initialNodes: Node[] = [
   ...[1, 2, 3, 4, 5].map((index) => ({
     id: `ic-chip-${index}`,
     type: 'icBaseNode',
-    position: { x: 58 + (index - 1) * 208, y: 80 },
+    position: { x: 100 + (index - 1) * 250, y: 100 },
     parentId: 'ic-workspace-panel',
     extent: 'parent' as const,
     data: { label: `IC BASE ${index}` },
@@ -87,7 +87,6 @@ function Canvas() {
     <ReactFlow
       nodes={nodes}
       nodesDraggable={false}
-      fitView={true}
       nodesConnectable={true}
       edges={edges}
       nodeTypes={nodeTypes}
@@ -95,13 +94,15 @@ function Canvas() {
       onEdgesChange={onEdgesChange}
       minZoom={0.1}
       maxZoom={4}
-      defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+      defaultViewport={{ x: 50, y: 20, zoom: 0.8 }}
       snapToGrid
       snapGrid={[20, 20]}
       colorMode={isDark ? 'dark' : 'light'}
+      fitView={true}
       fitViewOptions={{
-        padding: 0.1,
-        includeHiddenNodes: false,
+        padding: 0.05,
+        minZoom: 0.85,
+        maxZoom: 0.85,
         duration: 0,
       }}
       proOptions={{ hideAttribution: false }}
