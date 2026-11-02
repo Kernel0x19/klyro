@@ -4,6 +4,9 @@ import { Handle, Position, type NodeProps, type Node } from '@xyflow/react'
 export interface InputClockNodeData {
   inputStates?: Record<string, boolean>
   clockStates?: Record<string, boolean>
+  onToggleInput?: (pin: string) => void
+  onToggleClock?: (pin: string) => void
+  selectedFrequency?: string
   [key: string]: unknown
 }
 
@@ -53,7 +56,10 @@ export default function InputClockSectionNode({
                   }`}
                 />
               </div>
-              <div className="w-2 h-4 bg-zinc-800 rounded-sm p-px border border-zinc-950 flex flex-col justify-between cursor-pointer">
+              <div
+                className="w-2 h-4 bg-zinc-800 rounded-sm p-px border border-zinc-950 flex flex-col justify-between cursor-pointer"
+                onClick={() => data.onToggleInput?.(pinName)}
+              >
                 <div
                   className={`w-full h-1.5 rounded-sm bg-zinc-100 shadow transition-all ${
                     isHigh ? 'translate-y-0' : 'translate-y-1.75'
@@ -100,7 +106,8 @@ export default function InputClockSectionNode({
             return (
               <div
                 key={clkName}
-                className="flex flex-col items-center justify-between h-13.75 w-5.5 relative"
+                className="flex flex-col items-center justify-between h-13.75 w-5.5 relative cursor-pointer"
+                onClick={() => data.onToggleClock?.(clkName)}
               >
                 <Handle
                   type="source"

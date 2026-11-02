@@ -5,6 +5,7 @@ export interface OutputSectionNodeData {
   pinStates?: Record<string, boolean>
   displayValues?: [string | number, string | number]
   isPowerOn?: boolean
+  onTogglePower?: () => void
   [key: string]: unknown
 }
 
@@ -98,6 +99,7 @@ export default function OutputSectionNode({
             Power
           </span>
           <button
+            onClick={() => data.onTogglePower?.()}
             className={`w-9 h-9 rounded-full border border-black flex items-center justify-center shadow-md active:scale-95 transition-all text-zinc-400 ${
               isPowerOn
                 ? 'bg-zinc-900 text-emerald-400'
@@ -105,7 +107,7 @@ export default function OutputSectionNode({
             }`}
           >
             <svg
-              xmlns="http://w3.org"
+              xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={2.5}

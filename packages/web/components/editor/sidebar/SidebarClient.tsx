@@ -13,6 +13,8 @@ import {
   Star,
 } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
+import { IC_LIBRARY } from '@/lib/icLibrary'
+import { useBoardStore } from '@/stores/useBoardStore'
 
 const tokens = {
   dark: {
@@ -36,344 +38,6 @@ const tokens = {
 const COLOR_TRANSITION =
   'background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease'
 
-const IC_LIBRARY = [
-  {
-    category: 'Basic Gates',
-    ics: [
-      {
-        part: '74LS00',
-        name: 'Quad 2-Input NAND',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS02',
-        name: 'Quad 2-Input NOR',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 10,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS03',
-        name: 'Quad 2-Input NAND OC',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS04',
-        name: 'Hex Inverter',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS05',
-        name: 'Hex Inverter OC',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS08',
-        name: 'Quad 2-Input AND',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS10',
-        name: 'Triple 3-Input NAND',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS11',
-        name: 'Triple 3-Input AND',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS14',
-        name: 'Hex Schmitt Inverter',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 15,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS20',
-        name: 'Dual 4-Input NAND',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS21',
-        name: 'Dual 4-Input AND',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS27',
-        name: 'Triple 3-Input NOR',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 10,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS30',
-        name: '8-Input NAND',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS32',
-        name: 'Quad 2-Input OR',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 14,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS38',
-        name: 'Quad 2-Input NAND OC',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 9,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS86',
-        name: 'Quad 2-Input XOR',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 10,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS132',
-        name: 'Quad 2-Input NAND ST',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 15,
-        vcc: 14,
-        gnd: 7,
-        advanced: true,
-      },
-    ],
-  },
-  {
-    category: 'Flip-Flops',
-    ics: [
-      {
-        part: '74LS74',
-        name: 'Dual D Flip-Flop',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 25,
-        vcc: 14,
-        gnd: 7,
-        advanced: false,
-      },
-      {
-        part: '74LS76',
-        name: 'Dual JK Flip-Flop',
-        package: 'DIP16',
-        family: 'LSTTL',
-        delay: 20,
-        vcc: 16,
-        gnd: 8,
-        advanced: false,
-      },
-    ],
-  },
-  {
-    category: 'Counters',
-    ics: [
-      {
-        part: '74LS90',
-        name: 'Decade Counter BCD',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 32,
-        vcc: 5,
-        gnd: 10,
-        advanced: false,
-      },
-      {
-        part: '74LS93',
-        name: '4-Bit Binary Counter',
-        package: 'DIP14',
-        family: 'LSTTL',
-        delay: 32,
-        vcc: 5,
-        gnd: 10,
-        advanced: false,
-      },
-      {
-        part: '74HC191',
-        name: 'Sync 4-Bit Up/Down Ctr',
-        package: 'DIP16',
-        family: 'HCMOS',
-        delay: 18,
-        vcc: 16,
-        gnd: 8,
-        advanced: true,
-      },
-      {
-        part: '74LS191',
-        name: 'Sync Up/Down Counter',
-        package: 'DIP16',
-        family: 'LSTTL',
-        delay: 30,
-        vcc: 16,
-        gnd: 8,
-        advanced: true,
-      },
-    ],
-  },
-  {
-    category: 'Registers',
-    ics: [
-      {
-        part: '74HC194',
-        name: 'Bidirectional Shift Reg',
-        package: 'DIP16',
-        family: 'HCMOS',
-        delay: 18,
-        vcc: 16,
-        gnd: 8,
-        advanced: true,
-      },
-      {
-        part: '74LS194',
-        name: 'Bidirectional Shift Reg',
-        package: 'DIP16',
-        family: 'LSTTL',
-        delay: 36,
-        vcc: 16,
-        gnd: 8,
-        advanced: false,
-      },
-    ],
-  },
-  {
-    category: 'Combinational',
-    ics: [
-      {
-        part: '74LS83',
-        name: '4-Bit Binary Full Adder',
-        package: 'DIP16',
-        family: 'LSTTL',
-        delay: 24,
-        vcc: 16,
-        gnd: 8,
-        advanced: false,
-      },
-      {
-        part: '74LS85',
-        name: '4-Bit Magnitude Comp',
-        package: 'DIP16',
-        family: 'LSTTL',
-        delay: 23,
-        vcc: 16,
-        gnd: 8,
-        advanced: false,
-      },
-      {
-        part: '74LS138',
-        name: '3-to-8 Line Decoder',
-        package: 'DIP16',
-        family: 'LSTTL',
-        delay: 22,
-        vcc: 16,
-        gnd: 8,
-        advanced: false,
-      },
-      {
-        part: '74LS139',
-        name: 'Dual 2-to-4 Demux',
-        package: 'DIP16',
-        family: 'LSTTL',
-        delay: 22,
-        vcc: 16,
-        gnd: 8,
-        advanced: false,
-      },
-      {
-        part: '74LS151',
-        name: '8-to-1 Multiplexer',
-        package: 'DIP16',
-        family: 'LSTTL',
-        delay: 21,
-        vcc: 16,
-        gnd: 8,
-        advanced: false,
-      },
-      {
-        part: '74LS153',
-        name: 'Dual 4-to-1 MUX',
-        package: 'DIP16',
-        family: 'LSTTL',
-        delay: 23,
-        vcc: 16,
-        gnd: 8,
-        advanced: false,
-      },
-    ],
-  },
-]
-
 type Tool = 'select' | 'wire' | 'pan' | 'delete'
 
 export default function SidebarClient() {
@@ -393,6 +57,7 @@ export default function SidebarClient() {
   )
   const [activeTool, setActiveTool] = useState<Tool>('select')
   const [hoveredIC, setHoveredIC] = useState<string | null>(null)
+  const { selectedSlotId, assignIC } = useBoardStore()
 
   const filtered = useMemo(() => {
     if (!search.trim()) return IC_LIBRARY
@@ -536,6 +201,18 @@ export default function SidebarClient() {
             transition: COLOR_TRANSITION,
           }}
         >
+          {selectedSlotId && (
+            <div
+              className="mx-2.5 mt-2 px-2.5 py-1.5 rounded-md text-[11px] text-center"
+              style={{
+                background: 'rgba(79,110,247,0.1)',
+                border: '1px solid rgba(79,110,247,0.3)',
+                color: '#4F6EF7',
+              }}
+            >
+              Click an IC to assign to selected slot
+            </div>
+          )}
           <div className="relative">
             <Search
               size={14}
@@ -611,6 +288,19 @@ export default function SidebarClient() {
                     }
                     onMouseEnter={() => setHoveredIC(ic.part)}
                     onMouseLeave={() => setHoveredIC(null)}
+                    onClick={() => {
+                      if (selectedSlotId) {
+                        assignIC(selectedSlotId, {
+                          partNumber: ic.part,
+                          name: ic.name,
+                          packageType: ic.packageType,
+                          family: ic.family,
+                          delay: ic.delay,
+                          vcc: ic.vcc,
+                          gnd: ic.gnd,
+                        })
+                      }
+                    }}
                     className="flex items-center gap-2 py-1.25 pr-3 pl-6 cursor-grab transition-colors duration-100"
                     style={{
                       background:

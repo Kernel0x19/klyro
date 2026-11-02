@@ -1,34 +1,43 @@
+'use client'
+
+import { useBoardStore } from '@/stores/useBoardStore'
 import PropertiesPanelClient from './properties-panel/PropertiesPanelClient'
+import { IC_LIBRARY } from '@/lib/icLibrary'
 
-type PinState = 'HIGH' | 'LOW' | 'X' | 'Z'
+export default function PropertiesPanel() {
+  const { selectedSlotId, icSlots, removeIC, clearSelection } = useBoardStore()
 
-interface Pin {
-  number: number
-  label: string
-  function: string
-  state: PinState
-}
+  const selectedSlot = icSlots.find((s) => s.slotId === selectedSlotId)
+  const icDef = selectedSlot?.icDefinition ?? null
 
-interface SelectedIC {
-  part: string
-  name: string
-  package: string
-  family: string
-  delay: number
-  datasheetUrl?: string
-  pins: Pin[]
-}
+  const selected = icDef
+    ? {
+        part: icDef.partNumber,
+        name: icDef.name,
+        package: icDef.packageType,
+        family: icDef.family,
+        delay: icDef.delay,
+        datasheetUrl: undefined,
+        pins: [],
+      }
+    : null
 
-interface Props {
-  selected?: SelectedIC | null
-  onRemove?: () => void
-  onDuplicate?: () => void
-}
+  const handleRemove = () => {
+    if (selectedSlotId) {
+      removeIC(selectedSlotId)
+      clearSelection()
+    }
+  }
 
-export default function PropertiesPanel({
-  selected,
-  onRemove,
-  onDuplicate,
-}: Props) {
-  return <PropertiesPanelClient />
+  const handleDuplicate = () => {
+    // Will implement when multiple slots are supported
+  }
+
+  return (
+    <PropertiesPanelClient
+      selected={selected}
+      onRemove={handleRemove}
+      onDuplicate={handleDuplicate}
+    />
+  )
 }

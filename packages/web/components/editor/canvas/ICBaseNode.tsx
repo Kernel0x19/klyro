@@ -3,6 +3,17 @@ import { Handle, Position, type NodeProps, type Node } from '@xyflow/react'
 
 export interface ICBaseNodeData {
   label?: string
+  icDefinition?: {
+    partNumber: string
+    name: string
+    packageType: string
+    family: string
+    delay: number
+    vcc: number
+    gnd: number
+  } | null
+  onSelect?: () => void
+  isSelected?: boolean
   [key: string]: unknown
 }
 
@@ -44,15 +55,27 @@ export default function ICBaseNode({ data }: NodeProps<ICBaseNodeType>) {
         ))}
       </div>
       <div
-        className="relative bg-[#1a1a1a] border-[3px] border-[#0a0a0a] rounded-md flex items-center justify-center shadow-xl"
+        className={`relative bg-[#1a1a1a] rounded-md flex items-center justify-center shadow-xl cursor-pointer transition-all ${
+          data.isSelected
+            ? 'border-[3px] border-[#4F6EF7]'
+            : 'border-[3px] border-[#0a0a0a] hover:border-zinc-600'
+        }`}
         style={{ width: '90px', height: '220px' }}
+        onClick={() => data.onSelect?.()}
       >
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-3 bg-[#262626] rounded-b-full border-b-2 border-black" />
         <div
-          className="text-[13px] font-black text-zinc-400 tracking-widest uppercase font-mono whitespace-nowrap"
           style={{ transform: 'rotate(90deg)' }}
+          className="flex flex-col items-center gap-1"
         >
-          {data.label || 'IC BASE'}
+          <span className="text-[13px] font-black text-zinc-400 tracking-widest uppercase font-mono whitespace-nowrap">
+            {data.icDefinition?.partNumber || data.label || 'IC BASE'}
+          </span>
+          {data.icDefinition && (
+            <span className="text-[9px] text-zinc-600 font-mono whitespace-nowrap">
+              {data.icDefinition.name}
+            </span>
+          )}
         </div>
       </div>
       <div className="flex flex-col justify-between items-start h-47.5 w-7.5 pl-1">

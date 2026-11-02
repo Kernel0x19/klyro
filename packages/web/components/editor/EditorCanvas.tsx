@@ -18,6 +18,7 @@ import { useTheme } from '@/components/hooks/useTheme'
 import OutputSectionNode from './canvas/OutputSectionNode'
 import ICBaseNode from './canvas/ICBaseNode'
 import InputClockSectionNode from './canvas/InputClockSectionNode'
+import { useBoardStore } from '@/stores/useBoardStore'
 
 const NODE_TYPES = {
   hardwareOutputPanel: OutputSectionNode,
@@ -27,57 +28,98 @@ const NODE_TYPES = {
 
 const CANVAS_X_ALIGN = 50
 
-const initialNodes: Node[] = [
-  {
-    id: 'main-output-panel',
-    type: 'hardwareOutputPanel',
-    position: { x: CANVAS_X_ALIGN, y: 20 },
-    draggable: false,
-    deletable: false,
-    data: { pinStates: {}, displayValues: ['0', '0'], isPowerOn: true },
-  },
-  {
-    id: 'ic-workspace-panel',
-    type: 'group',
-    position: { x: CANVAS_X_ALIGN, y: 150 },
-    style: {
-      width: 1400,
-      height: 420,
-      backgroundColor: '#0ca5d7',
-      borderRadius: '12px',
-      border: 'none',
-      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-    },
-    draggable: false,
-    deletable: false,
-    data: {},
-  },
-  ...[1, 2, 3, 4, 5].map((index) => ({
-    id: `ic-chip-${index}`,
-    type: 'icBaseNode',
-    position: { x: 110 + (index - 1) * 250, y: 100 },
-    parentId: 'ic-workspace-panel',
-    extent: 'parent' as const,
-    data: { label: `IC BASE ${index}` },
-  })),
-  {
-    id: 'main-input-clock-panel',
-    type: 'inputClockPanel',
-    position: { x: CANVAS_X_ALIGN, y: 590 },
-    draggable: false,
-    deletable: false,
-    data: {
-      inputStates: {},
-      clockStates: {},
-    },
-  },
-]
-
 function Canvas() {
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const {
+    isPowerOn,
+    inputStates,
+    clockStates,
+    selectedFrequency,
+    icSlots,
+    togglePower,
+    toggleInput,
+    toggleClock,
+    selectSlot,
+  } = useBoardStore()
 
-  const [nodes, , onNodesChange] = useNodesState(initialNodes)
+  const boardNodes: Node[] = useMemo(
+    () => [
+      {
+        id: 'main-output-panel',
+        type: 'hardwareOutputPanel',
+        position: { x: CANVAS_X_ALIGN, y: 20 },
+        draggable: false,
+        deletable: false,
+        data: {
+          pinStates: {},
+          displayValues: ['0', '0'],
+          isPowerOn,
+          onTogglePower: togglePower,
+        },
+      },
+      {
+        id: 'ic-workspace-panel',
+        type: 'group',
+        position: { x: CANVAS_X_ALIGN, y: 150 },
+        style: {
+          width: 1400,
+          height: 420,
+          backgroundColor: '#0ca5d7',
+          borderRadius: '12px',
+          border: 'none',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+        },
+        draggable: false,
+        deletable: false,
+        data: {},
+      },
+      ...icSlots.map((slot, index) => ({
+        id: `ic-chip-${index + 1}`,
+        type: 'icBaseNode',
+        position: { x: 110 + index * 250, y: 100 },
+        parentId: 'ic-workspace-panel',
+        extent: 'parent' as const,
+        data: {
+          label: `IC BASE ${index + 1}`,
+          icDefinition: slot.icDefinition,
+          isSelected: slot.isSelected,
+          onSelect: () => selectSlot(slot.slotId),
+        },
+      })),
+      {
+        id: 'main-input-clock-panel',
+        type: 'inputClockPanel',
+        position: { x: CANVAS_X_ALIGN, y: 590 },
+        draggable: false,
+        deletable: false,
+        data: {
+          inputStates,
+          clockStates,
+          selectedFrequency,
+          onToggleInput: toggleInput,
+          onToggleClock: toggleClock,
+        },
+      },
+    ],
+    [
+      isPowerOn,
+      inputStates,
+      clockStates,
+      selectedFrequency,
+      icSlots,
+      togglePower,
+      toggleInput,
+      toggleClock,
+      selectSlot,
+    ]
+  )
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(boardNodes)
+  useEffect(() => {
+    setNodes(boardNodes)
+  }, [isPowerOn, inputStates, clockStates, icSlots, selectedFrequency])
+
   const nodeTypes = useMemo(() => NODE_TYPES, [])
   const [edges, , onEdgesChange] = useEdgesState<Edge>([])
 
@@ -85,7 +127,6 @@ function Canvas() {
     setMounted(true)
   }, [])
 
-  // Until mounted, always use light — must match whatever the server renders
   const themeClass =
     mounted && theme === 'dark' ? 'canvas-dark' : 'canvas-light'
 
