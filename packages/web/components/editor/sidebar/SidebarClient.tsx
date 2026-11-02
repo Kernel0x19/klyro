@@ -386,7 +386,7 @@ export default function SidebarClient() {
 
   const t = tokens[theme]
 
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
   const [search, setSearch] = useState('')
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
     Object.fromEntries(IC_LIBRARY.map((g) => [g.category, true]))
