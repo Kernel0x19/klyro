@@ -112,7 +112,7 @@ body {
 }
 
 #nprogress .bar {
-  background: #4F6EF7;
+  background: #4f6ef7;
   position: fixed;
   z-index: 9999;
   top: 0;
@@ -127,7 +127,9 @@ body {
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px #4F6EF7, 0 0 5px #4F6EF7;
+  box-shadow:
+    0 0 10px #4f6ef7,
+    0 0 5px #4f6ef7;
   opacity: 1;
   transform: rotate(3deg) translate(0px, -4px);
 }
@@ -140,5 +142,43 @@ body {
 
 .react-flow__controls-button:hover {
   background: var(--surface-elevated) !important;
-  color: #4F6EF7 !important;
+  color: #4f6ef7 !important;
+}
+
+/* ── EditorCanvas theme ── */
+.canvas-light {
+  background: #ffffff;
+}
+.canvas-dark {
+  background: #000000;
+}
+
+/* Background dot layer */
+.canvas-light .react-flow__background {
+  background-color: #ffffff;
+}
+.canvas-dark .react-flow__background {
+  background-color: #000000;
+}
+
+/* Controls widget */
+.canvas-light .canvas-controls {
+  background: #f5f6fa;
+  border: 1px solid #d9dce6;
+}
+.canvas-dark .canvas-controls {
+  background: #1a1d27;
+  border: 1px solid #2e3148;
+}
+
+/* Bottom hint text */
+.canvas-hint {
+  font-size: 11px;
+  user-select: none;
+  margin-bottom: 0.5rem;
+  display: block;
+  color: rgba(90, 95, 115, 0.5);
+}
+.canvas-dark .canvas-hint {
+  color: rgba(139, 143, 168, 0.5);
 }

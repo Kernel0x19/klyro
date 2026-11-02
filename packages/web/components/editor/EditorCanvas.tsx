@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import {
   ReactFlow,
   Background,
@@ -55,7 +55,7 @@ const initialNodes: Node[] = [
   ...[1, 2, 3, 4, 5].map((index) => ({
     id: `ic-chip-${index}`,
     type: 'icBaseNode',
-    position: { x: 100 + (index - 1) * 250, y: 100 },
+    position: { x: 110 + (index - 1) * 250, y: 100 },
     parentId: 'ic-workspace-panel',
     extent: 'parent' as const,
     data: { label: `IC BASE ${index}` },
@@ -75,78 +75,70 @@ const initialNodes: Node[] = [
 
 function Canvas() {
   const { theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [nodes, , onNodesChange] = useNodesState(initialNodes)
   const nodeTypes = useMemo(() => NODE_TYPES, [])
+  const [edges, , onEdgesChange] = useEdgesState<Edge>([])
 
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-  const isDark = theme === 'dark'
+  // Until mounted, always use light — must match whatever the server renders
+  const themeClass =
+    mounted && theme === 'dark' ? 'canvas-dark' : 'canvas-light'
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      nodesDraggable={false}
-      nodesConnectable={true}
-      edges={edges}
-      nodeTypes={nodeTypes}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      minZoom={0.1}
-      maxZoom={4}
-      defaultViewport={{ x: 50, y: 20, zoom: 0.8 }}
-      snapToGrid
-      snapGrid={[20, 20]}
-      colorMode={isDark ? 'dark' : 'light'}
-      fitView={true}
-      fitViewOptions={{
-        padding: 0.05,
-        minZoom: 0.85,
-        maxZoom: 0.85,
-        duration: 0,
-      }}
-      proOptions={{ hideAttribution: false }}
-      style={{ width: '100%', height: '100%' }}
-    >
-      <Background
-        variant={BackgroundVariant.Dots}
-        gap={20}
-        size={1.2}
-        color={isDark ? 'rgba(100,116,139,0.8)' : 'rgba(100,116,139,1)'}
-        style={{ backgroundColor: isDark ? '#000000' : '#ffffff' }}
-      />
-
-      <Controls
-        position="bottom-right"
-        showInteractive={false}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 4,
-          background: isDark ? '#1a1d27' : '#f5f6fa',
-          border: `1px solid ${isDark ? '#2e3148' : '#d9dce6'}`,
-          borderRadius: 8,
-          padding: 4,
-          boxShadow: 'none',
-          marginBottom: '1rem',
-          marginRight: '1rem',
+    <div style={{ width: '100%', height: '100%' }} className={themeClass}>
+      <ReactFlow
+        nodes={nodes}
+        nodesDraggable={false}
+        nodesConnectable={true}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        minZoom={0.1}
+        maxZoom={4}
+        defaultViewport={{ x: 50, y: 20, zoom: 0.8 }}
+        snapToGrid
+        snapGrid={[20, 20]}
+        fitView={true}
+        fitViewOptions={{
+          padding: 0.05,
+          minZoom: 0.85,
+          maxZoom: 0.85,
+          duration: 0,
         }}
-      />
+        proOptions={{ hideAttribution: false }}
+        style={{ width: '100%', height: '100%' }}
+      >
+        <Background variant={BackgroundVariant.Dots} gap={20} size={1.2} />
 
-      <Panel position="bottom-center">
-        <span
+        <Controls
+          position="bottom-right"
+          showInteractive={false}
+          className="canvas-controls"
           style={{
-            fontSize: 11,
-            color: isDark ? 'rgba(139,143,168,0.5)' : 'rgba(90,95,115,0.5)',
-            userSelect: 'none',
-            marginBottom: '0.5rem',
-            display: 'block',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 4,
+            borderRadius: 8,
+            padding: 4,
+            boxShadow: 'none',
+            marginBottom: '1rem',
+            marginRight: '1rem',
           }}
-        >
-          Scroll to pan · Ctrl+scroll to zoom · Drag to select
-        </span>
-      </Panel>
-    </ReactFlow>
+        />
+
+        <Panel position="bottom-center">
+          <span className="canvas-hint">
+            Scroll to pan · Ctrl+scroll to zoom · Drag to select
+          </span>
+        </Panel>
+      </ReactFlow>
+    </div>
   )
 }
 
