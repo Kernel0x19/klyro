@@ -57,7 +57,7 @@ export default function SidebarClient() {
   )
   const [activeTool, setActiveTool] = useState<Tool>('select')
   const [hoveredIC, setHoveredIC] = useState<string | null>(null)
-  const { selectedSlotId, assignIC } = useBoardStore()
+  const { selectedSlotId, icSlots, assignIC } = useBoardStore()
 
   const filtered = useMemo(() => {
     if (!search.trim()) return IC_LIBRARY
@@ -201,18 +201,24 @@ export default function SidebarClient() {
             transition: COLOR_TRANSITION,
           }}
         >
-          {selectedSlotId && (
-            <div
-              className="mx-2.5 mt-2 px-2.5 py-1.5 rounded-md text-[11px] text-center"
-              style={{
-                background: 'rgba(79,110,247,0.1)',
-                border: '1px solid rgba(79,110,247,0.3)',
-                color: '#4F6EF7',
-              }}
-            >
-              Click an IC to assign to selected slot
-            </div>
-          )}
+          {(() => {
+            const selectedSlot = icSlots.find(
+              (s) => s.slotId === selectedSlotId
+            )
+            const isEmpty = selectedSlot && !selectedSlot.icDefinition
+            return isEmpty ? (
+              <div
+                className="mx-2.5 mt-2 px-2.5 py-1.5 rounded-md text-[11px] text-center"
+                style={{
+                  background: 'rgba(79,110,247,0.1)',
+                  border: '1px solid rgba(79,110,247,0.3)',
+                  color: '#4F6EF7',
+                }}
+              >
+                Click an IC to assign to selected slot
+              </div>
+            ) : null
+          })()}
           <div className="relative">
             <Search
               size={14}

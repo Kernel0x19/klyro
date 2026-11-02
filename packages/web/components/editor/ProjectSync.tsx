@@ -1,5 +1,6 @@
 'use client'
 import { useEffect } from 'react'
+import { useBoardStore } from '@/stores/useBoardStore'
 
 interface Props {
   projectId: string
@@ -7,6 +8,13 @@ interface Props {
 }
 
 export default function ProjectSync({ projectId, isLoggedIn }: Props) {
+  const resetBoard = useBoardStore((s) => s.resetBoard)
+
+  useEffect(() => {
+    console.log('Project changed, resetting board:', projectId)
+    resetBoard()
+  }, [projectId])
+
   useEffect(() => {
     if (!isLoggedIn) return
     try {

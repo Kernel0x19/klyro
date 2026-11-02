@@ -45,6 +45,7 @@ function Canvas() {
     toggleClock,
     selectSlot,
     assignIC,
+    clearSelection,
   } = useBoardStore()
 
   const handleDrop = useCallback(
@@ -165,6 +166,14 @@ function Canvas() {
     setMounted(true)
   }, [])
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') clearSelection()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [clearSelection])
+
   const themeClass =
     mounted && theme === 'dark' ? 'canvas-dark' : 'canvas-light'
 
@@ -183,6 +192,7 @@ function Canvas() {
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onPaneClick={() => clearSelection()}
         minZoom={0.1}
         maxZoom={4}
         defaultViewport={{ x: 50, y: 20, zoom: 0.8 }}

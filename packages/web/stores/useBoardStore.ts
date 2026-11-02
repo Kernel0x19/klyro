@@ -40,20 +40,22 @@ interface BoardState {
   assignIC: (slotId: string, ic: ICDefinitionSlot) => void
   removeIC: (slotId: string) => void
   clearSelection: () => void
+  resetBoard: () => void
 }
 
-const DEFAULT_SLOTS: ICSlot[] = Array.from({ length: 5 }, (_, i) => ({
-  slotId: `slot-${i + 1}`,
-  icDefinition: null,
-  isSelected: false,
-}))
+const createDefaultSlots = (): ICSlot[] =>
+  Array.from({ length: 5 }, (_, i) => ({
+    slotId: `slot-${i + 1}`,
+    icDefinition: null,
+    isSelected: false,
+  }))
 
 export const useBoardStore = create<BoardState>((set, get) => ({
   isPowerOn: true,
   inputStates: {},
   clockStates: {},
   selectedFrequency: '1',
-  icSlots: DEFAULT_SLOTS,
+  icSlots: createDefaultSlots(),
   selectedSlotId: null,
   outputStates: {},
   displayValues: ['0', '0'],
@@ -112,4 +114,16 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         isSelected: false,
       })),
     })),
+
+  resetBoard: () =>
+    set({
+      isPowerOn: true,
+      inputStates: {},
+      clockStates: {},
+      selectedFrequency: '1',
+      icSlots: createDefaultSlots(),
+      selectedSlotId: null,
+      outputStates: {},
+      displayValues: ['0', '0'],
+    }),
 }))
