@@ -4,6 +4,7 @@ import ProjectSync from '@/components/editor/ProjectSync'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import EditorCanvas from '@/components/editor/EditorCanvas'
 import GuestRedirect from '@/components/editor/GuestRedirect'
+import PropertiesPanel from '@/components/editor/PropertiesPanel'
 
 interface Props {
   params: Promise<{ projectId: string }>
@@ -43,9 +44,10 @@ export default async function EditorPage({ params }: Props) {
       />
       <div className="flex flex-1 overflow-hidden gap-1">
         <Sidebar />
-        <main className="flex-1 overflow-hidden border-l-2 border-t-2 border-[#d9dce6] dark:border-[#2e3148]">
+        <main className="flex-1 overflow-hidden border-l-2 border-t-2 border-r-2 border-[#d9dce6] dark:border-[#2e3148]">
           <EditorCanvas />
         </main>
+        <PropertiesPanel selected={null} />
       </div>
     </div>
   )
