@@ -19,6 +19,8 @@ import OutputSectionNode from './canvas/OutputSectionNode'
 import ICBaseNode from './canvas/ICBaseNode'
 import InputClockSectionNode from './canvas/InputClockSectionNode'
 import { useBoardStore } from '@/stores/useBoardStore'
+import { IC_LIBRARY } from '@/lib/icLibrary'
+import { useCallback } from 'react'
 
 const NODE_TYPES = {
   hardwareOutputPanel: OutputSectionNode,
@@ -37,11 +39,47 @@ function Canvas() {
     clockStates,
     selectedFrequency,
     icSlots,
+    selectedSlotId,
     togglePower,
     toggleInput,
     toggleClock,
     selectSlot,
+    assignIC,
   } = useBoardStore()
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      const part = e.dataTransfer.getData('ic-part')
+      if (!part) return
+
+      const allICs = IC_LIBRARY.flatMap((g) => g.ics)
+      const ic = allICs.find((i) => i.part === part)
+      if (!ic) return
+
+      // Use selected slot if one is selected
+      // Otherwise assign to first empty slot
+      const targetSlotId =
+        selectedSlotId ?? icSlots.find((s) => !s.icDefinition)?.slotId
+
+      if (!targetSlotId) return
+
+      assignIC(targetSlotId, {
+        partNumber: ic.part,
+        name: ic.name,
+        packageType: ic.packageType,
+        family: ic.family,
+        delay: ic.delay,
+        vcc: ic.vcc,
+        gnd: ic.gnd,
+      })
+    },
+    [selectedSlotId, icSlots, assignIC]
+  )
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+  }, [])
 
   const boardNodes: Node[] = useMemo(
     () => [
@@ -131,7 +169,12 @@ function Canvas() {
     mounted && theme === 'dark' ? 'canvas-dark' : 'canvas-light'
 
   return (
-    <div style={{ width: '100%', height: '100%' }} className={themeClass}>
+    <div
+      style={{ width: '100%', height: '100%' }}
+      className={themeClass}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+    >
       <ReactFlow
         nodes={nodes}
         nodesDraggable={false}
