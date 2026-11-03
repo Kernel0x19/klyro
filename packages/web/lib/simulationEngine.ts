@@ -70,16 +70,6 @@ function findIC(partNumber: string): ICEntry | undefined {
   return IC_LIBRARY.flatMap((c) => c.ics).find((ic) => ic.part === partNumber)
 }
 
-// Extract pin number from handle id like "pin-3"
-function parsePinNumber(handleId: string): number {
-  return parseInt(handleId.replace('pin-', ''), 10)
-}
-
-// Extract input pin number from input section handle like "input-15"
-function parseInputPin(handleId: string): string {
-  return handleId.replace('input-', '')
-}
-
 export function simulateBoard(
   edges: Edge[],
   icSlots: ICSlot[],
@@ -113,97 +103,136 @@ export function simulateBoard(
     return pinSignals[nodeId]?.[pinId] ?? 'unconnected'
   }
 
-  // Step 2 — Seed input section signals
+  // Step 2 — Seed power & input section signals
+  setSignal('main-output-panel', 'pin-VCC', 'HIGH')
+  setSignal('main-input-clock-panel', 'input-gnd', 'LOW')
+
   for (const [pin, isHigh] of Object.entries(inputStates)) {
     setSignal('main-input-clock-panel', `input-${pin}`, isHigh ? 'HIGH' : 'LOW')
   }
 
-  // Step 3 — Propagate signals through edges (input → IC pins)
-  // First pass: propagate from input panel to IC pins
-  for (const edge of edges) {
-    const sourceSignal = getSignal(edge.source, edge.sourceHandle ?? '')
-    if (sourceSignal !== 'unconnected') {
-      setSignal(edge.target, edge.targetHandle ?? '', sourceSignal)
-    }
-  }
+  // Helper for bidirectional signal transfer along wires
+  const propagateEdges = (): boolean => {
+    let changed = false
+    for (const edge of edges) {
+      const sHandle = edge.sourceHandle ?? ''
+      const tHandle = edge.targetHandle ?? ''
+      const sSig = getSignal(edge.source, sHandle)
+      const tSig = getSignal(edge.target, tHandle)
 
-  // Step 4 — Evaluate each IC
-  for (let i = 0; i < icSlots.length; i++) {
-    const slot = icSlots[i]
-    if (!slot?.icDefinition) continue
-
-    const nodeId = `ic-chip-${i + 1}`
-    const ic = findIC(slot.icDefinition.partNumber)
-    if (!ic) continue
-
-    const gateType = getGateType(slot.icDefinition.partNumber)
-
-    // Group pins by gate unit (based on label prefix like 1A, 1B, 1Y)
-    const gateGroups: Record<
-      string,
-      {
-        inputs: number[]
-        output: number
-      }
-    > = {}
-
-    for (const pin of ic.pins) {
-      if (
-        pin.function === 'vcc' ||
-        pin.function === 'gnd' ||
-        pin.function === 'nc'
-      )
-        continue
-
-      // Extract gate number from label (1A → 1, 2Y → 2)
-      const match = pin.label.match(/^(\d+)/)
-      if (!match) continue
-      const gateNum = match[1]
-      if (!gateNum) continue
-
-      if (!gateGroups[gateNum]) {
-        gateGroups[gateNum] = { inputs: [], output: -1 }
-      }
-
-      if (pin.function === 'input') {
-        gateGroups[gateNum].inputs.push(pin.number)
-      } else if (pin.function === 'output') {
-        gateGroups[gateNum].output = pin.number
+      if (sSig !== 'unconnected' && tSig === 'unconnected') {
+        setSignal(edge.target, tHandle, sSig)
+        changed = true
+      } else if (tSig !== 'unconnected' && sSig === 'unconnected') {
+        setSignal(edge.source, sHandle, tSig)
+        changed = true
       }
     }
-
-    // Evaluate each gate
-    for (const gate of Object.values(gateGroups)) {
-      if (gate.output === -1) continue
-
-      const inputSignals = gate.inputs.map((pinNum) =>
-        getSignal(nodeId, `pin-${pinNum}`)
-      )
-
-      const result = evaluateGate(gateType, inputSignals)
-      setSignal(nodeId, `pin-${gate.output}`, result)
-    }
+    return changed
   }
 
-  // Step 5 — Second edge pass: IC outputs → next IC inputs or output panel
-  for (const edge of edges) {
-    const sourceSignal = getSignal(edge.source, edge.sourceHandle ?? '')
-    if (sourceSignal !== 'unconnected') {
-      setSignal(edge.target, edge.targetHandle ?? '', sourceSignal)
+  // Helper to evaluate all IC gates
+  const evaluateAllICs = (): boolean => {
+    let changed = false
+    for (let i = 0; i < icSlots.length; i++) {
+      const slot = icSlots[i]
+      if (!slot?.icDefinition) continue
+
+      const nodeId = `ic-chip-${i + 1}`
+      const ic = findIC(slot.icDefinition.partNumber)
+      if (!ic) continue
+
+      const gateType = getGateType(slot.icDefinition.partNumber)
+
+      // Group pins by gate unit (based on label prefix like 1A, 1B, 1Y)
+      const gateGroups: Record<
+        string,
+        {
+          inputs: number[]
+          output: number
+        }
+      > = {}
+
+      for (const pin of ic.pins) {
+        if (
+          pin.function === 'vcc' ||
+          pin.function === 'gnd' ||
+          pin.function === 'nc'
+        )
+          continue
+
+        // Extract gate number from label (1A → 1, 2Y → 2, 3A → 3, etc.)
+        const match = pin.label.match(/^(\d+)/)
+        if (!match) continue
+        const gateNum = match[1]
+        if (!gateNum) continue
+
+        if (!gateGroups[gateNum]) {
+          gateGroups[gateNum] = { inputs: [], output: -1 }
+        }
+
+        if (pin.function === 'input') {
+          gateGroups[gateNum].inputs.push(pin.number)
+        } else if (pin.function === 'output') {
+          gateGroups[gateNum].output = pin.number
+        }
+      }
+
+      // Evaluate each gate
+      for (const gate of Object.values(gateGroups)) {
+        if (gate.output === -1) continue
+
+        const inputSignals = gate.inputs.map((pinNum) =>
+          getSignal(nodeId, `pin-${pinNum}`)
+        )
+
+        const result = evaluateGate(gateType, inputSignals)
+        const prevSignal = getSignal(nodeId, `pin-${gate.output}`)
+        if (prevSignal !== result) {
+          setSignal(nodeId, `pin-${gate.output}`, result)
+          changed = true
+        }
+      }
     }
+    return changed
   }
 
-  // Step 6 — Collect output panel states
+  // Step 3 — Multi-pass convergence loop (up to 5 passes for chained logic)
+  for (let pass = 0; pass < 5; pass++) {
+    const p1 = propagateEdges()
+    const p2 = evaluateAllICs()
+    const p3 = propagateEdges()
+    if (!p1 && !p2 && !p3) break
+  }
+
+  // Step 4 — Collect output panel states
   const outputStates: Record<string, boolean> = {}
+
+  // Read directly from pinSignals
   const outputNode = pinSignals['main-output-panel'] ?? {}
   for (const [pinId, state] of Object.entries(outputNode)) {
     const pinName = pinId.replace('pin-', '')
     outputStates[pinName] = state === 'HIGH'
   }
 
-  // Step 7 — Color edges by signal state
+  // Also check all edges connected to the output panel directly
+  for (const edge of edges) {
+    if (edge.source === 'main-output-panel' && edge.sourceHandle?.startsWith('pin-')) {
+      const pinName = edge.sourceHandle.replace('pin-', '')
+      const sig = getSignal(edge.target, edge.targetHandle ?? '')
+      if (sig === 'HIGH') outputStates[pinName] = true
+    } else if (edge.target === 'main-output-panel' && edge.targetHandle?.startsWith('pin-')) {
+      const pinName = edge.targetHandle.replace('pin-', '')
+      const sig = getSignal(edge.source, edge.sourceHandle ?? '')
+      if (sig === 'HIGH') outputStates[pinName] = true
+    }
+  }
+
+  // Step 5 — Color edges by active signal state
   const updatedEdges = edges.map((edge) => {
-    const signal = getSignal(edge.source, edge.sourceHandle ?? '')
+    const sSig = getSignal(edge.source, edge.sourceHandle ?? '')
+    const tSig = getSignal(edge.target, edge.targetHandle ?? '')
+    const signal = sSig !== 'unconnected' ? sSig : tSig
     return {
       ...edge,
       data: { ...edge.data, signalState: signal },

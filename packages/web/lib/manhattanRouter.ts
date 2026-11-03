@@ -86,30 +86,35 @@ export function classifyEndpoint(
     }
   }
 
-  // 2. By Handle ID on IC Chip
+  // 2. By Handle ID & Coordinate on IC Chip
   if (nodeId && nodeId.startsWith('ic-chip-')) {
     const chipNum = parseInt(nodeId.replace('ic-chip-', ''), 10)
     const chipIndex = isNaN(chipNum) ? 0 : Math.max(0, Math.min(4, chipNum - 1))
+    const slot = BOARD.CHIP_SLOTS[chipIndex] ?? { center: 235 + chipIndex * 250 }
+
+    // If we have actual pixel coordinates, physical X position relative to chip center is ground truth
+    if (point && point.x > 0) {
+      const isLeft = point.x <= slot.center
+      return {
+        point,
+        side: isLeft ? 'LEFT' : 'RIGHT',
+        type: 'IC_PIN',
+        channelIndex: isLeft ? chipIndex : chipIndex + 1,
+        chipIndex,
+      }
+    }
 
     if (handleId && handleId.startsWith('pin-')) {
       const pinNum = parseInt(handleId.replace('pin-', ''), 10)
-      if (pinNum >= 1 && pinNum <= 10) {
-        return {
-          point,
-          side: 'LEFT',
-          type: 'IC_PIN',
-          channelIndex: chipIndex, // left channel
-          chipIndex,
-        }
-      }
-      if (pinNum >= 11 && pinNum <= 20) {
-        return {
-          point,
-          side: 'RIGHT',
-          type: 'IC_PIN',
-          channelIndex: chipIndex + 1, // right channel
-          chipIndex,
-        }
+      // DIP14 chips have 1..7 left and 8..14 right; DIP16 have 1..8 left and 9..16 right; DIP20 have 1..10 left.
+      // Default to 1..7 for DIP14 (like 74LS08), 8..14 right.
+      const isLeft = pinNum <= 7
+      return {
+        point,
+        side: isLeft ? 'LEFT' : 'RIGHT',
+        type: 'IC_PIN',
+        channelIndex: isLeft ? chipIndex : chipIndex + 1,
+        chipIndex,
       }
     }
   }

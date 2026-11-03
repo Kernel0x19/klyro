@@ -72,6 +72,7 @@ function Canvas() {
     clearSelection,
     outputStates,
     setOutputStates,
+    displayValues,
   } = useBoardStore()
 
   const handleDrop = useCallback(
@@ -118,7 +119,7 @@ function Canvas() {
         deletable: false,
         data: {
           pinStates: outputStates,
-          displayValues: ['0', '0'],
+          displayValues,
           isPowerOn,
           onTogglePower: togglePower,
         },
@@ -177,13 +178,15 @@ function Canvas() {
       toggleInput,
       toggleClock,
       selectSlot,
+      outputStates,
+      displayValues,
     ]
   )
 
   const [nodes, setNodes, onNodesChange] = useNodesState(boardNodes)
   useEffect(() => {
     setNodes(boardNodes)
-  }, [isPowerOn, inputStates, clockStates, icSlots, selectedFrequency])
+  }, [boardNodes, setNodes])
 
   const nodeTypes = useMemo(() => NODE_TYPES, [])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
@@ -192,21 +195,24 @@ function Canvas() {
     setSelectedEdge(edge.id)
   }, [])
 
-  const edgesRef = useRef(edges)
+  // Run board simulation whenever circuit state, inputs, or wiring changes
   useEffect(() => {
-    edgesRef.current = edges
-  }, [edges])
-
-  useEffect(() => {
-    const { updatedEdges, outputStates } = simulateBoard(
-      edgesRef.current,
+    const { updatedEdges, outputStates: newOutputStates } = simulateBoard(
+      edges,
       icSlots,
       inputStates,
       isPowerOn
     )
-    setEdges(updatedEdges)
-    setOutputStates(outputStates)
-  }, [inputStates, isPowerOn, icSlots])
+
+    setEdges((prev) => {
+      const isDifferent = prev.some(
+        (e, i) => e.data?.signalState !== updatedEdges[i]?.data?.signalState
+      )
+      return isDifferent ? updatedEdges : prev
+    })
+
+    setOutputStates(newOutputStates)
+  }, [edges, inputStates, isPowerOn, icSlots, setOutputStates, setEdges])
 
   const obstacles = useMemo<BoundingBox[]>(() => {
     // Build a map of node positions for parent resolution

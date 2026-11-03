@@ -128,5 +128,18 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       displayValues: ['0', '0'],
     }),
 
-  setOutputStates: (states) => set({ outputStates: states }),
+  setOutputStates: (states) => {
+    let value = 0
+    for (let i = 7; i >= 0; i--) {
+      value = (value << 1) | (states[String(i)] ? 1 : 0)
+    }
+    const hex = value.toString(16).toUpperCase().padStart(2, '0')
+    const digit1 = hex[0] ?? '0'
+    const digit2 = hex[1] ?? '0'
+
+    set({
+      outputStates: states,
+      displayValues: [digit1, digit2],
+    })
+  },
 }))
