@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useEffect, useState } from 'react'
+import { useMemo, useEffect, useState, useRef } from 'react'
 import {
   ReactFlow,
   Background,
@@ -28,6 +28,7 @@ import { useToastStore } from '@/stores/useToastStore'
 import { validatePinConnection } from '@/lib/pinValidator'
 import { type IsValidConnection, ConnectionMode, useNodes } from '@xyflow/react'
 import { RoutingContext, type BoundingBox } from '@/lib/routingContext'
+import { simulateBoard } from '@/lib/simulationEngine'
 
 const NODE_TYPES = {
   hardwareOutputPanel: OutputSectionNode,
@@ -69,6 +70,8 @@ function Canvas() {
     selectSlot,
     assignIC,
     clearSelection,
+    outputStates,
+    setOutputStates,
   } = useBoardStore()
 
   const handleDrop = useCallback(
@@ -114,7 +117,7 @@ function Canvas() {
         draggable: false,
         deletable: false,
         data: {
-          pinStates: {},
+          pinStates: outputStates,
           displayValues: ['0', '0'],
           isPowerOn,
           onTogglePower: togglePower,
@@ -188,6 +191,22 @@ function Canvas() {
   const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
     setSelectedEdge(edge.id)
   }, [])
+
+  const edgesRef = useRef(edges)
+  useEffect(() => {
+    edgesRef.current = edges
+  }, [edges])
+
+  useEffect(() => {
+    const { updatedEdges, outputStates } = simulateBoard(
+      edgesRef.current,
+      icSlots,
+      inputStates,
+      isPowerOn
+    )
+    setEdges(updatedEdges)
+    setOutputStates(outputStates)
+  }, [inputStates, isPowerOn, icSlots])
 
   const obstacles = useMemo<BoundingBox[]>(() => {
     // Build a map of node positions for parent resolution

@@ -41,6 +41,7 @@ interface BoardState {
   removeIC: (slotId: string) => void
   clearSelection: () => void
   resetBoard: () => void
+  setOutputStates: (states: Record<string, boolean>) => void
 }
 
 const createDefaultSlots = (): ICSlot[] =>
@@ -126,4 +127,6 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       outputStates: {},
       displayValues: ['0', '0'],
     }),
+
+  setOutputStates: (states) => set({ outputStates: states }),
 }))
