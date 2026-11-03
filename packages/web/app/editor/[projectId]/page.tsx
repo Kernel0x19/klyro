@@ -51,7 +51,7 @@ export default async function EditorPage({ params }: Props) {
           </main>
           <BottomPanel />
         </div>
-        <PropertiesPanel selected={null} />
+        <PropertiesPanel />
       </div>
     </div>
   )

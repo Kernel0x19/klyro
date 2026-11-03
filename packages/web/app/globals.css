@@ -182,3 +182,30 @@ body {
 .canvas-dark .canvas-hint {
   color: rgba(139, 143, 168, 0.5);
 }
+
+.react-flow__handle {
+  transition: background 150ms, transform 150ms, box-shadow 150ms;
+}
+
+.react-flow__handle:hover {
+  background: #4F6EF7 !important;
+  transform: scale(1.4);
+  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.3);
+}
+
+.react-flow__handle-connecting {
+  background: #22c55e !important;
+  transform: scale(1.5);
+}
+
+.react-flow__handle-valid {
+  background: #22c55e !important;
+}
+
+.react-flow__node:hover {
+  cursor: default !important;
+}
+
+.react-flow__node * {
+  cursor: default !important;
+}

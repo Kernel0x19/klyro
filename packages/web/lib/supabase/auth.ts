@@ -44,6 +44,7 @@ export async function signInWithGitHub() {
 
   if (error) return { error: error.message }
   if (data.url) redirect(data.url)
+  return { error: 'Failed to start GitHub login' }
 }
 
 export async function signOut() {

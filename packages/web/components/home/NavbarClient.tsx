@@ -12,12 +12,12 @@ const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 interface NavbarClientProps {
-  starCount?: number
-  isAuth?: boolean
-  authType?: string
-  isLoggedIn?: boolean
-  avatarUrl?: string | null
-  name?: string
+  starCount?: number | undefined
+  isAuth?: boolean | undefined
+  authType?: string | undefined
+  isLoggedIn?: boolean | undefined
+  avatarUrl?: string | null | undefined
+  name?: string | undefined
 }
 
 export default function NavbarClient({

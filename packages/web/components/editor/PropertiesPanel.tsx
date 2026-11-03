@@ -17,7 +17,6 @@ export default function PropertiesPanel() {
         package: icDef.packageType,
         family: icDef.family,
         delay: icDef.delay,
-        datasheetUrl: undefined,
         pins: [],
       }
     : null
