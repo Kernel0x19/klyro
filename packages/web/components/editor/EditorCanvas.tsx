@@ -23,6 +23,9 @@ import { IC_LIBRARY } from '@/lib/icLibrary'
 import { useCallback } from 'react'
 import { addEdge, type Connection } from '@xyflow/react'
 import SignalEdge from './canvas/SignalEdge'
+import CanvasToast from './canvas/CanvasToast'
+import { useToastStore } from '@/stores/useToastStore'
+import { validatePinConnection } from '@/lib/pinValidator'
 import { type IsValidConnection, ConnectionMode, useNodes } from '@xyflow/react'
 import { RoutingContext, type BoundingBox } from '@/lib/routingContext'
 
@@ -37,9 +40,13 @@ const EDGE_TYPES = {
 }
 
 const isValidConnection: IsValidConnection = (connection) => {
-  // Prevent connecting a pin to itself or same node
-  if (connection.source === connection.target) return false
-  // Prevent connecting same handle type (target→target or source→source)
+  // Prevent connecting a pin to itself
+  if (
+    connection.source === connection.target &&
+    connection.sourceHandle === connection.targetHandle
+  ) {
+    return false
+  }
   return true
 }
 
@@ -242,6 +249,12 @@ function Canvas() {
 
   const onConnect = useCallback(
     (connection: Connection) => {
+      const result = validatePinConnection(connection, icSlots)
+      if (!result.valid) {
+        useToastStore.getState().showToast(result.message)
+        return
+      }
+
       setEdges((eds) =>
         addEdge(
           {
@@ -255,7 +268,7 @@ function Canvas() {
         )
       )
     },
-    [setEdges]
+    [icSlots, setEdges]
   )
 
   const edgeTypes = useMemo(() => EDGE_TYPES, [])
@@ -264,7 +277,7 @@ function Canvas() {
     <RoutingContext.Provider value={obstacles}>
       <div
         style={{ width: '100%', height: '100%' }}
-        className={themeClass}
+        className={`relative ${themeClass}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       >
@@ -325,6 +338,8 @@ function Canvas() {
             </span>
           </Panel>
         </ReactFlow>
+
+        <CanvasToast />
       </div>
     </RoutingContext.Provider>
   )
