@@ -18,20 +18,13 @@ export interface ICSlot {
 
 interface BoardState {
   isPowerOn: boolean
-
   inputStates: Record<string, boolean>
-
   clockStates: Record<string, boolean>
   selectedFrequency: string
-
   icSlots: ICSlot[]
-
   selectedSlotId: string | null
-
   outputStates: Record<string, boolean>
-
   displayValues: [string, string]
-
   togglePower: () => void
   toggleInput: (pin: string) => void
   toggleClock: (pin: string) => void
@@ -42,6 +35,15 @@ interface BoardState {
   clearSelection: () => void
   resetBoard: () => void
   setOutputStates: (states: Record<string, boolean>) => void
+  waveformHistory: Record<string, boolean[]>
+  recordWaveform: () => void
+  recordWaveformSnapshot: (
+    inputs: Record<string, boolean>,
+    clocks: Record<string, boolean>,
+    outputs: Record<string, boolean>,
+    activeSignals?: string[]
+  ) => void
+  clearWaveform: () => void
 }
 
 const createDefaultSlots = (): ICSlot[] =>
@@ -126,20 +128,128 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       selectedSlotId: null,
       outputStates: {},
       displayValues: ['0', '0'],
+      waveformHistory: {}
     }),
 
-  setOutputStates: (states) => {
-    let value = 0
-    for (let i = 7; i >= 0; i--) {
-      value = (value << 1) | (states[String(i)] ? 1 : 0)
-    }
-    const hex = value.toString(16).toUpperCase().padStart(2, '0')
-    const digit1 = hex[0] ?? '0'
-    const digit2 = hex[1] ?? '0'
+  setOutputStates: (states) =>
+    set((s) => {
+      const prevKeys = Object.keys(s.outputStates)
+      const nextKeys = Object.keys(states)
+      let isDifferent = prevKeys.length !== nextKeys.length
+      if (!isDifferent) {
+        for (const k of nextKeys) {
+          if (s.outputStates[k] !== states[k]) {
+            isDifferent = true
+            break
+          }
+        }
+      }
 
-    set({
-      outputStates: states,
-      displayValues: [digit1, digit2],
-    })
-  },
+      let value = 0
+      for (let i = 7; i >= 0; i--) {
+        value = (value << 1) | (states[String(i)] ? 1 : 0)
+      }
+      const hex = value.toString(16).toUpperCase().padStart(2, '0')
+      const digit1 = hex[0] ?? '0'
+      const digit2 = hex[1] ?? '0'
+
+      const displayDifferent =
+        s.displayValues[0] !== digit1 || s.displayValues[1] !== digit2
+
+      if (!isDifferent && !displayDifferent) {
+        return s
+      }
+
+      return {
+        outputStates: isDifferent ? states : s.outputStates,
+        displayValues: displayDifferent ? [digit1, digit2] : s.displayValues,
+      }
+    }),
+  waveformHistory: {},
+
+  recordWaveform: () =>
+    set((s) => {
+      const next: Record<string, boolean[]> = { ...s.waveformHistory }
+      // Record input states
+      for (const [pin, val] of Object.entries(s.inputStates)) {
+        const key = `IN-${pin}`
+        next[key] = [...(next[key] ?? []), val]
+      }
+      // Record output states
+      for (const [pin, val] of Object.entries(s.outputStates)) {
+        const key = `OUT-${pin}`
+        next[key] = [...(next[key] ?? []), val]
+      }
+      return { waveformHistory: next }
+    }),
+
+  recordWaveformSnapshot: (inputs, clocks, outputs, activeSignals = []) =>
+    set((s) => {
+      // Find all signal keys to track
+      const signalKeys = new Set<string>()
+
+      // 1. All currently tracked signals
+      for (const k of Object.keys(s.waveformHistory)) {
+        signalKeys.add(k)
+      }
+
+      // 2. Active signals connected by wires
+      for (const k of activeSignals) {
+        signalKeys.add(k)
+      }
+
+      // 3. Any non-empty input/clock/output
+      for (const [k, v] of Object.entries(inputs)) {
+        if (v) signalKeys.add(`IN-${k}`)
+      }
+      for (const [k, v] of Object.entries(clocks)) {
+        if (v) signalKeys.add(`CLK-${k}`)
+      }
+      for (const [k, v] of Object.entries(outputs)) {
+        if (v) signalKeys.add(`OUT-${k}`)
+      }
+
+      // If nothing is active at all, don't create empty noise
+      if (signalKeys.size === 0) return s
+
+      // Find current max sample count
+      let maxLen = 0
+      for (const samples of Object.values(s.waveformHistory)) {
+        if (samples.length > maxLen) maxLen = samples.length
+      }
+
+      const MAX_SAMPLES = 80
+      const next: Record<string, boolean[]> = {}
+
+      for (const key of signalKeys) {
+        let val = false
+        if (key.startsWith('IN-')) {
+          val = Boolean(inputs[key.slice(3)])
+        } else if (key.startsWith('CLK-')) {
+          val = Boolean(clocks[key.slice(4)])
+        } else if (key.startsWith('OUT-')) {
+          val = Boolean(outputs[key.slice(4)])
+        }
+
+        const existing = s.waveformHistory[key]
+        if (existing) {
+          let filled = existing
+          if (existing.length < maxLen) {
+            filled = [
+              ...existing,
+              ...Array(maxLen - existing.length).fill(
+                existing[existing.length - 1] ?? false
+              ),
+            ]
+          }
+          next[key] = [...filled, val].slice(-MAX_SAMPLES)
+        } else {
+          next[key] = [...Array(maxLen).fill(false), val].slice(-MAX_SAMPLES)
+        }
+      }
+
+      return { waveformHistory: next }
+    }),
+
+  clearWaveform: () => set({ waveformHistory: {} }),
 }))

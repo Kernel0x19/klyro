@@ -74,7 +74,8 @@ export function simulateBoard(
   edges: Edge[],
   icSlots: ICSlot[],
   inputStates: Record<string, boolean>,
-  isPowerOn: boolean
+  isPowerOn: boolean,
+  clockStates: Record<string, boolean> = {}
 ): {
   updatedEdges: Edge[]
   outputStates: Record<string, boolean>
@@ -109,6 +110,10 @@ export function simulateBoard(
 
   for (const [pin, isHigh] of Object.entries(inputStates)) {
     setSignal('main-input-clock-panel', `input-${pin}`, isHigh ? 'HIGH' : 'LOW')
+  }
+
+  for (const [pin, isHigh] of Object.entries(clockStates)) {
+    setSignal('main-input-clock-panel', `clock-${pin}`, isHigh ? 'HIGH' : 'LOW')
   }
 
   // Helper for bidirectional signal transfer along wires

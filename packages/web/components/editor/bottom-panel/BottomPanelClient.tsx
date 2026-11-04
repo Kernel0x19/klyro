@@ -1,7 +1,9 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { ChevronDown, ChevronUp, X } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
+import WaveformViewer from './WaveformViewer'
+import { useBoardStore } from '@/stores/useBoardStore'
 
 const tokens = {
   dark: {
@@ -54,11 +56,46 @@ export default function BottomPanelClient({
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [collapsed, setCollapsed] = useState(true)
+  const [panelHeight, setPanelHeight] = useState(240)
+  const [isDragging, setIsDragging] = useState(false)
   const [activeTab, setActiveTab] = useState<Tab>('waveform')
+  const { clearWaveform } = useBoardStore()
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      setIsDragging(true)
+      const startY = e.clientY
+      const startH =
+        containerRef.current?.getBoundingClientRect().height ?? panelHeight
+
+      const onMouseMove = (moveEvent: MouseEvent) => {
+        const deltaY = startY - moveEvent.clientY
+        const nextH = startH + deltaY
+        if (nextH < 55) {
+          setCollapsed(true)
+        } else {
+          setCollapsed(false)
+          setPanelHeight(Math.min(Math.max(nextH, 90), 650))
+        }
+      }
+
+      const onMouseUp = () => {
+        setIsDragging(false)
+        window.removeEventListener('mousemove', onMouseMove)
+        window.removeEventListener('mouseup', onMouseUp)
+      }
+
+      window.addEventListener('mousemove', onMouseMove)
+      window.addEventListener('mouseup', onMouseUp)
+    },
+    [panelHeight]
+  )
 
   const t = tokens[theme]
 
@@ -72,21 +109,34 @@ export default function BottomPanelClient({
     return (
       <div
         className="w-full shrink-0 invisible"
-        style={{ height: collapsed ? '32px' : '200px' }}
+        style={{ height: collapsed ? '32px' : `${panelHeight}px` }}
       />
     )
   }
 
   return (
     <div
-      className="w-full shrink-0 flex flex-col overflow-hidden"
+      ref={containerRef}
+      className={`relative w-full shrink-0 flex flex-col overflow-hidden ${
+        isDragging ? 'select-none' : ''
+      }`}
       style={{
-        height: collapsed ? '32px' : '200px',
+        height: collapsed ? '32px' : `${panelHeight}px`,
         background: t.surface,
         borderTop: `2px solid ${t.border}`,
-        transition: `height 250ms cubic-bezier(0.4,0,0.2,1), ${COLOR_TRANSITION}`,
+        transition: isDragging
+          ? 'none'
+          : `height 250ms cubic-bezier(0.4,0,0.2,1), ${COLOR_TRANSITION}`,
       }}
     >
+      {/* ── Top Drag Handle for Vertical Resizing ── */}
+      <div
+        onMouseDown={handleMouseDown}
+        className="absolute top-0 left-0 right-0 h-2 -translate-y-1 cursor-ns-resize z-40 group flex items-center justify-center hover:bg-sky-500/10 transition-colors"
+        title="Drag up/down to resize panel"
+      >
+        <div className="w-12 h-1 rounded-full bg-zinc-400/40 group-hover:bg-sky-500 group-hover:scale-x-125 transition-all duration-150" />
+      </div>
       {/* ── Header bar ── */}
       <div
         className="flex items-center justify-between px-2 shrink-0"
@@ -126,7 +176,7 @@ export default function BottomPanelClient({
         <div className="flex items-center gap-1">
           {!collapsed && (
             <button
-              onClick={() => {}}
+              onClick={() => clearWaveform()}
               className="px-2 h-6 text-[11px] font-bold rounded-md cursor-pointer border-none flex items-center gap-1 transition-all duration-150"
               style={{ background: t.surfaceElevated, color: t.textSecondary }}
               onMouseEnter={(e) => {
@@ -162,34 +212,7 @@ export default function BottomPanelClient({
       {!collapsed && (
         <div className="flex-1 overflow-hidden">
           {/* Waveform */}
-          {activeTab === 'waveform' && (
-            <div
-              className="w-full h-full flex flex-col items-center justify-center gap-2"
-              style={{ color: t.textSecondary }}
-            >
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 32 32"
-                fill="none"
-                style={{ opacity: 0.4 }}
-              >
-                <path
-                  d="M2 16h4l3-8 4 16 3-12 3 8 3-4h8"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span
-                className="text-[12px] font-medium"
-                style={{ color: t.textSecondary }}
-              >
-                Run simulation to see waveforms
-              </span>
-            </div>
-          )}
+          {activeTab === 'waveform' && <WaveformViewer />}
 
           {/* Console */}
           {activeTab === 'console' && (

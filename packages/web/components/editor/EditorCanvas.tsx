@@ -57,23 +57,22 @@ function Canvas() {
   const liveNodes = useNodes()
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const {
-    isPowerOn,
-    inputStates,
-    clockStates,
-    selectedFrequency,
-    icSlots,
-    selectedSlotId,
-    togglePower,
-    toggleInput,
-    toggleClock,
-    selectSlot,
-    assignIC,
-    clearSelection,
-    outputStates,
-    setOutputStates,
-    displayValues,
-  } = useBoardStore()
+  const isPowerOn = useBoardStore((s) => s.isPowerOn)
+  const inputStates = useBoardStore((s) => s.inputStates)
+  const clockStates = useBoardStore((s) => s.clockStates)
+  const selectedFrequency = useBoardStore((s) => s.selectedFrequency)
+  const icSlots = useBoardStore((s) => s.icSlots)
+  const selectedSlotId = useBoardStore((s) => s.selectedSlotId)
+  const togglePower = useBoardStore((s) => s.togglePower)
+  const toggleInput = useBoardStore((s) => s.toggleInput)
+  const toggleClock = useBoardStore((s) => s.toggleClock)
+  const selectSlot = useBoardStore((s) => s.selectSlot)
+  const assignIC = useBoardStore((s) => s.assignIC)
+  const clearSelection = useBoardStore((s) => s.clearSelection)
+  const outputStates = useBoardStore((s) => s.outputStates)
+  const setOutputStates = useBoardStore((s) => s.setOutputStates)
+  const displayValues = useBoardStore((s) => s.displayValues)
+  const recordWaveformSnapshot = useBoardStore((s) => s.recordWaveformSnapshot)
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -194,6 +193,7 @@ function Canvas() {
   const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
     setSelectedEdge(edge.id)
   }, [])
+  const lastWaveformKeyRef = useRef<string>('')
 
   // Run board simulation whenever circuit state, inputs, or wiring changes
   useEffect(() => {
@@ -201,10 +201,12 @@ function Canvas() {
       edges,
       icSlots,
       inputStates,
-      isPowerOn
+      isPowerOn,
+      clockStates
     )
 
     setEdges((prev) => {
+      if (prev.length !== updatedEdges.length) return updatedEdges
       const isDifferent = prev.some(
         (e, i) => e.data?.signalState !== updatedEdges[i]?.data?.signalState
       )
@@ -212,7 +214,69 @@ function Canvas() {
     })
 
     setOutputStates(newOutputStates)
-  }, [edges, inputStates, isPowerOn, icSlots, setOutputStates, setEdges])
+
+    const activeSignals: string[] = []
+    for (const e of edges) {
+      if (e.source === 'main-input-clock-panel') {
+        if (e.sourceHandle?.startsWith('input-')) {
+          activeSignals.push(`IN-${e.sourceHandle.replace('input-', '')}`)
+        } else if (e.sourceHandle?.startsWith('clock-')) {
+          activeSignals.push(`CLK-${e.sourceHandle.replace('clock-', '')}`)
+        }
+      }
+      if (e.target === 'main-input-clock-panel') {
+        if (e.targetHandle?.startsWith('input-')) {
+          activeSignals.push(`IN-${e.targetHandle.replace('input-', '')}`)
+        } else if (e.targetHandle?.startsWith('clock-')) {
+          activeSignals.push(`CLK-${e.targetHandle.replace('clock-', '')}`)
+        }
+      }
+      if (
+        e.source === 'main-output-panel' &&
+        e.sourceHandle?.startsWith('pin-') &&
+        e.sourceHandle !== 'pin-VCC'
+      ) {
+        activeSignals.push(`OUT-${e.sourceHandle.replace('pin-', '')}`)
+      }
+      if (
+        e.target === 'main-output-panel' &&
+        e.targetHandle?.startsWith('pin-') &&
+        e.targetHandle !== 'pin-VCC'
+      ) {
+        activeSignals.push(`OUT-${e.targetHandle.replace('pin-', '')}`)
+      }
+    }
+
+    const sortedSignals = [...activeSignals].sort()
+    const stateKey = JSON.stringify({
+      inputStates,
+      clockStates,
+      newOutputStates,
+      isPowerOn,
+      activeSignals: sortedSignals,
+    })
+
+    if (sortedSignals.length > 0 || Object.keys(inputStates).length > 0) {
+      if (lastWaveformKeyRef.current !== stateKey) {
+        lastWaveformKeyRef.current = stateKey
+        recordWaveformSnapshot(
+          inputStates,
+          clockStates,
+          newOutputStates,
+          activeSignals
+        )
+      }
+    }
+  }, [
+    edges,
+    inputStates,
+    clockStates,
+    isPowerOn,
+    icSlots,
+    setOutputStates,
+    setEdges,
+    recordWaveformSnapshot,
+  ])
 
   const obstacles = useMemo<BoundingBox[]>(() => {
     // Build a map of node positions for parent resolution
