@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useEditorEdgesStore } from './useEditorEdgesStore'
 
 export interface ICDefinitionSlot {
   partNumber: string
@@ -44,6 +45,11 @@ interface BoardState {
     activeSignals?: string[]
   ) => void
   clearWaveform: () => void
+  loadBoardState: (state: {
+    icSlots: ICSlot[]
+    inputStates: Record<string, boolean>
+    isPowerOn: boolean
+  }) => void
 }
 
 const createDefaultSlots = (): ICSlot[] =>
@@ -118,7 +124,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       })),
     })),
 
-  resetBoard: () =>
+  resetBoard: () => {
+    useEditorEdgesStore.getState().setEdges([])
     set({
       isPowerOn: true,
       inputStates: {},
@@ -128,8 +135,9 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       selectedSlotId: null,
       outputStates: {},
       displayValues: ['0', '0'],
-      waveformHistory: {}
-    }),
+      waveformHistory: {},
+    })
+  },
 
   setOutputStates: (states) =>
     set((s) => {
@@ -252,4 +260,10 @@ export const useBoardStore = create<BoardState>((set, get) => ({
     }),
 
   clearWaveform: () => set({ waveformHistory: {} }),
+  loadBoardState: (state) =>
+    set({
+      icSlots: state.icSlots,
+      inputStates: state.inputStates,
+      isPowerOn: state.isPowerOn,
+    }),
 }))

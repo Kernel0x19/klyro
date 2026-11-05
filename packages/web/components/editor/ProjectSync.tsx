@@ -1,18 +1,39 @@
 'use client'
 import { useEffect } from 'react'
 import { useBoardStore } from '@/stores/useBoardStore'
+import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
+import { loadBoardState } from '@/lib/circuitService'
+import { deserializeBoardState } from '@/lib/boardStateSerializer'
 
 interface Props {
   projectId: string
   isLoggedIn: boolean
+  userId?: string | undefined
 }
 
-export default function ProjectSync({ projectId, isLoggedIn }: Props) {
+export default function ProjectSync({ projectId, isLoggedIn, userId }: Props) {
   const resetBoard = useBoardStore((s) => s.resetBoard)
+  const loadBoardState2 = useBoardStore((s) => s.loadBoardState)
+  const setEditorEdges = useEditorEdgesStore((s) => s.setEdges)
 
   useEffect(() => {
-    console.log('Project changed, resetting board:', projectId)
     resetBoard()
+
+    if (!isLoggedIn || !userId) return
+
+    const load = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      const { data, error } = await loadBoardState(projectId, userId)
+      if (error || !data) return
+
+      const { icSlots, edges, inputStates, isPowerOn } =
+        deserializeBoardState(data)
+
+      loadBoardState2({ icSlots, inputStates, isPowerOn })
+      setEditorEdges(edges)
+    }
+
+    load()
   }, [projectId])
 
   useEffect(() => {

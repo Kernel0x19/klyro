@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useEffect, useState, useRef } from 'react'
+import { useMemo, useEffect, useState, useRef, useCallback } from 'react'
 import {
   ReactFlow,
   Background,
@@ -12,6 +12,11 @@ import {
   Panel,
   type Node,
   type Edge,
+  addEdge,
+  type Connection,
+  type IsValidConnection,
+  ConnectionMode,
+  useNodes,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useTheme } from '@/components/hooks/useTheme'
@@ -20,15 +25,13 @@ import ICBaseNode from './canvas/ICBaseNode'
 import InputClockSectionNode from './canvas/InputClockSectionNode'
 import { useBoardStore } from '@/stores/useBoardStore'
 import { IC_LIBRARY } from '@/lib/icLibrary'
-import { useCallback } from 'react'
-import { addEdge, type Connection } from '@xyflow/react'
 import SignalEdge from './canvas/SignalEdge'
 import CanvasToast from './canvas/CanvasToast'
 import { useToastStore } from '@/stores/useToastStore'
 import { validatePinConnection } from '@/lib/pinValidator'
-import { type IsValidConnection, ConnectionMode, useNodes } from '@xyflow/react'
 import { RoutingContext, type BoundingBox } from '@/lib/routingContext'
 import { simulateBoard } from '@/lib/simulationEngine'
+import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
 
 const NODE_TYPES = {
   hardwareOutputPanel: OutputSectionNode,
@@ -41,7 +44,6 @@ const EDGE_TYPES = {
 }
 
 const isValidConnection: IsValidConnection = (connection) => {
-  // Prevent connecting a pin to itself
   if (
     connection.source === connection.target &&
     connection.sourceHandle === connection.targetHandle
@@ -74,6 +76,17 @@ function Canvas() {
   const displayValues = useBoardStore((s) => s.displayValues)
   const recordWaveformSnapshot = useBoardStore((s) => s.recordWaveformSnapshot)
 
+  const edges = useEditorEdgesStore((s) => s.edges)
+  const setEdges = useEditorEdgesStore((s) => s.setEdges)
+  const [, , onEdgesChange] = useEdgesState<Edge>([])
+
+  const edgesRef = useRef(edges)
+  useEffect(() => {
+    edgesRef.current = edges
+  }, [edges])
+
+  const [selectedEdge, setSelectedEdge] = useState<string | null>(null)
+
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault()
@@ -84,8 +97,6 @@ function Canvas() {
       const ic = allICs.find((i) => i.part === part)
       if (!ic) return
 
-      // Use selected slot if one is selected
-      // Otherwise assign to first empty slot
       const targetSlotId =
         selectedSlotId ?? icSlots.find((s) => !s.icDefinition)?.slotId
 
@@ -188,55 +199,41 @@ function Canvas() {
   }, [boardNodes, setNodes])
 
   const nodeTypes = useMemo(() => NODE_TYPES, [])
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
-  const [selectedEdge, setSelectedEdge] = useState<string | null>(null)
-  const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
-    setSelectedEdge(edge.id)
-  }, [])
+  const edgeTypes = useMemo(() => EDGE_TYPES, [])
+
   const lastWaveformKeyRef = useRef<string>('')
 
-  // Run board simulation whenever circuit state, inputs, or wiring changes
+  // Simulation effect
   useEffect(() => {
     const { updatedEdges, outputStates: newOutputStates } = simulateBoard(
-      edges,
+      edgesRef.current,
       icSlots,
       inputStates,
       isPowerOn,
       clockStates
     )
 
-    setEdges((prev) => {
-      if (prev.length !== updatedEdges.length) return updatedEdges
-      const isDifferent = prev.some(
+    const prev = edgesRef.current
+    const isDifferent =
+      prev.length !== updatedEdges.length ||
+      prev.some(
         (e, i) => e.data?.signalState !== updatedEdges[i]?.data?.signalState
       )
-      return isDifferent ? updatedEdges : prev
-    })
+
+    if (isDifferent) {
+      setEdges(updatedEdges)
+    }
 
     setOutputStates(newOutputStates)
 
     const activeSignals: string[] = []
-    for (const e of edges) {
+    for (const e of edgesRef.current) {
       if (e.source === 'main-input-clock-panel') {
         if (e.sourceHandle?.startsWith('input-')) {
           activeSignals.push(`IN-${e.sourceHandle.replace('input-', '')}`)
         } else if (e.sourceHandle?.startsWith('clock-')) {
           activeSignals.push(`CLK-${e.sourceHandle.replace('clock-', '')}`)
         }
-      }
-      if (e.target === 'main-input-clock-panel') {
-        if (e.targetHandle?.startsWith('input-')) {
-          activeSignals.push(`IN-${e.targetHandle.replace('input-', '')}`)
-        } else if (e.targetHandle?.startsWith('clock-')) {
-          activeSignals.push(`CLK-${e.targetHandle.replace('clock-', '')}`)
-        }
-      }
-      if (
-        e.source === 'main-output-panel' &&
-        e.sourceHandle?.startsWith('pin-') &&
-        e.sourceHandle !== 'pin-VCC'
-      ) {
-        activeSignals.push(`OUT-${e.sourceHandle.replace('pin-', '')}`)
       }
       if (
         e.target === 'main-output-panel' &&
@@ -267,28 +264,15 @@ function Canvas() {
         )
       }
     }
-  }, [
-    edges,
-    inputStates,
-    clockStates,
-    isPowerOn,
-    icSlots,
-    setOutputStates,
-    setEdges,
-    recordWaveformSnapshot,
-  ])
+  }, [inputStates, clockStates, isPowerOn, icSlots])
 
   const obstacles = useMemo<BoundingBox[]>(() => {
-    // Build a map of node positions for parent resolution
     const posMap = new Map(liveNodes.map((n) => [n.id, n.position]))
-
     return liveNodes
       .filter((n) => n.type === 'group' || n.type === 'icBaseNode')
       .map((n) => {
         let x = n.position.x
         let y = n.position.y
-
-        // Resolve parent offset for child nodes
         if (n.parentId) {
           const parentPos = posMap.get(n.parentId)
           if (parentPos) {
@@ -296,7 +280,6 @@ function Canvas() {
             y += parentPos.y
           }
         }
-
         return {
           x,
           y,
@@ -309,29 +292,18 @@ function Canvas() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEdge) {
-        setEdges((eds) => eds.filter((ed) => ed.id !== selectedEdge))
+        setEdges(edges.filter((ed) => ed.id !== selectedEdge))
         setSelectedEdge(null)
       }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedEdge, setEdges])
-
-  const onPaneClick = useCallback(() => {
-    setSelectedEdge(null)
-  }, [])
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') clearSelection()
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [clearSelection])
+  }, [selectedEdge, edges, setEdges, clearSelection])
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const themeClass =
     mounted && theme === 'dark' ? 'canvas-dark' : 'canvas-light'
@@ -343,24 +315,21 @@ function Canvas() {
         useToastStore.getState().showToast(result.message)
         return
       }
-
-      setEdges((eds) =>
-        addEdge(
-          {
-            ...connection,
-            type: 'signal',
-            animated: false,
-            style: { stroke: '#6b7280', strokeWidth: 2 },
-            data: { signalState: 'unconnected' },
-          },
-          eds
-        )
-      )
+      const newEdge: Edge = {
+        ...connection,
+        id: `xy-edge__${connection.source}-${connection.sourceHandle}-${connection.target}-${connection.targetHandle}`,
+        type: 'signal',
+        animated: false,
+        data: { signalState: 'unconnected' },
+      }
+      setEdges([...edges, newEdge])
     },
-    [icSlots, setEdges]
+    [icSlots, edges, setEdges]
   )
 
-  const edgeTypes = useMemo(() => EDGE_TYPES, [])
+  const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
+    setSelectedEdge(edge.id)
+  }, [])
 
   return (
     <RoutingContext.Provider value={obstacles}>
@@ -380,7 +349,7 @@ function Canvas() {
           onEdgesChange={onEdgesChange}
           onPaneClick={() => {
             clearSelection()
-            onPaneClick()
+            setSelectedEdge(null)
           }}
           minZoom={0.1}
           maxZoom={4}
@@ -404,7 +373,6 @@ function Canvas() {
           style={{ width: '100%', height: '100%' }}
         >
           <Background variant={BackgroundVariant.Dots} gap={20} size={1.2} />
-
           <Controls
             position="bottom-right"
             showInteractive={false}
@@ -420,14 +388,12 @@ function Canvas() {
               marginRight: '1rem',
             }}
           />
-
           <Panel position="bottom-center">
             <span className="canvas-hint">
               Scroll to pan · Ctrl+scroll to zoom · Drag to select
             </span>
           </Panel>
         </ReactFlow>
-
         <CanvasToast />
       </div>
     </RoutingContext.Provider>

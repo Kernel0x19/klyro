@@ -48,7 +48,7 @@ export default function Topbar({
       <Suspense fallback={null}>
         <ModuleSelection />
       </Suspense>
-      <EditorActions avatarUrl={avatarUrl} name={name} />
+      <EditorActions avatarUrl={avatarUrl} name={name} projectId={pid} userId={uid} />
     </nav>
   )
 }

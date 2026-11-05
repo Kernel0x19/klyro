@@ -34,7 +34,11 @@ export default async function EditorPage({ params }: Props) {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      <ProjectSync projectId={projectId} isLoggedIn={!!user} />
+      <ProjectSync
+        projectId={projectId}
+        isLoggedIn={!!user}
+        userId={user?.id}
+      />
       {!user && <GuestRedirect currentProjectId={projectId} />}
       <Topbar
         avatarUrl={avatarUrl}

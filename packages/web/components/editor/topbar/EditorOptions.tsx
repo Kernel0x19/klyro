@@ -9,18 +9,31 @@ import {
   Moon,
   LogOut,
   User,
+  Loader2,
+  Check,
 } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
 import Link from 'next/link'
 import Image from 'next/image'
 import { signOut } from '@/lib/supabase/auth'
+import { useBoardStore } from '@/stores/useBoardStore'
+import { saveBoardState } from '@/lib/circuitService'
+import { serializeBoardState } from '@/lib/boardStateSerializer'
+import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
 
 interface EditorActionsProps {
   avatarUrl: string | null
   name: string
+  projectId: string
+  userId: string
 }
 
-export default function EditorActions({ avatarUrl, name }: EditorActionsProps) {
+export default function EditorActions({
+  avatarUrl,
+  name,
+  projectId,
+  userId,
+}: EditorActionsProps) {
   const [exportOpen, setExportOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -28,6 +41,29 @@ export default function EditorActions({ avatarUrl, name }: EditorActionsProps) {
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const settingsTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const profileTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const { icSlots, inputStates, isPowerOn } = useBoardStore()
+  const { edges } = useEditorEdgesStore()
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>(
+    'idle'
+  )
+
+  async function handleSave() {
+    setSaveState('saving')
+    const boardState = serializeBoardState(
+      icSlots,
+      edges,
+      inputStates,
+      isPowerOn
+    )
+    const { error } = await saveBoardState(projectId, userId, boardState)
+    if (!error) {
+      setSaveState('saved')
+      setTimeout(() => setSaveState('idle'), 2000)
+    } else {
+      setSaveState('idle')
+    }
+  }
 
   function openDropdown() {
     if (closeTimer.current) clearTimeout(closeTimer.current)
@@ -88,7 +124,10 @@ export default function EditorActions({ avatarUrl, name }: EditorActionsProps) {
         )}
       </div>
 
-      <Save className="cursor-pointer hover:text-label transition-colors duration-500" />
+      <Save
+        className="cursor-pointer hover:text-label transition-colors duration-500"
+        onClick={handleSave}
+      />
       <div className="w-0.5 h-10 bg-neutral-600 hover:text-label transition-colors duration-500" />
       <div className="relative">
         <Settings
@@ -188,6 +227,25 @@ export default function EditorActions({ avatarUrl, name }: EditorActionsProps) {
           </div>
         )}
       </div>
+      {saveState !== 'idle' && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-[#1a1a1a] border border-neutral-700/60 rounded-xl shadow-xl">
+          {saveState === 'saving' ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin text-[#4F6EF7]" />
+              <span className="text-sm font-medium text-neutral-300">
+                Saving...
+              </span>
+            </>
+          ) : (
+            <>
+              <Check className="w-4 h-4 text-green-400" />
+              <span className="text-sm font-medium text-neutral-300">
+                Saved
+              </span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }
