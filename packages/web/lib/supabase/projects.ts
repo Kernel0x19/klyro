@@ -22,14 +22,14 @@ async function generateUniqueProjectId(
 }
 type ModuleType = 'board' | 'k-map-visualiser' | 'fsm' | 'pld' | 'hdl' | 'learn'
 export async function openOrCreateProject(formData: FormData) {
-  const module = (formData.get('module') as ModuleType) ?? 'board'
+  const moduleParam = (formData.get('module') as ModuleType) ?? 'board'
   const supabase = await createServerSupabaseClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) {
     const tempId = await generateUniqueProjectId(supabase)
-    redirect(`/editor/${tempId}?module=${module}`)
+    redirect(`/editor/${tempId}?module=${moduleParam}`)
   }
   const { data: existing } = await supabase
     .from('circuits')
@@ -40,17 +40,17 @@ export async function openOrCreateProject(formData: FormData) {
     .limit(1)
     .single()
   if (existing?.project_id) {
-    redirect(`/editor/${existing.project_id}?module=${module}`)
+    redirect(`/editor/${existing.project_id}?module=${moduleParam}`)
   }
   const projectId = await generateUniqueProjectId(supabase)
   await supabase.from('circuits').insert({
     user_id: user.id,
     name: 'Untitled Project',
-    module,
+    module: moduleParam, 
     project_id: projectId,
     last_edited: new Date().toISOString(),
   })
-  redirect(`/editor/${projectId}?module=${module}`)
+  redirect(`/editor/${projectId}?module=${moduleParam}`)
 }
 export async function deleteProject(projectId: string) {
   const supabase = await createServerSupabaseClient()
