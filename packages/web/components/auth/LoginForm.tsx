@@ -1,11 +1,20 @@
 'use client'
+
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { CheckCircle2, AlertCircle } from 'lucide-react'
 import { signIn, signInWithGitHub } from '@/lib/supabase/auth'
-export default function LoginForm() {
+
+interface LoginFormProps {
+  verified?: boolean | undefined
+  urlError?: string | undefined
+}
+
+export default function LoginForm({ verified, urlError }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
   async function handleSubmit(formData: FormData) {
     setLoading(true)
     setError(null)
@@ -15,10 +24,11 @@ export default function LoginForm() {
       setLoading(false)
     }
   }
+
   return (
     <form
       action={handleSubmit}
-      className="w-full max-w-lg px-8 py-8 flex flex-col bg-neutral-100 dark:bg-[#1a1a1a] border border-neutral-300 dark:border-neutral-700/60 rounded-2xl gap-6"
+      className="w-full max-w-lg px-8 py-8 flex flex-col bg-neutral-100 dark:bg-[#1a1a1a] border border-neutral-300 dark:border-neutral-700/60 rounded-2xl gap-6 shadow-sm"
     >
       <div className="flex flex-col gap-1.5">
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
@@ -28,11 +38,31 @@ export default function LoginForm() {
           Enter your email to sign in to your account
         </p>
       </div>
+
+      {verified && !error && (
+        <div className="px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-2.5">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+          <p className="text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+            Email verified successfully! You can now log in to your account.
+          </p>
+        </div>
+      )}
+
+      {urlError === 'verification_failed' && !error && (
+        <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2.5">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <p className="text-red-500 text-sm">
+            Verification link was invalid or has expired. Please try signing in.
+          </p>
+        </div>
+      )}
+
       {error && (
         <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-lg">
           <p className="text-red-500 text-sm">{error}</p>
         </div>
       )}
+
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">
@@ -64,18 +94,21 @@ export default function LoginForm() {
           />
         </div>
       </div>
+
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2.5 bg-[#4F6EF7] hover:bg-[#3A57E8] disabled:opacity-60 text-white font-bold rounded-lg transition-all duration-200 cursor-pointer"
+        className="w-full py-2.5 bg-[#4F6EF7] hover:bg-[#3A57E8] disabled:opacity-60 text-white font-bold rounded-lg transition-all duration-200 cursor-pointer shadow-sm"
       >
         {loading ? 'Signing in...' : 'Log in'}
       </button>
+
       <div className="flex items-center gap-3">
         <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700/60" />
         <span className="text-xs text-neutral-400">or</span>
         <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700/60" />
       </div>
+
       <button
         type="button"
         onClick={() => signInWithGitHub()}
@@ -90,6 +123,7 @@ export default function LoginForm() {
         />
         Continue with GitHub
       </button>
+
       <p className="text-center text-neutral-500 dark:text-neutral-600 text-sm">
         Don&apos;t have an account?{' '}
         <Link href="/auth/signup" className="text-[#4F6EF7] hover:underline">
