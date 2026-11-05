@@ -1,7 +1,16 @@
 import Navbar from '../home/Navbar'
 import LoginForm from './LoginForm'
 import getGitHubStars from '../hooks/githubStarCount'
-export default async function LoginPage() {
+
+interface LoginPageProps {
+  verified?: boolean | undefined
+  urlError?: string | undefined
+}
+
+export default async function LoginPage({
+  verified,
+  urlError,
+}: LoginPageProps) {
   const starCount = await getGitHubStars()
   return (
     <>
@@ -11,9 +20,9 @@ export default async function LoginPage() {
           className="absolute inset-0 pointer-events-none -z-10"
           style={{
             backgroundImage: `
-                    linear-gradient(var(--grid-line) 1px, transparent 1px),
-                    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px)
-                  `,
+              linear-gradient(var(--grid-line) 1px, transparent 1px),
+              linear-gradient(90deg, var(--grid-line) 1px, transparent 1px)
+            `,
             backgroundSize: '40px 40px',
             maskImage:
               'radial-gradient(ellipse at center, black 40%, transparent 80%)',
@@ -21,7 +30,7 @@ export default async function LoginPage() {
               'radial-gradient(ellipse at center, black 40%, transparent 80%)',
           }}
         />
-        <LoginForm />
+        <LoginForm verified={verified} urlError={urlError} />
       </section>
     </>
   )
