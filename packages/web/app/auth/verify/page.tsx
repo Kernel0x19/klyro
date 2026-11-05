@@ -42,6 +42,12 @@ function resolveVerificationType(
     case 'reset-password':
       return 'recovery'
 
+    case 'verified':
+    case 'confirmed':
+    case 'success':
+    case 'email_verified':
+      return 'verified'
+
     default:
       return null
   }

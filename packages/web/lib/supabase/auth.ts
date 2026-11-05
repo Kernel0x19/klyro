@@ -22,6 +22,7 @@ export async function signUp(formData: FormData) {
   const password = formData.get('password') as string
   const fullName = formData.get('fullName') as string
 
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://klyro.live'
   const supabase = await createServerSupabaseClient()
   const { error } = await supabase.auth.signUp({
     email,
@@ -30,6 +31,7 @@ export async function signUp(formData: FormData) {
       data: {
         full_name: fullName,
       },
+      emailRedirectTo: `${siteUrl}/auth/callback`,
     },
   })
 

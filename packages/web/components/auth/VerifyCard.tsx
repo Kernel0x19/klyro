@@ -18,6 +18,7 @@ export type VerificationType =
   | 'magiclink'
   | 'email_change'
   | 'recovery'
+  | 'verified'
 
 export interface VerifyCardProps {
   type: VerificationType
@@ -120,6 +121,26 @@ const TYPE_CONFIGS: Record<VerificationType, TypeDetails> = {
     primaryActionHref: '/auth/login',
     tip: "The password reset link is valid for 1 hour. If you didn't request a password reset, you can safely ignore the email.",
   },
+  verified: {
+    badge: 'Email Verified',
+    badgeClass:
+      'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+    icon: CheckCircle2,
+    iconBgClass: 'bg-emerald-500/10 border-emerald-500/20 shadow-emerald-500/10',
+    iconColorClass: 'text-emerald-500',
+    title: 'Email verified successfully!',
+    headline: 'Your account is confirmed and ready',
+    description:
+      'Your email address has been verified. You can now log in to your Klyro account to access your digital logic circuits and cloud simulation bench.',
+    steps: [
+      'Email address successfully confirmed & authenticated',
+      'Cloud lab bench activated for your account',
+      'Log in anytime with your credentials to resume projects',
+    ],
+    primaryActionText: 'Proceed to Log In',
+    primaryActionHref: '/auth/login?verified=true',
+    tip: 'Your account is active. Click below to sign in or jump directly to the editor workspace.',
+  },
 }
 
 export default function VerifyCard({ type, email }: VerifyCardProps) {
@@ -196,13 +217,19 @@ export default function VerifyCard({ type, email }: VerifyCardProps) {
       {/* Steps List */}
       <div className="flex flex-col gap-2.5 py-1">
         <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
-          Next steps
+          {type === 'verified' ? 'Status summary' : 'Next steps'}
         </p>
         <div className="flex flex-col gap-2">
           {config.steps.map((step, idx) => (
             <div key={idx} className="flex items-start gap-3">
-              <span className="w-5 h-5 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
-                {idx + 1}
+              <span
+                className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                  type === 'verified'
+                    ? 'bg-emerald-500/20 text-emerald-500'
+                    : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
+                }`}
+              >
+                {type === 'verified' ? '✓' : idx + 1}
               </span>
               <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">
                 {step}
@@ -235,6 +262,22 @@ export default function VerifyCard({ type, email }: VerifyCardProps) {
             className="aspect-square"
           />
         </Link>
+
+        {type === 'verified' && (
+          <Link
+            href="/editor"
+            className="w-full flex items-center justify-center gap-2 py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100 text-base font-bold rounded-lg transition-all duration-200 cursor-pointer shadow-sm"
+          >
+            Launch Editor
+            <Image
+              src="/diagonal-arrow.svg"
+              alt="Arrow"
+              width={14}
+              height={14}
+              className="aspect-square invert dark:invert-0"
+            />
+          </Link>
+        )}
 
         <Link
           href="/"

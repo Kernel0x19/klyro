@@ -1,8 +1,20 @@
 import LoginPage from '@/components/auth/LoginPage'
-export default async function Login() {
+
+interface LoginPageProps {
+  searchParams?: Promise<{
+    verified?: string
+    error?: string
+  }>
+}
+
+export default async function Login({ searchParams }: LoginPageProps) {
+  const params = await searchParams
+  const isVerified = params?.verified === 'true'
+  const urlError = params?.error
+
   return (
     <main>
-      <LoginPage />
+      <LoginPage verified={isVerified} urlError={urlError} />
     </main>
   )
 }
