@@ -16,8 +16,8 @@ function GuestRedirectInner({
       const ids = JSON.parse(stored) as string[]
       const lastId = ids[0]
       if (lastId && lastId !== currentProjectId) {
-        const module = searchParams.get('module') ?? 'board'
-        router.replace(`/editor/${lastId}?module=${module}`)
+        const moduleParam = searchParams.get('module') ?? 'board'
+        router.replace(`/editor/${lastId}?module=${moduleParam}`)
       }
     } catch {}
   }, [currentProjectId, router, searchParams])

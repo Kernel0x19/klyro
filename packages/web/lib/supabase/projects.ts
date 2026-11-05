@@ -16,13 +16,13 @@ async function generateUniqueProjectId(
       .select('project_id')
       .eq('project_id', id)
       .single()
-    if (!data) return id 
+    if (!data) return id
   }
   return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
 }
-type Module = 'board' | 'k-map-visualiser' | 'fsm' | 'pld' | 'hdl' | 'learn'
+type ModuleType = 'board' | 'k-map-visualiser' | 'fsm' | 'pld' | 'hdl' | 'learn'
 export async function openOrCreateProject(formData: FormData) {
-  const module = (formData.get('module') as Module) ?? 'board'
+  const module = (formData.get('module') as ModuleType) ?? 'board'
   const supabase = await createServerSupabaseClient()
   const {
     data: { user },
