@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { CircuitHistory } from './CircuitHistory'
+import AvatarUploadModal from './AvatarUploadModal'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
@@ -43,6 +44,8 @@ export default function MainSection({ user, profile, circuits }: Props) {
   const name = user.user_metadata?.full_name ?? user.email ?? 'Anonymous'
   const email = user.email ?? ''
   const avatarUrl = user.user_metadata?.avatar_url ?? null
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(avatarUrl)
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false)
   const joinedDate = new Date(user.created_at).toLocaleDateString('en-US', {
     month: 'long',
     year: 'numeric',
@@ -106,13 +109,14 @@ export default function MainSection({ user, profile, circuits }: Props) {
         {/* Profile card */}
         <div className="flex w-full items-center gap-5 p-7 bg-neutral-100 dark:bg-[#171717] rounded-lg border border-neutral-200 dark:border-transparent">
           <div className="relative h-full">
-            {avatarUrl ? (
+            {currentAvatarUrl ? (
               <Image
                 width={130}
                 height={130}
-                src={avatarUrl}
+                src={currentAvatarUrl}
                 alt="profile-pic"
-                className="rounded-full"
+                unoptimized
+                className="rounded-full w-32.5 h-32.5 object-cover"
               />
             ) : (
               <div className="w-32.5 h-32.5 rounded-full bg-neutral-200 dark:bg-[#262626] flex items-center justify-center border border-neutral-300 dark:border-neutral-700">
@@ -121,9 +125,15 @@ export default function MainSection({ user, profile, circuits }: Props) {
                 </span>
               </div>
             )}
-            <div className="absolute p-2 rounded-full bg-neutral-200 dark:bg-[#262626] border border-neutral-300 dark:border-neutral-700 top-21 -right-2 hover:cursor-pointer hover:bg-neutral-300 dark:hover:bg-neutral-900">
-              <Camera className="w-5 h-5" />
-            </div>
+            <button
+              type="button"
+              onClick={() => setAvatarModalOpen(true)}
+              title="Change Profile Picture"
+              aria-label="Change Profile Picture"
+              className="absolute p-2 rounded-full bg-neutral-200 dark:bg-[#262626] border border-neutral-300 dark:border-neutral-700 top-21 -right-2 hover:cursor-pointer hover:bg-neutral-300 dark:hover:bg-neutral-900 transition-colors shadow-sm"
+            >
+              <Camera className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
+            </button>
           </div>
 
           <div className="flex flex-col gap-1.5 flex-1">
@@ -249,6 +259,17 @@ export default function MainSection({ user, profile, circuits }: Props) {
           </div>
         </div>
       )}
+      {/* Avatar upload modal */}
+      <AvatarUploadModal
+        isOpen={avatarModalOpen}
+        onClose={() => setAvatarModalOpen(false)}
+        currentAvatarUrl={currentAvatarUrl}
+        userName={name}
+        onAvatarUpdated={(newUrl) => {
+          setCurrentAvatarUrl(newUrl)
+          router.refresh()
+        }}
+      />
     </section>
   )
 }
