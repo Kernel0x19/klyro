@@ -17,7 +17,7 @@ Built for students and educators to visualize, simulate and understand digital e
 🚧 Under active development — `v0.1.0` in progress
 
 ## Tech Stack
-- Next.Js, Electron
+- TypeScript, React, Vite, Electron
 - Turborepo + pnpm monorepo
 
 ## License
