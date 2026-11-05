@@ -20,14 +20,12 @@ import { useBoardStore } from '@/stores/useBoardStore'
 import { saveBoardState } from '@/lib/circuitService'
 import { serializeBoardState } from '@/lib/boardStateSerializer'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
-
 interface EditorActionsProps {
   avatarUrl: string | null
   name: string
   projectId: string
   userId: string
 }
-
 export default function EditorActions({
   avatarUrl,
   name,
@@ -41,13 +39,11 @@ export default function EditorActions({
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const settingsTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const profileTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
   const { icSlots, inputStates, isPowerOn } = useBoardStore()
   const { edges } = useEditorEdgesStore()
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>(
     'idle'
   )
-
   async function handleSave() {
     setSaveState('saving')
     const boardState = serializeBoardState(
@@ -64,12 +60,10 @@ export default function EditorActions({
       setSaveState('idle')
     }
   }
-
   function openDropdown() {
     if (closeTimer.current) clearTimeout(closeTimer.current)
     setExportOpen(true)
   }
-
   function closeDropdown() {
     closeTimer.current = setTimeout(() => setExportOpen(false), 100)
   }
@@ -80,7 +74,6 @@ export default function EditorActions({
   function closeSettings() {
     settingsTimer.current = setTimeout(() => setSettingsOpen(false), 100)
   }
-
   function openProfile() {
     if (profileTimer.current) clearTimeout(profileTimer.current)
     setProfileOpen(true)
@@ -88,11 +81,9 @@ export default function EditorActions({
   function closeProfile() {
     profileTimer.current = setTimeout(() => setProfileOpen(false), 100)
   }
-
   return (
     <div className="h-full flex items-center justify-center gap-6 py-4">
       <Play className="cursor-pointer hover:text-label transition-colors duration-500" />
-
       <div className="relative">
         <FolderDown
           className="cursor-pointer hover:text-label transition-colors duration-500"
@@ -123,7 +114,6 @@ export default function EditorActions({
           </div>
         )}
       </div>
-
       <Save
         className="cursor-pointer hover:text-label transition-colors duration-500"
         onClick={handleSave}
@@ -201,7 +191,6 @@ export default function EditorActions({
             </div>
           )}
         </div>
-
         {profileOpen && (
           <div
             className="absolute top-full right-0 pt-2 z-50"

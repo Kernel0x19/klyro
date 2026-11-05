@@ -1,6 +1,4 @@
-// Server Component
 import HeroActions from './HeroActions'
-
 export default function HeroSection() {
   return (
     <section
@@ -27,19 +25,15 @@ export default function HeroSection() {
             Open Source · Free Forever
           </h1>
         </div>
-
         <h1 className="text-8xl font-bold bg-linear-to-r from-[#8BA4FA] via-[#4F6EF7] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide">
           Build. Wire. Simulate.
         </h1>
-
         <h1 className="text-5xl font-bold leading-tight text-center">
           The open-source lab bench for digital logic — right in your browser,
           no hardware required.
         </h1>
-
-        {/* Client component handles navigation buttons */}
+        {}
         <HeroActions />
-
         <h1 className="text-base font-bold text-label">
           Also available as a Windows{' '}
           <span className="underline hover:cursor-pointer">Desktop App.</span>

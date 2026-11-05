@@ -1,28 +1,22 @@
-// components/auth/SignupForm.tsx
 'use client'
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { signUp, signInWithGitHub } from '@/lib/supabase/auth'
-
 export default function SignupForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
   async function handleSubmit(formData: FormData) {
     const password = formData.get('password') as string
     const confirmPassword = formData.get('confirmPassword') as string
-
     if (password !== confirmPassword) {
       setError('Passwords do not match')
       return
     }
-
     if (password.length < 8) {
       setError('Password must be at least 8 characters long')
       return
     }
-
     setLoading(true)
     setError(null)
     const result = await signUp(formData)
@@ -31,7 +25,6 @@ export default function SignupForm() {
       setLoading(false)
     }
   }
-
   return (
     <form
       action={handleSubmit}
@@ -45,13 +38,11 @@ export default function SignupForm() {
           Enter your information below to create your account
         </p>
       </div>
-
       {error && (
         <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-lg">
           <p className="text-red-500 text-sm">{error}</p>
         </div>
       )}
-
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">
@@ -65,7 +56,6 @@ export default function SignupForm() {
             className="px-4 py-2.5 bg-white dark:bg-[#111111] text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700/60 rounded-lg outline-none transition-all duration-200 focus:border-[#4F6EF7] focus:ring-2 focus:ring-[#4F6EF7]/20 placeholder:text-neutral-400 dark:placeholder:text-neutral-600"
           />
         </div>
-
         <div className="flex flex-col gap-1.5">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">
             Email
@@ -82,7 +72,6 @@ export default function SignupForm() {
             with anyone else.
           </p>
         </div>
-
         <div className="flex flex-col gap-1.5">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">
             Password
@@ -98,7 +87,6 @@ export default function SignupForm() {
             Must be at least 8 characters long.
           </p>
         </div>
-
         <div className="flex flex-col gap-1.5">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">
             Confirm Password
@@ -112,7 +100,6 @@ export default function SignupForm() {
           />
         </div>
       </div>
-
       <button
         type="submit"
         disabled={loading}
@@ -129,7 +116,6 @@ export default function SignupForm() {
           />
         )}
       </button>
-
       <div className="flex items-center gap-3">
         <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700/60" />
         <span className="text-xs text-neutral-400 dark:text-neutral-600">
@@ -137,7 +123,6 @@ export default function SignupForm() {
         </span>
         <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700/60" />
       </div>
-
       <button
         type="button"
         onClick={() => signInWithGitHub()}
@@ -152,7 +137,6 @@ export default function SignupForm() {
         />
         Continue with GitHub
       </button>
-
       <p className="text-center text-neutral-500 dark:text-neutral-600">
         Already have an account?{' '}
         <Link href="/auth/login" className="text-[#4F6EF7] hover:underline">

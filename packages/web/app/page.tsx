@@ -5,10 +5,8 @@ import QuickStartGuides from '@/components/home/QuickStartGuides'
 import ICLibraryPreview from '@/components/home/ICLibraryPreview'
 import Footer from '@/components/home/Footer'
 import getGitHubStars from '@/components/hooks/githubStarCount'
-
 export default async function HomePage() {
   const starCount = await getGitHubStars()
-
   return (
     <main>
       <Navbar starCount={starCount} />

@@ -1,13 +1,10 @@
 import { create } from 'zustand'
-
 interface ToastState {
   toast: { message: string; id: number } | null
   showToast: (message: string) => void
   dismissToast: () => void
 }
-
 let toastTimer: ReturnType<typeof setTimeout> | null = null
-
 export const useToastStore = create<ToastState>((set) => ({
   toast: null,
   showToast: (message: string) => {

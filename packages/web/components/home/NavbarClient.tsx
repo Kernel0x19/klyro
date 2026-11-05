@@ -1,5 +1,4 @@
 'use client'
-
 import { motion } from 'motion/react'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -7,10 +6,9 @@ import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
 import Image from 'next/image'
 import Link from 'next/link'
-
+import { APP_VERSION } from '@/lib/version'
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect
-
 interface NavbarClientProps {
   starCount?: number | undefined
   isAuth?: boolean | undefined
@@ -19,7 +17,6 @@ interface NavbarClientProps {
   avatarUrl?: string | null | undefined
   name?: string | undefined
 }
-
 export default function NavbarClient({
   starCount,
   isAuth,
@@ -33,27 +30,22 @@ export default function NavbarClient({
   const [canAnimate, setCanAnimate] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-
   useEffect(() => {
     setMounted(true)
   }, [])
-
   const scrollToTop = () => {
     router.push('/')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-
   useIsomorphicLayoutEffect(() => {
     const isScrolled =
       window.scrollY > 20 || sessionStorage.getItem('klyro_scrolled') === 'true'
-
     if (isScrolled) {
       setScrolled(true)
     }
     const timer = setTimeout(() => {
       setCanAnimate(true)
     }, 150)
-
     const handleScroll = () => {
       const nextScrolled = window.scrollY > 20
       setScrolled(nextScrolled)
@@ -61,7 +53,6 @@ export default function NavbarClient({
         sessionStorage.setItem('klyro_scrolled', String(nextScrolled))
       } catch {}
     }
-
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
       clearTimeout(timer)
@@ -71,7 +62,6 @@ export default function NavbarClient({
       } catch {}
     }
   }, [])
-
   return (
     <div className="sticky top-5 z-50 flex justify-center select-none">
       <motion.nav
@@ -114,7 +104,7 @@ export default function NavbarClient({
           />
           <div className="flex gap-1.5 items-baseline">
             <h1 className="text-5xl font-extrabold">Klyro</h1>
-            <h1 className="text-sm font-extrabold">v0.1.0</h1>
+            <h1 className="text-sm font-extrabold">{APP_VERSION}</h1>
           </div>
         </div>
         <div className="flex items-center gap-4 p-3">

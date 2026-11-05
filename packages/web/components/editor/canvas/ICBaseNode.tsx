@@ -1,7 +1,6 @@
 import React from 'react'
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react'
 import { IC_LIBRARY, type ICPin } from '@/lib/icLibrary'
-
 export interface ICBaseNodeData {
   label?: string
   icDefinition?: {
@@ -17,10 +16,7 @@ export interface ICBaseNodeData {
   isSelected?: boolean
   [key: string]: unknown
 }
-
 export type ICBaseNodeType = Node<ICBaseNodeData, 'icBaseNode'>
-
-// ─── Lookup helper ────────────────────────────────────────────────────────────
 function getICEntry(partNumber: string) {
   for (const category of IC_LIBRARY) {
     const found = category.ics.find((ic) => ic.part === partNumber)
@@ -28,52 +24,40 @@ function getICEntry(partNumber: string) {
   }
   return null
 }
-
-// ─── Pin function → handle type ───────────────────────────────────────────────
 function handleType(fn: ICPin['function']): 'source' | 'target' {
   return fn === 'output' ? 'source' : 'target'
 }
-
-// ─── Pin function → dot color ────────────────────────────────────────────────
 function pinDotColor(fn: ICPin['function']): string {
   switch (fn) {
     case 'output':
-      return '#fbbf24' // amber
+      return '#fbbf24' 
     case 'clock':
-      return '#60a5fa' // blue
+      return '#60a5fa' 
     case 'vcc':
-      return '#f87171' // red
+      return '#f87171' 
     case 'gnd':
-      return '#52525b' // dark gray
+      return '#52525b' 
     case 'nc':
-      return '#3f3f46' // muted
+      return '#3f3f46' 
     default:
-      return '#a1a1aa' // gray for input
+      return '#a1a1aa' 
   }
 }
-
-// ─── Fallback pins when no IC assigned ───────────────────────────────────────
 const DEFAULT_LEFT_PINS: ICPin[] = Array.from({ length: 10 }, (_, i) => ({
   number: i + 1,
   label: String(i + 1),
   function: 'input' as const,
 }))
-
 const DEFAULT_RIGHT_PINS: ICPin[] = Array.from({ length: 10 }, (_, i) => ({
   number: 20 - i,
   label: String(20 - i),
   function: 'output' as const,
 }))
-
-// ─── Component ───────────────────────────────────────────────────────────────
 export default function ICBaseNode({ data }: NodeProps<ICBaseNodeType>) {
   const partNumber = data.icDefinition?.partNumber
   const icEntry = partNumber ? getICEntry(partNumber) : null
-
-  // Split pins: left = first half (ascending), right = second half (descending for display)
   let leftPins: ICPin[]
   let rightPins: ICPin[]
-
   if (icEntry) {
     const total = icEntry.pins.length
     const half = total / 2
@@ -83,16 +67,14 @@ export default function ICBaseNode({ data }: NodeProps<ICBaseNodeType>) {
     leftPins = DEFAULT_LEFT_PINS
     rightPins = DEFAULT_RIGHT_PINS
   }
-
-  const pinCount = leftPins.length // same as rightPins.length
-  const bodyH = pinCount * 22 // 22px per pin row
-
+  const pinCount = leftPins.length 
+  const bodyH = pinCount * 22 
   return (
     <div
       className="flex items-center justify-center select-none"
       style={{ width: '150px', height: `${bodyH}px` }}
     >
-      {/* ── Left pins ── */}
+      {}
       <div
         className="flex flex-col justify-between items-end pr-1"
         style={{ height: `${bodyH - 8}px`, width: '30px' }}
@@ -131,8 +113,7 @@ export default function ICBaseNode({ data }: NodeProps<ICBaseNodeType>) {
           </div>
         ))}
       </div>
-
-      {/* ── IC body ── */}
+      {}
       <div
         className={`relative bg-[#1a1a1a] rounded-md flex items-center justify-center shadow-xl cursor-pointer transition-all ${
           data.isSelected
@@ -157,8 +138,7 @@ export default function ICBaseNode({ data }: NodeProps<ICBaseNodeType>) {
           )}
         </div>
       </div>
-
-      {/* ── Right pins ── */}
+      {}
       <div
         className="flex flex-col justify-between items-start pl-1"
         style={{ height: `${bodyH - 8}px`, width: '30px' }}

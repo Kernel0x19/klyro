@@ -1,12 +1,10 @@
 import NavbarClient from './NavbarClient'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-
 interface NavbarProps {
   starCount?: number
   isAuth?: boolean
   authType?: string
 }
-
 export default async function Navbar({
   starCount,
   isAuth,
@@ -16,7 +14,6 @@ export default async function Navbar({
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
   return (
     <NavbarClient
       starCount={starCount}

@@ -1,6 +1,5 @@
 import React from 'react'
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react'
-
 export interface InputClockNodeData {
   inputStates?: Record<string, boolean>
   clockStates?: Record<string, boolean>
@@ -9,18 +8,14 @@ export interface InputClockNodeData {
   selectedFrequency?: string
   [key: string]: unknown
 }
-
 export type InputClockNodeType = Node<InputClockNodeData, 'inputClockPanel'>
-
 const INPUT_PINS = [...Array(16).keys()].map((i) => String(15 - i))
 const CLOCK_PINS = ['10', '5', '1', '0.5']
-
 export default function InputClockSectionNode({
   data,
 }: NodeProps<InputClockNodeType>) {
   const inputStates = data.inputStates || {}
   const clockStates = data.clockStates || {}
-
   return (
     <div
       className="relative bg-[#0ca5d7] rounded-xl shadow-lg border border-[#0a8cb8] px-6 py-4 flex items-center select-none"
@@ -29,7 +24,6 @@ export default function InputClockSectionNode({
       <div className="flex items-center gap-4.5 mt-3">
         {INPUT_PINS.map((pinName) => {
           const isHigh = inputStates[pinName] || false
-
           return (
             <div
               key={pinName}
@@ -72,7 +66,6 @@ export default function InputClockSectionNode({
             </div>
           )
         })}
-
         <div className="flex flex-col items-center justify-between h-13.75 w-5.5 relative ml-4">
           <Handle
             type="source"
@@ -93,16 +86,13 @@ export default function InputClockSectionNode({
           <span className="text-[10px] font-bold text-[#054358]">GND</span>
         </div>
       </div>
-
       <div className="absolute bottom-1 left-[25%] transform -translate-x-1/2 text-[11px] font-black tracking-wider text-[#054358]">
         INPUT SECTION
       </div>
-
       <div className="ml-auto flex items-center gap-8 pr-2 mt-3">
         <div className="flex items-center gap-4.5 relative">
           {CLOCK_PINS.map((clkName) => {
             const isClkHigh = clockStates[clkName] || false
-
             return (
               <div
                 key={clkName}
@@ -141,7 +131,6 @@ export default function InputClockSectionNode({
             CLOCK SECTION
           </div>
         </div>
-
         <div className="flex items-center gap-4 pl-4 border-l-2 border-[#096d8f]/30">
           <div className="flex gap-3 text-[9px] font-black text-[#054358] font-mono">
             <span className="flex flex-col items-center gap-0.5">
@@ -153,7 +142,6 @@ export default function InputClockSectionNode({
               <div className="w-2 h-2 rounded-full bg-zinc-900 border border-black" />
             </span>
           </div>
-
           <button className="relative w-35 h-14 bg-linear-to-b from-zinc-800 to-zinc-950 rounded-lg border-2 border-zinc-900 shadow-md flex items-center justify-center gap-1.5 px-2 text-white active:scale-95 transition-transform overflow-hidden group">
             <svg
               className="w-5 h-5 text-red-500 filter drop-shadow-[0_0_2px_#ef4444]"

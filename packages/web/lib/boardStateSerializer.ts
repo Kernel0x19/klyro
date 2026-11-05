@@ -1,6 +1,5 @@
 import type { Edge } from '@xyflow/react'
 import type { ICSlot } from '@/stores/useBoardStore'
-
 export interface SavedBoardState {
   version: string
   icSlots: {
@@ -17,7 +16,6 @@ export interface SavedBoardState {
   inputStates: Record<string, boolean>
   isPowerOn: boolean
 }
-
 export function serializeBoardState(
   icSlots: ICSlot[],
   edges: Edge[],
@@ -41,7 +39,6 @@ export function serializeBoardState(
     isPowerOn,
   }
 }
-
 export function deserializeBoardState(raw: SavedBoardState): {
   icSlots: ICSlot[]
   edges: Edge[]
@@ -53,7 +50,6 @@ export function deserializeBoardState(raw: SavedBoardState): {
     icDefinition: s.icDefinition,
     isSelected: false,
   }))
-
   const edges: Edge[] = raw.edges.map((e) => ({
     id: e.id,
     source: e.source,
@@ -64,7 +60,6 @@ export function deserializeBoardState(raw: SavedBoardState): {
     animated: false,
     data: { signalState: 'unconnected' },
   }))
-
   return {
     icSlots,
     edges,

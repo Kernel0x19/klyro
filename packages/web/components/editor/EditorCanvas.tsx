@@ -1,5 +1,4 @@
 'use client'
-
 import { useMemo, useEffect, useState, useRef, useCallback } from 'react'
 import {
   ReactFlow,
@@ -32,17 +31,14 @@ import { validatePinConnection } from '@/lib/pinValidator'
 import { RoutingContext, type BoundingBox } from '@/lib/routingContext'
 import { simulateBoard } from '@/lib/simulationEngine'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
-
 const NODE_TYPES = {
   hardwareOutputPanel: OutputSectionNode,
   icBaseNode: ICBaseNode,
   inputClockPanel: InputClockSectionNode,
 }
-
 const EDGE_TYPES = {
   signal: SignalEdge,
 }
-
 const isValidConnection: IsValidConnection = (connection) => {
   if (
     connection.source === connection.target &&
@@ -52,9 +48,7 @@ const isValidConnection: IsValidConnection = (connection) => {
   }
   return true
 }
-
 const CANVAS_X_ALIGN = 50
-
 function Canvas() {
   const liveNodes = useNodes()
   const { theme } = useTheme()
@@ -75,33 +69,25 @@ function Canvas() {
   const setOutputStates = useBoardStore((s) => s.setOutputStates)
   const displayValues = useBoardStore((s) => s.displayValues)
   const recordWaveformSnapshot = useBoardStore((s) => s.recordWaveformSnapshot)
-
   const edges = useEditorEdgesStore((s) => s.edges)
   const setEdges = useEditorEdgesStore((s) => s.setEdges)
   const [, , onEdgesChange] = useEdgesState<Edge>([])
-
   const edgesRef = useRef(edges)
   useEffect(() => {
     edgesRef.current = edges
   }, [edges])
-
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null)
-
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault()
       const part = e.dataTransfer.getData('ic-part')
       if (!part) return
-
       const allICs = IC_LIBRARY.flatMap((g) => g.ics)
       const ic = allICs.find((i) => i.part === part)
       if (!ic) return
-
       const targetSlotId =
         selectedSlotId ?? icSlots.find((s) => !s.icDefinition)?.slotId
-
       if (!targetSlotId) return
-
       assignIC(targetSlotId, {
         partNumber: ic.part,
         name: ic.name,
@@ -114,11 +100,9 @@ function Canvas() {
     },
     [selectedSlotId, icSlots, assignIC]
   )
-
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
   }, [])
-
   const boardNodes: Node[] = useMemo(
     () => [
       {
@@ -192,18 +176,13 @@ function Canvas() {
       displayValues,
     ]
   )
-
   const [nodes, setNodes, onNodesChange] = useNodesState(boardNodes)
   useEffect(() => {
     setNodes(boardNodes)
   }, [boardNodes, setNodes])
-
   const nodeTypes = useMemo(() => NODE_TYPES, [])
   const edgeTypes = useMemo(() => EDGE_TYPES, [])
-
   const lastWaveformKeyRef = useRef<string>('')
-
-  // Simulation effect
   useEffect(() => {
     const { updatedEdges, outputStates: newOutputStates } = simulateBoard(
       edgesRef.current,
@@ -212,20 +191,16 @@ function Canvas() {
       isPowerOn,
       clockStates
     )
-
     const prev = edgesRef.current
     const isDifferent =
       prev.length !== updatedEdges.length ||
       prev.some(
         (e, i) => e.data?.signalState !== updatedEdges[i]?.data?.signalState
       )
-
     if (isDifferent) {
       setEdges(updatedEdges)
     }
-
     setOutputStates(newOutputStates)
-
     const activeSignals: string[] = []
     for (const e of edgesRef.current) {
       if (e.source === 'main-input-clock-panel') {
@@ -243,7 +218,6 @@ function Canvas() {
         activeSignals.push(`OUT-${e.targetHandle.replace('pin-', '')}`)
       }
     }
-
     const sortedSignals = [...activeSignals].sort()
     const stateKey = JSON.stringify({
       inputStates,
@@ -252,7 +226,6 @@ function Canvas() {
       isPowerOn,
       activeSignals: sortedSignals,
     })
-
     if (sortedSignals.length > 0 || Object.keys(inputStates).length > 0) {
       if (lastWaveformKeyRef.current !== stateKey) {
         lastWaveformKeyRef.current = stateKey
@@ -265,7 +238,6 @@ function Canvas() {
       }
     }
   }, [inputStates, clockStates, isPowerOn, icSlots])
-
   const obstacles = useMemo<BoundingBox[]>(() => {
     const posMap = new Map(liveNodes.map((n) => [n.id, n.position]))
     return liveNodes
@@ -288,7 +260,6 @@ function Canvas() {
         }
       })
   }, [liveNodes])
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEdge) {
@@ -300,14 +271,11 @@ function Canvas() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedEdge, edges, setEdges, clearSelection])
-
   useEffect(() => {
     setMounted(true)
   }, [])
-
   const themeClass =
     mounted && theme === 'dark' ? 'canvas-dark' : 'canvas-light'
-
   const onConnect = useCallback(
     (connection: Connection) => {
       const result = validatePinConnection(connection, icSlots)
@@ -326,11 +294,9 @@ function Canvas() {
     },
     [icSlots, edges, setEdges]
   )
-
   const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
     setSelectedEdge(edge.id)
   }, [])
-
   return (
     <RoutingContext.Provider value={obstacles}>
       <div
@@ -399,7 +365,6 @@ function Canvas() {
     </RoutingContext.Provider>
   )
 }
-
 export default function EditorCanvas() {
   return (
     <ReactFlowProvider>

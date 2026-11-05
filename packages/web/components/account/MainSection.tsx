@@ -15,13 +15,11 @@ import AvatarUploadModal from './AvatarUploadModal'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
-
 interface Profile {
   designation?: string | null
   institution?: string | null
   city?: string | null
 }
-
 interface Circuit {
   id: string
   name: string
@@ -29,18 +27,14 @@ interface Circuit {
   last_edited: string
   project_id: string
 }
-
 interface Props {
   user: User
   profile?: Profile | null
   circuits: Circuit[]
 }
-
 export default function MainSection({ user, profile, circuits }: Props) {
   const supabase = createClient()
-
   const router = useRouter()
-
   const name = user.user_metadata?.full_name ?? user.email ?? 'Anonymous'
   const email = user.email ?? ''
   const avatarUrl = user.user_metadata?.avatar_url ?? null
@@ -50,7 +44,6 @@ export default function MainSection({ user, profile, circuits }: Props) {
     month: 'long',
     year: 'numeric',
   })
-
   const [editOpen, setEditOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [localProfile, setLocalProfile] = useState<Profile>({
@@ -59,7 +52,6 @@ export default function MainSection({ user, profile, circuits }: Props) {
     city: profile?.city ?? '',
   })
   const [form, setForm] = useState<Profile>({ ...localProfile })
-
   const formattedCircuits = circuits.map((c) => ({
     id: c.id,
     name: c.name,
@@ -71,7 +63,6 @@ export default function MainSection({ user, profile, circuits }: Props) {
     }),
     projectId: c.project_id,
   }))
-
   async function handleSave() {
     setSaving(true)
     const { error } = await supabase.from('profiles').upsert({
@@ -87,7 +78,6 @@ export default function MainSection({ user, profile, circuits }: Props) {
     }
     setSaving(false)
   }
-
   return (
     <section className="relative flex flex-col items-center min-h-[calc(100vh-6rem)] w-full px-15 py-16 select-none gap-10 dark:bg-transparent">
       <div
@@ -104,9 +94,8 @@ export default function MainSection({ user, profile, circuits }: Props) {
             'radial-gradient(ellipse at center, black 60%, transparent 90%)',
         }}
       />
-
       <div className="flex flex-col gap-10 w-230">
-        {/* Profile card */}
+        {}
         <div className="flex w-full items-center gap-5 p-7 bg-neutral-100 dark:bg-[#171717] rounded-lg border border-neutral-200 dark:border-transparent">
           <div className="relative h-full">
             {currentAvatarUrl ? (
@@ -135,13 +124,11 @@ export default function MainSection({ user, profile, circuits }: Props) {
               <Camera className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
             </button>
           </div>
-
           <div className="flex flex-col gap-1.5 flex-1">
             <h1 className="text-4xl font-bold text-neutral-900 dark:text-white">
               {name}
             </h1>
-
-            {/* Designation + institution */}
+            {}
             {(localProfile.designation || localProfile.institution) && (
               <p className="text-lg text-neutral-500 dark:text-neutral-400 font-medium">
                 {[localProfile.designation, localProfile.institution]
@@ -149,7 +136,6 @@ export default function MainSection({ user, profile, circuits }: Props) {
                   .join(' · ')}
               </p>
             )}
-
             <div className="flex items-center gap-4 flex-wrap mt-1">
               <span className="text-base font-bold text-neutral-500 flex items-center gap-2">
                 <Mail className="w-4 h-4" />
@@ -167,7 +153,6 @@ export default function MainSection({ user, profile, circuits }: Props) {
               </span>
             </div>
           </div>
-
           <div className="h-full flex items-start">
             <button
               title="Edit Profile"
@@ -181,8 +166,7 @@ export default function MainSection({ user, profile, circuits }: Props) {
             </button>
           </div>
         </div>
-
-        {/* Circuit history */}
+        {}
         <div className="flex w-full p-7 bg-neutral-100 dark:bg-[#171717] rounded-lg border border-neutral-200 dark:border-transparent">
           <CircuitHistory
             circuits={formattedCircuits}
@@ -190,8 +174,7 @@ export default function MainSection({ user, profile, circuits }: Props) {
           />
         </div>
       </div>
-
-      {/* Edit modal */}
+      {}
       {editOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-md bg-neutral-100 dark:bg-[#171717] border border-neutral-700/60 rounded-2xl p-8 flex flex-col gap-6">
@@ -204,7 +187,6 @@ export default function MainSection({ user, profile, circuits }: Props) {
                 <X className="w-5 h-5" />
               </button>
             </div>
-
             <div className="flex flex-col gap-4">
               {[
                 {
@@ -239,7 +221,6 @@ export default function MainSection({ user, profile, circuits }: Props) {
                 </div>
               ))}
             </div>
-
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setEditOpen(false)}
@@ -259,7 +240,7 @@ export default function MainSection({ user, profile, circuits }: Props) {
           </div>
         </div>
       )}
-      {/* Avatar upload modal */}
+      {}
       <AvatarUploadModal
         isOpen={avatarModalOpen}
         onClose={() => setAvatarModalOpen(false)}

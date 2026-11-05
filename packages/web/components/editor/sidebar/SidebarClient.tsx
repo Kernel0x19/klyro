@@ -15,7 +15,6 @@ import {
 import { useTheme } from '@/components/hooks/useTheme'
 import { IC_LIBRARY } from '@/lib/icLibrary'
 import { useBoardStore } from '@/stores/useBoardStore'
-
 const tokens = {
   dark: {
     background: '#000000',
@@ -34,22 +33,16 @@ const tokens = {
     textSecondary: '#5a5f73',
   },
 }
-
 const COLOR_TRANSITION =
   'background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease'
-
 type Tool = 'select' | 'wire' | 'pan' | 'delete'
-
 export default function SidebarClient() {
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
-
   useEffect(() => {
     setMounted(true)
   }, [])
-
   const t = tokens[theme]
-
   const [collapsed, setCollapsed] = useState(true)
   const [search, setSearch] = useState('')
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
@@ -58,7 +51,6 @@ export default function SidebarClient() {
   const [activeTool, setActiveTool] = useState<Tool>('select')
   const [hoveredIC, setHoveredIC] = useState<string | null>(null)
   const { selectedSlotId, icSlots, assignIC } = useBoardStore()
-
   const filtered = useMemo(() => {
     if (!search.trim()) return IC_LIBRARY
     const q = search.toLowerCase()
@@ -70,18 +62,15 @@ export default function SidebarClient() {
       ),
     })).filter((g) => g.ics.length > 0)
   }, [search])
-
   function toggleGroup(cat: string) {
     setOpenGroups((prev) => ({ ...prev, [cat]: !prev[cat] }))
   }
-
   const tools: { id: Tool; icon: React.ReactNode; label: string }[] = [
     { id: 'select', icon: <MousePointer2 size={18} />, label: 'Select' },
     { id: 'wire', icon: <Zap size={18} />, label: 'Wire' },
     { id: 'pan', icon: <Hand size={18} />, label: 'Pan' },
     { id: 'delete', icon: <Trash2 size={18} />, label: 'Delete' },
   ]
-
   if (!mounted) {
     return (
       <aside
@@ -92,7 +81,6 @@ export default function SidebarClient() {
       />
     )
   }
-
   return (
     <aside
       className="h-full flex flex-col shrink-0 overflow-hidden"
@@ -103,7 +91,7 @@ export default function SidebarClient() {
         transition: `width 250ms cubic-bezier(0.4, 0, 0.2, 1), ${COLOR_TRANSITION}`,
       }}
     >
-      {/* collapsed icon rail */}
+      {}
       <div
         className="flex flex-col items-center pt-2 pb-2 gap-2 shrink-0"
         style={{
@@ -125,7 +113,6 @@ export default function SidebarClient() {
         >
           <ChevronRight size={16} />
         </button>
-
         <div
           className="w-7 h-px"
           style={{
@@ -133,7 +120,6 @@ export default function SidebarClient() {
             transition: COLOR_TRANSITION,
           }}
         />
-
         {tools.map((tool) => (
           <button
             key={tool.id}
@@ -153,8 +139,7 @@ export default function SidebarClient() {
           </button>
         ))}
       </div>
-
-      {/* expanded content */}
+      {}
       <div
         className="flex flex-col h-full"
         style={{
@@ -164,7 +149,7 @@ export default function SidebarClient() {
           minWidth: '16.75rem',
         }}
       >
-        {/* Header */}
+        {}
         <div
           className="flex items-center justify-between px-3 pt-2.5 pb-2 shrink-0"
           style={{
@@ -192,8 +177,7 @@ export default function SidebarClient() {
             <ChevronLeft size={15} />
           </button>
         </div>
-
-        {/* Search */}
+        {}
         <div
           className="px-2.5 py-2 shrink-0"
           style={{
@@ -244,8 +228,7 @@ export default function SidebarClient() {
             />
           </div>
         </div>
-
-        {/* IC List */}
+        {}
         <div className="flex-1 overflow-y-auto py-1">
           {filtered.length === 0 && (
             <p
@@ -258,7 +241,6 @@ export default function SidebarClient() {
               No ICs found
             </p>
           )}
-
           {filtered.map((group) => (
             <div key={group.category}>
               <button
@@ -354,8 +336,7 @@ export default function SidebarClient() {
             </div>
           ))}
         </div>
-
-        {/* Tools */}
+        {}
         <div
           className="flex items-center justify-between px-3 py-2 shrink-0"
           style={{

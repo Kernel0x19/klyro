@@ -9,7 +9,6 @@ import {
   Cpu,
 } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
-
 const tokens = {
   dark: {
     background: '#000000',
@@ -28,26 +27,21 @@ const tokens = {
     textSecondary: '#5a5f73',
   },
 }
-
 const COLOR_TRANSITION =
   'background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease'
-
 const stateColors: Record<string, string> = {
   HIGH: '#22c55e',
   LOW: '#ef4444',
   X: '#f59e0b',
   Z: '#a855f7',
 }
-
 type PinState = 'HIGH' | 'LOW' | 'X' | 'Z'
-
 interface Pin {
   number: number
   label: string
   function: string
   state: PinState
 }
-
 interface SelectedIC {
   part: string
   name: string
@@ -57,13 +51,11 @@ interface SelectedIC {
   datasheetUrl?: string
   pins: Pin[]
 }
-
 interface Props {
   selected?: SelectedIC | null
   onRemove?: () => void
   onDuplicate?: () => void
 }
-
 export default function PropertiesPanelClient({
   selected,
   onRemove,
@@ -72,13 +64,10 @@ export default function PropertiesPanelClient({
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [collapsed, setCollapsed] = useState(true)
-
   useEffect(() => {
     setMounted(true)
   }, [])
-
   const t = tokens[theme]
-
   if (!mounted) {
     return (
       <aside
@@ -87,7 +76,6 @@ export default function PropertiesPanelClient({
       />
     )
   }
-
   return (
     <aside
       className="h-full flex flex-col shrink-0 overflow-hidden"
@@ -122,14 +110,12 @@ export default function PropertiesPanelClient({
           {collapsed ? <ChevronLeft size={16} /> : <ChevronRight size={15} />}
         </button>
       </div>
-
       {collapsed && (
         <div className="flex flex-col items-center pt-3 gap-2">
           <div className="w-7 h-px" style={{ background: t.border }} />
           <Cpu size={16} style={{ color: t.textSecondary }} />
         </div>
       )}
-
       {!collapsed && (
         <div className="flex-1 overflow-y-auto">
           {!selected ? (
@@ -226,7 +212,6 @@ export default function PropertiesPanelClient({
                   </span>
                 </div>
               </div>
-
               <div
                 className="px-3 py-3"
                 style={{ borderBottom: `1px solid ${t.border}` }}
@@ -299,7 +284,6 @@ export default function PropertiesPanelClient({
                   ))}
                 </div>
               </div>
-
               <div className="px-3 py-3 flex flex-col gap-1.5">
                 <p
                   className="text-[10px] font-bold tracking-[0.08em] uppercase mb-1"

@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { deleteProject } from '@/lib/supabase/projects'
 import Image from 'next/image'
 import { openOrCreateProject } from '@/lib/supabase/projects'
-
 const moduleStyles: Record<string, { badge: string; icon: string }> = {
   logic: {
     badge: 'bg-[#26215C22] text-[#AFA9EC] border border-[#534AB755]',
@@ -24,7 +23,6 @@ const moduleStyles: Record<string, { badge: string; icon: string }> = {
     icon: 'text-[#378ADD]',
   },
 }
-
 type Circuit = {
   id: string
   name: string
@@ -32,18 +30,15 @@ type Circuit = {
   lastEdited: string
   projectId: string
 }
-
 interface CirHis {
   circuits?: Circuit[]
   onDelete?: (projectId: string) => void
   onOpen?: (projectId: string) => void
 }
-
 export function CircuitHistory({ circuits = [], onDelete }: CirHis) {
   const [pendingDelete, setPendingDelete] = useState<Circuit | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [localCircuits, setLocalCircuits] = useState<Circuit[]>(circuits)
-
   async function confirmDelete() {
     if (!pendingDelete) return
     setDeleting(true)
@@ -57,7 +52,6 @@ export function CircuitHistory({ circuits = [], onDelete }: CirHis) {
       onDelete?.(pendingDelete.projectId)
     }
   }
-
   return (
     <>
       <div className="flex flex-col gap-3 w-full">
@@ -70,7 +64,6 @@ export function CircuitHistory({ circuits = [], onDelete }: CirHis) {
             {localCircuits.length !== 1 ? 's' : ''}
           </span>
         </div>
-
         {localCircuits.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2 text-neutral-400 dark:text-neutral-600">
             <Cpu className="w-7 h-7" />
@@ -150,7 +143,6 @@ export function CircuitHistory({ circuits = [], onDelete }: CirHis) {
           </div>
         )}
       </div>
-
       {pendingDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-[#1a1a1a] border border-neutral-200 dark:border-neutral-700 rounded-xl p-6 w-full max-w-sm shadow-xl flex flex-col gap-4">

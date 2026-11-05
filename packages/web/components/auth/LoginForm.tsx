@@ -3,11 +3,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { signIn, signInWithGitHub } from '@/lib/supabase/auth'
-
 export default function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
   async function handleSubmit(formData: FormData) {
     setLoading(true)
     setError(null)
@@ -17,7 +15,6 @@ export default function LoginForm() {
       setLoading(false)
     }
   }
-
   return (
     <form
       action={handleSubmit}
@@ -31,13 +28,11 @@ export default function LoginForm() {
           Enter your email to sign in to your account
         </p>
       </div>
-
       {error && (
         <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-lg">
           <p className="text-red-500 text-sm">{error}</p>
         </div>
       )}
-
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="font-bold text-neutral-700 dark:text-neutral-300">
@@ -69,7 +64,6 @@ export default function LoginForm() {
           />
         </div>
       </div>
-
       <button
         type="submit"
         disabled={loading}
@@ -77,13 +71,11 @@ export default function LoginForm() {
       >
         {loading ? 'Signing in...' : 'Log in'}
       </button>
-
       <div className="flex items-center gap-3">
         <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700/60" />
         <span className="text-xs text-neutral-400">or</span>
         <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700/60" />
       </div>
-
       <button
         type="button"
         onClick={() => signInWithGitHub()}
@@ -98,7 +90,6 @@ export default function LoginForm() {
         />
         Continue with GitHub
       </button>
-
       <p className="text-center text-neutral-500 dark:text-neutral-600 text-sm">
         Don&apos;t have an account?{' '}
         <Link href="/auth/signup" className="text-[#4F6EF7] hover:underline">

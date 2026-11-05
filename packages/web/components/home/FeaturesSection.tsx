@@ -1,6 +1,4 @@
-// Server Component — pure static data, no client-side interactivity
 import { Cpu, Grid3x3, Activity, GitFork, Code2, BookOpen } from 'lucide-react'
-
 const features = [
   {
     Icon: Cpu,
@@ -33,7 +31,6 @@ const features = [
     desc: 'Follow step-by-step walkthroughs for every topic, attempt embedded quizzes, and track your progress as you go.',
   },
 ]
-
 export default function FeaturesSection() {
   return (
     <section

@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { useEditorEdgesStore } from './useEditorEdgesStore'
-
 export interface ICDefinitionSlot {
   partNumber: string
   name: string
@@ -10,13 +9,11 @@ export interface ICDefinitionSlot {
   vcc: number
   gnd: number
 }
-
 export interface ICSlot {
   slotId: string
   icDefinition: ICDefinitionSlot | null
   isSelected: boolean
 }
-
 interface BoardState {
   isPowerOn: boolean
   inputStates: Record<string, boolean>
@@ -51,14 +48,12 @@ interface BoardState {
     isPowerOn: boolean
   }) => void
 }
-
 const createDefaultSlots = (): ICSlot[] =>
   Array.from({ length: 5 }, (_, i) => ({
     slotId: `slot-${i + 1}`,
     icDefinition: null,
     isSelected: false,
   }))
-
 export const useBoardStore = create<BoardState>((set, get) => ({
   isPowerOn: true,
   inputStates: {},
@@ -68,9 +63,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   selectedSlotId: null,
   outputStates: {},
   displayValues: ['0', '0'],
-
   togglePower: () => set((s) => ({ isPowerOn: !s.isPowerOn })),
-
   toggleInput: (pin) =>
     set((s) => ({
       inputStates: {
@@ -78,7 +71,6 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         [pin]: !s.inputStates[pin],
       },
     })),
-
   toggleClock: (pin) =>
     set((s) => ({
       clockStates: {
@@ -86,9 +78,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         [pin]: !s.clockStates[pin],
       },
     })),
-
   setFrequency: (freq) => set({ selectedFrequency: freq }),
-
   selectSlot: (slotId) =>
     set((s) => ({
       selectedSlotId: slotId,
@@ -97,14 +87,12 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         isSelected: slot.slotId === slotId,
       })),
     })),
-
   assignIC: (slotId, ic) =>
     set((s) => ({
       icSlots: s.icSlots.map((slot) =>
         slot.slotId === slotId ? { ...slot, icDefinition: ic } : slot
       ),
     })),
-
   removeIC: (slotId) =>
     set((s) => ({
       icSlots: s.icSlots.map((slot) =>
@@ -114,7 +102,6 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       ),
       selectedSlotId: s.selectedSlotId === slotId ? null : s.selectedSlotId,
     })),
-
   clearSelection: () =>
     set((s) => ({
       selectedSlotId: null,
@@ -123,7 +110,6 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         isSelected: false,
       })),
     })),
-
   resetBoard: () => {
     useEditorEdgesStore.getState().setEdges([])
     set({
@@ -138,7 +124,6 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       waveformHistory: {},
     })
   },
-
   setOutputStates: (states) =>
     set((s) => {
       const prevKeys = Object.keys(s.outputStates)
@@ -152,7 +137,6 @@ export const useBoardStore = create<BoardState>((set, get) => ({
           }
         }
       }
-
       let value = 0
       for (let i = 7; i >= 0; i--) {
         value = (value << 1) | (states[String(i)] ? 1 : 0)
@@ -160,53 +144,39 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       const hex = value.toString(16).toUpperCase().padStart(2, '0')
       const digit1 = hex[0] ?? '0'
       const digit2 = hex[1] ?? '0'
-
       const displayDifferent =
         s.displayValues[0] !== digit1 || s.displayValues[1] !== digit2
-
       if (!isDifferent && !displayDifferent) {
         return s
       }
-
       return {
         outputStates: isDifferent ? states : s.outputStates,
         displayValues: displayDifferent ? [digit1, digit2] : s.displayValues,
       }
     }),
   waveformHistory: {},
-
   recordWaveform: () =>
     set((s) => {
       const next: Record<string, boolean[]> = { ...s.waveformHistory }
-      // Record input states
       for (const [pin, val] of Object.entries(s.inputStates)) {
         const key = `IN-${pin}`
         next[key] = [...(next[key] ?? []), val]
       }
-      // Record output states
       for (const [pin, val] of Object.entries(s.outputStates)) {
         const key = `OUT-${pin}`
         next[key] = [...(next[key] ?? []), val]
       }
       return { waveformHistory: next }
     }),
-
   recordWaveformSnapshot: (inputs, clocks, outputs, activeSignals = []) =>
     set((s) => {
-      // Find all signal keys to track
       const signalKeys = new Set<string>()
-
-      // 1. All currently tracked signals
       for (const k of Object.keys(s.waveformHistory)) {
         signalKeys.add(k)
       }
-
-      // 2. Active signals connected by wires
       for (const k of activeSignals) {
         signalKeys.add(k)
       }
-
-      // 3. Any non-empty input/clock/output
       for (const [k, v] of Object.entries(inputs)) {
         if (v) signalKeys.add(`IN-${k}`)
       }
@@ -216,19 +186,13 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       for (const [k, v] of Object.entries(outputs)) {
         if (v) signalKeys.add(`OUT-${k}`)
       }
-
-      // If nothing is active at all, don't create empty noise
       if (signalKeys.size === 0) return s
-
-      // Find current max sample count
       let maxLen = 0
       for (const samples of Object.values(s.waveformHistory)) {
         if (samples.length > maxLen) maxLen = samples.length
       }
-
       const MAX_SAMPLES = 80
       const next: Record<string, boolean[]> = {}
-
       for (const key of signalKeys) {
         let val = false
         if (key.startsWith('IN-')) {
@@ -238,7 +202,6 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         } else if (key.startsWith('OUT-')) {
           val = Boolean(outputs[key.slice(4)])
         }
-
         const existing = s.waveformHistory[key]
         if (existing) {
           let filled = existing
@@ -255,10 +218,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
           next[key] = [...Array(maxLen).fill(false), val].slice(-MAX_SAMPLES)
         }
       }
-
       return { waveformHistory: next }
     }),
-
   clearWaveform: () => set({ waveformHistory: {} }),
   loadBoardState: (state) =>
     set({

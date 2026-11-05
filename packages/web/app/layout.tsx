@@ -6,21 +6,18 @@ import { Suspense } from 'react'
 import { NavigationProgress } from '@/components/ui/NavigationProgress'
 import ProgressStarter from '@/components/ui/ProgressStarter'
 import ScrollToTop from '@/components/ScrollToTop'
-
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-sans',
   display: 'swap',
 })
-
 const inter = Inter({
   subsets: ['latin'],
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
   variable: '--font-inter',
   display: 'swap',
 })
-
 export const metadata: Metadata = {
   title: 'Klyro - Digital Logic Simulator',
   description:
@@ -29,7 +26,6 @@ export const metadata: Metadata = {
     icon: '/favicon.svg',
   },
 }
-
 const themeScript = `
   (function() {
     try {
@@ -38,7 +34,6 @@ const themeScript = `
     } catch (e) {}
   })();
 `
-
 export default function RootLayout({
   children,
 }: {

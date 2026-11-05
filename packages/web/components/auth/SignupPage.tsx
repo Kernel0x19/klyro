@@ -1,7 +1,6 @@
 import Navbar from '../home/Navbar'
 import SignupForm from './SignupForm'
 import getGitHubStars from '../hooks/githubStarCount'
-
 export default async function SignupPage() {
   const starCount = await getGitHubStars()
   return (

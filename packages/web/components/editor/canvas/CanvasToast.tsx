@@ -1,13 +1,10 @@
 'use client'
-
 import React from 'react'
 import { AlertTriangle, X } from 'lucide-react'
 import { useToastStore } from '@/stores/useToastStore'
-
 export default function CanvasToast() {
   const { toast, dismissToast } = useToastStore()
   const isVisible = Boolean(toast)
-
   return (
     <div className="absolute bottom-6 right-18 z-50 pointer-events-none max-w-md select-none">
       <div
@@ -25,7 +22,6 @@ export default function CanvasToast() {
         <div className="mt-0.5 flex-shrink-0 rounded-lg bg-red-500/20 p-2 text-red-400 border border-red-500/30">
           <AlertTriangle className="w-5 h-5" />
         </div>
-
         <div className="flex-1 pr-2">
           <div className="text-[11px] font-black tracking-wider text-red-400 uppercase">
             Invalid Connection
@@ -34,7 +30,6 @@ export default function CanvasToast() {
             {toast?.message}
           </div>
         </div>
-
         <button
           onClick={dismissToast}
           className="flex-shrink-0 rounded-md p-1 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"

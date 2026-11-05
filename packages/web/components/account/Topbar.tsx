@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { useTheme } from '@/components/hooks/useTheme'
 import { Sun, Moon, LogOut } from 'lucide-react'
 import { signOut } from '@/lib/supabase/auth'
+import { APP_VERSION } from '@/lib/version'
 export default function Topbar() {
   const { theme, toggleTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -27,7 +27,7 @@ export default function Topbar() {
         />
         <div className="flex gap-1.5 items-baseline">
           <h1 className="text-5xl font-extrabold">Klyro</h1>
-          <h1 className="text-sm font-extrabold">v0.1.0</h1>
+          <h1 className="text-sm font-extrabold">{APP_VERSION}</h1>
         </div>
       </Link>
       <div className="flex items-center gap-3">

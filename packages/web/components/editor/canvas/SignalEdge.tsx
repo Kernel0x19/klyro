@@ -1,6 +1,5 @@
 import { type EdgeProps, useEdges } from '@xyflow/react'
 import { manhattanRoute, waypointsToPath } from '@/lib/manhattanRouter'
-
 const signalColors: Record<string, string> = {
   HIGH: '#22c55e',
   LOW: '#ef4444',
@@ -8,7 +7,6 @@ const signalColors: Record<string, string> = {
   X: '#f59e0b',
   conflict: '#f97316',
 }
-
 export default function SignalEdge({
   id,
   sourceX,
@@ -19,9 +17,7 @@ export default function SignalEdge({
   selected,
 }: EdgeProps) {
   const edges = useEdges()
-
   const edgeIndex = edges.findIndex((e) => e.id === id)
-
   const waypoints = manhattanRoute(
     { x: sourceX, y: sourceY },
     { x: targetX, y: targetY },
@@ -29,11 +25,9 @@ export default function SignalEdge({
     id,
     edgeIndex >= 0 ? edgeIndex : 0
   )
-
   const edgePath = waypointsToPath(waypoints)
   const state = (data?.signalState as string) ?? 'unconnected'
   const color = signalColors[state] ?? '#6b7280'
-
   return (
     <path
       id={id}

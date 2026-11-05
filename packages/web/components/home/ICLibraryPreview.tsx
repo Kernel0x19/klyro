@@ -1,4 +1,3 @@
-// Server Component — static IC list with CSS marquee animation (defined in globals.css)
 const ics = [
   '74HC191',
   '74HC194',
@@ -30,10 +29,8 @@ const ics = [
   '74LS191',
   '74LS194',
 ]
-
 export default function ICLibraryPreview() {
   const strip = [...ics, ...ics]
-
   return (
     <section
       id="ic-library"
@@ -45,7 +42,6 @@ export default function ICLibraryPreview() {
       <h1 className="text-label-gray text-lg font-bold tracking-wider">
         From basic gates to counters, decoders and shift registers
       </h1>
-
       <div className="w-full px-30 py-10 z-50">
         <div
           className="relative overflow-hidden"
@@ -69,7 +65,6 @@ export default function ICLibraryPreview() {
             ))}
           </div>
         </div>
-
         <div className="text-neutral-500 text-sm mt-6 text-center">
           <h1 className="text-base font-bold text-label">
             Plugin support for custom ICs

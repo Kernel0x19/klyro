@@ -1,10 +1,8 @@
 'use client'
-
 import React, { useState, useRef } from 'react'
 import { X, Upload, Link as LinkIcon, Loader2, Camera, AlertCircle, CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
-
 interface Props {
   isOpen: boolean
   onClose: () => void
@@ -12,7 +10,6 @@ interface Props {
   userName: string
   onAvatarUpdated: (newAvatarUrl: string) => void
 }
-
 export default function AvatarUploadModal({
   isOpen,
   onClose,
@@ -29,9 +26,7 @@ export default function AvatarUploadModal({
   const [success, setSuccess] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
   if (!isOpen) return null
-
   const handleFileChange = (file: File) => {
     setError(null)
     setSuccess(false)
@@ -47,7 +42,6 @@ export default function AvatarUploadModal({
     const objUrl = URL.createObjectURL(file)
     setPreviewUrl(objUrl)
   }
-
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragOver(false)
@@ -55,11 +49,9 @@ export default function AvatarUploadModal({
       handleFileChange(e.dataTransfer.files[0])
     }
   }
-
   const handleSave = async () => {
     setError(null)
     setUploading(true)
-
     try {
       if (tab === 'upload') {
         if (!selectedFile) {
@@ -67,42 +59,34 @@ export default function AvatarUploadModal({
           setUploading(false)
           return
         }
-
         const formData = new FormData()
         formData.append('file', selectedFile)
-
         const res = await fetch('/api/avatar/upload', {
           method: 'POST',
           body: formData,
         })
-
         const data = await res.json()
         if (!res.ok || data.error) {
           throw new Error(data.error || 'Failed to upload avatar.')
         }
-
         setSuccess(true)
         onAvatarUpdated(data.publicUrl)
         setTimeout(() => {
           onClose()
         }, 600)
       } else {
-        // Direct URL mode
         if (!directUrl.trim()) {
           setError('Please enter a valid image URL.')
           setUploading(false)
           return
         }
-
         const supabase = createClient()
         const { error: updateError } = await supabase.auth.updateUser({
           data: { avatar_url: directUrl.trim() },
         })
-
         if (updateError) {
           throw new Error(updateError.message)
         }
-
         setSuccess(true)
         onAvatarUpdated(directUrl.trim())
         setTimeout(() => {
@@ -115,14 +99,12 @@ export default function AvatarUploadModal({
       setUploading(false)
     }
   }
-
   const activePreview =
     tab === 'upload' ? previewUrl || currentAvatarUrl : directUrl || currentAvatarUrl
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 select-none">
       <div className="w-full max-w-md bg-neutral-100 dark:bg-[#171717] border border-neutral-300 dark:border-neutral-700/60 rounded-2xl p-6 sm:p-7 flex flex-col gap-5 shadow-2xl">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-lg bg-neutral-200 dark:bg-[#262626] text-[#4F6EF7]">
@@ -144,8 +126,7 @@ export default function AvatarUploadModal({
             <X className="w-5 h-5" />
           </button>
         </div>
-
-        {/* Tab switch */}
+        {}
         <div className="flex bg-neutral-200 dark:bg-[#111111] p-1 rounded-xl">
           <button
             type="button"
@@ -178,8 +159,7 @@ export default function AvatarUploadModal({
             Image Link
           </button>
         </div>
-
-        {/* Preview & Upload Zone */}
+        {}
         <div className="flex flex-col items-center gap-4">
           <div className="relative group">
             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#4F6EF7] bg-neutral-200 dark:bg-[#262626] flex items-center justify-center shadow-md">
@@ -209,7 +189,6 @@ export default function AvatarUploadModal({
               </button>
             )}
           </div>
-
           {tab === 'upload' ? (
             <div
               onDragOver={(e) => {
@@ -267,23 +246,20 @@ export default function AvatarUploadModal({
             </div>
           )}
         </div>
-
-        {/* Status Alerts */}
+        {}
         {error && (
           <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-2 text-xs text-red-500">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
-
         {success && (
           <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg flex items-center gap-2 text-xs text-emerald-500">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>Avatar updated successfully!</span>
           </div>
         )}
-
-        {/* Footer actions */}
+        {}
         <div className="flex gap-2.5 justify-end mt-1">
           <button
             type="button"

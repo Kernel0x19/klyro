@@ -4,7 +4,7 @@ import ModuleSelection from './topbar/ModuleSelection'
 import EditorActions from './topbar/EditorOptions'
 import Link from 'next/link'
 import { Suspense } from 'react'
-
+import { APP_VERSION } from '@/lib/version'
 interface TopbarProps {
   avatarUrl: string | null
   name: string
@@ -12,7 +12,6 @@ interface TopbarProps {
   projectId?: string | undefined
   userId?: string | undefined
 }
-
 export default function Topbar({
   avatarUrl,
   name,
@@ -39,7 +38,7 @@ export default function Topbar({
           />
           <div className="flex gap-1.5 items-baseline">
             <h1 className="text-4xl font-extrabold">Klyro</h1>
-            <h1 className="text-sm font-extrabold">v0.1.0</h1>
+            <h1 className="text-sm font-extrabold">{APP_VERSION}</h1>
           </div>
         </Link>
         <div className="w-0.5 h-full bg-neutral-600" />

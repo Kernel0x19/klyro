@@ -2,7 +2,6 @@
 import { useEffect, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import NProgress from 'nprogress'
-
 export function useNavigationProgress() {
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -19,7 +18,6 @@ export function useNavigationProgress() {
         return
       NProgress.start()
     }
-
     document.addEventListener('click', handleClick)
     return () => document.removeEventListener('click', handleClick)
   }, [])

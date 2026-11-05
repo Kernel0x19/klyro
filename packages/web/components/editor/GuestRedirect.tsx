@@ -2,7 +2,6 @@
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
-
 function GuestRedirectInner({
   currentProjectId,
 }: {
@@ -10,11 +9,9 @@ function GuestRedirectInner({
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-
   useEffect(() => {
     const stored = localStorage.getItem('klyro_recent_projects')
     if (!stored) return
-
     try {
       const ids = JSON.parse(stored) as string[]
       const lastId = ids[0]
@@ -24,10 +21,8 @@ function GuestRedirectInner({
       }
     } catch {}
   }, [currentProjectId, router, searchParams])
-
   return null
 }
-
 export default function GuestRedirect({
   currentProjectId,
 }: {

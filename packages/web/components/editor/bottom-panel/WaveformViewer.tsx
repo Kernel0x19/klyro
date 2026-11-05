@@ -1,13 +1,10 @@
 'use client'
-
 import { useRef, useEffect } from 'react'
 import { useBoardStore } from '@/stores/useBoardStore'
 import { useTheme } from '@/components/hooks/useTheme'
-
 const TRACK_HEIGHT = 28
 const LABEL_WIDTH = 110
 const SAMPLE_WIDTH = 22
-
 function sortSignals(a: string, b: string): number {
   const getCategory = (s: string) => {
     if (s.startsWith('IN-')) return 1
@@ -18,80 +15,62 @@ function sortSignals(a: string, b: string): number {
   const catA = getCategory(a)
   const catB = getCategory(b)
   if (catA !== catB) return catA - catB
-
   const numA = parseFloat(a.split('-')[1] ?? '0')
   const numB = parseFloat(b.split('-')[1] ?? '0')
   return numA - numB
 }
-
 function buildPaths(samples: boolean[], totalSamples: number) {
   const high = 5
   const low = 23
   let strokePath = ''
   let fillPath = `M 0 ${low}`
   let prev: boolean | null = null
-
-  // Ensure samples array spans totalSamples
   const paddedSamples =
     samples.length < totalSamples
       ? [...Array(totalSamples - samples.length).fill(false), ...samples]
       : samples
-
   for (let i = 0; i < paddedSamples.length; i++) {
     const x = i * SAMPLE_WIDTH
     const xNext = (i + 1) * SAMPLE_WIDTH
     const val = paddedSamples[i]
     const y = val ? high : low
-
     if (prev === null) {
       strokePath += `M ${x} ${y}`
     } else if (val !== prev) {
       strokePath += ` L ${x} ${prev ? high : low} L ${x} ${y}`
     }
     strokePath += ` L ${xNext} ${y}`
-
     fillPath += ` L ${x} ${y} L ${xNext} ${y}`
     prev = val
   }
-
   const totalWidth = paddedSamples.length * SAMPLE_WIDTH
   fillPath += ` L ${totalWidth} ${low} Z`
-
   return { strokePath, fillPath, paddedSamples }
 }
-
 export default function WaveformViewer() {
   const { waveformHistory } = useBoardStore()
   const { theme } = useTheme()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-
   const isDark = theme === 'dark'
   const textColor = isDark ? '#8b8fa8' : '#5a5f73'
   const borderColor = isDark ? '#2e3148' : '#d9dce6'
   const surfaceElevated = isDark ? '#252830' : '#f0f2f7'
   const bgColor = isDark ? '#14161c' : '#ffffff'
-
   const entries = Object.entries(waveformHistory).filter(
     ([, samples]) => samples.length > 0
   )
-
   const sortedEntries = entries.sort(([a], [b]) => sortSignals(a, b))
-
   const maxSamples = sortedEntries.reduce(
     (max, [, s]) => Math.max(max, s.length),
     0
   )
-
   const totalWidth = Math.max(maxSamples * SAMPLE_WIDTH, 400)
-
-  // Auto-scroll to the rightmost (latest) sample when new events arrive
   useEffect(() => {
     if (scrollContainerRef.current && maxSamples > 0) {
       scrollContainerRef.current.scrollLeft =
         scrollContainerRef.current.scrollWidth
     }
   }, [maxSamples])
-
   if (entries.length === 0) {
     return (
       <div
@@ -120,7 +99,6 @@ export default function WaveformViewer() {
       </div>
     )
   }
-
   return (
     <div
       ref={scrollContainerRef}
@@ -128,7 +106,7 @@ export default function WaveformViewer() {
       style={{ background: bgColor }}
     >
       <div style={{ minWidth: LABEL_WIDTH + totalWidth }}>
-        {/* ── Sticky Top Timeline Ruler ── */}
+        {}
         <div
           className="sticky top-0 z-20 flex items-center border-b"
           style={{
@@ -137,7 +115,7 @@ export default function WaveformViewer() {
             borderColor,
           }}
         >
-          {/* Top-left corner */}
+          {}
           <div
             className="sticky left-0 z-30 shrink-0 px-2.5 text-[10px] font-bold uppercase tracking-wider flex items-center justify-between"
             style={{
@@ -151,8 +129,7 @@ export default function WaveformViewer() {
             <span>Signal</span>
             <span className="text-[9px] opacity-75">Val</span>
           </div>
-
-          {/* Time ticks and sample indices */}
+          {}
           <div
             className="relative h-full flex items-center"
             style={{ width: totalWidth }}
@@ -185,8 +162,7 @@ export default function WaveformViewer() {
             ))}
           </div>
         </div>
-
-        {/* ── Signal Rows ── */}
+        {}
         <div className="flex flex-col py-1">
           {sortedEntries.map(([label, samples]) => {
             const { strokePath, fillPath, paddedSamples } = buildPaths(
@@ -194,14 +170,13 @@ export default function WaveformViewer() {
               maxSamples
             )
             const currentVal = paddedSamples[paddedSamples.length - 1] ?? false
-
             return (
               <div
                 key={label}
                 className="flex items-center group hover:bg-sky-500/5 transition-colors"
                 style={{ height: TRACK_HEIGHT }}
               >
-                {/* Pinned left signal name & real-time state badge */}
+                {}
                 <div
                   className="sticky left-0 z-10 shrink-0 flex items-center justify-between px-2 text-[11px] font-mono font-bold"
                   style={{
@@ -223,8 +198,7 @@ export default function WaveformViewer() {
                     {currentVal ? '1' : '0'}
                   </span>
                 </div>
-
-                {/* Waveform Canvas */}
+                {}
                 <div
                   className="relative shrink-0"
                   style={{ width: totalWidth, height: TRACK_HEIGHT }}
@@ -234,7 +208,7 @@ export default function WaveformViewer() {
                     height={TRACK_HEIGHT}
                     className="absolute top-0 left-0 pointer-events-none"
                   >
-                    {/* Background low rail line */}
+                    {}
                     <line
                       x1={0}
                       y1={23}
@@ -243,9 +217,9 @@ export default function WaveformViewer() {
                       stroke={isDark ? '#27272a' : '#e4e4e7'}
                       strokeWidth={1}
                     />
-                    {/* Semi-transparent area fill for HIGH pulses */}
+                    {}
                     <path d={fillPath} fill="rgba(34, 197, 94, 0.12)" />
-                    {/* Step wave line */}
+                    {}
                     <path
                       d={strokePath}
                       fill="none"

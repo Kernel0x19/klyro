@@ -1,6 +1,5 @@
 import type { Connection } from '@xyflow/react'
 import { IC_LIBRARY, type ICPin } from './icLibrary'
-
 export interface PinInfo {
   nodeId: string
   handleId: string
@@ -10,12 +9,10 @@ export interface PinInfo {
   pinLabel: string
   chipLabel?: string
 }
-
 export interface ValidationResult {
   valid: boolean
   message: string
 }
-
 function findIC(partNumber: string) {
   for (const cat of IC_LIBRARY) {
     const found = cat.ics.find((ic) => ic.part === partNumber)
@@ -23,15 +20,12 @@ function findIC(partNumber: string) {
   }
   return null
 }
-
 export function resolvePinInfo(
   nodeId: string | null | undefined,
   handleId: string | null | undefined,
   icSlots: Array<{ slotId: string; icDefinition?: { partNumber: string } | null }>
 ): PinInfo | null {
   if (!nodeId || !handleId) return null
-
-  // 1. Output Section (Top Panel)
   if (nodeId === 'main-output-panel') {
     if (handleId === 'pin-VCC') {
       return {
@@ -51,8 +45,6 @@ export function resolvePinInfo(
       pinLabel: `Output Section Pin ${pinName}`,
     }
   }
-
-  // 2. Input & Clock Section (Bottom Panel)
   if (nodeId === 'main-input-clock-panel') {
     if (handleId === 'input-gnd') {
       return {
@@ -84,19 +76,14 @@ export function resolvePinInfo(
       }
     }
   }
-
-  // 3. IC Chip
   if (nodeId.startsWith('ic-chip-')) {
     const chipNum = parseInt(nodeId.replace('ic-chip-', ''), 10)
     const chipIndex = isNaN(chipNum) ? 0 : Math.max(0, chipNum - 1)
     const slot = icSlots[chipIndex]
     const chipLabel = slot?.icDefinition?.partNumber || `IC BASE ${chipIndex + 1}`
-
     const pinNum = parseInt(handleId.replace('pin-', ''), 10)
-
     let icFunction: PinInfo['icFunction'] = undefined
     let pinLabel = `Pin ${pinNum}`
-
     if (slot?.icDefinition?.partNumber) {
       const icEntry = findIC(slot.icDefinition.partNumber)
       if (icEntry) {
@@ -107,12 +94,9 @@ export function resolvePinInfo(
         }
       }
     }
-
-    // Default pin functions if no IC placed yet
     if (!icFunction) {
       icFunction = pinNum <= 10 ? 'input' : 'output'
     }
-
     return {
       nodeId,
       handleId,
@@ -123,43 +107,32 @@ export function resolvePinInfo(
       chipLabel,
     }
   }
-
   return null
 }
-
 export function validatePinConnection(
   connection: Connection,
   icSlots: Array<{ slotId: string; icDefinition?: { partNumber: string } | null }>
 ): ValidationResult {
   const { source, target, sourceHandle, targetHandle } = connection
-
   if (!source || !target || !sourceHandle || !targetHandle) {
     return { valid: false, message: 'Incomplete connection points.' }
   }
-
   if (source === target && sourceHandle === targetHandle) {
     return { valid: false, message: 'Cannot connect a pin to itself.' }
   }
-
   const pinA = resolvePinInfo(source, sourceHandle, icSlots)
   const pinB = resolvePinInfo(target, targetHandle, icSlots)
-
   if (!pinA || !pinB) {
     return { valid: false, message: 'Could not resolve connection pins.' }
   }
-
-  // Helper to test if one pin matches and get the other
   const checkPair = (predicate: (p: PinInfo) => boolean) => {
     if (predicate(pinA)) return { matched: pinA, other: pinB }
     if (predicate(pinB)) return { matched: pinB, other: pinA }
     return null
   }
-
-  // ── Rule 1: Output Indicators on Output Section (LEDs 0..15) ────────────────
   const outputIndicatorPair = checkPair((p) => p.type === 'OUTPUT_INDICATOR')
   if (outputIndicatorPair) {
     const { matched, other } = outputIndicatorPair
-
     if (other.section === 'IC') {
       if (other.icFunction === 'input') {
         return {
@@ -187,14 +160,11 @@ export function validatePinConnection(
       }
     }
   }
-
-  // ── Rule 2: Input Switches & Clocks on Input Section ────────────────────────
   const inputDriverPair = checkPair(
     (p) => p.type === 'INPUT_SWITCH' || p.type === 'CLOCK'
   )
   if (inputDriverPair) {
     const { matched, other } = inputDriverPair
-
     if (other.section === 'IC') {
       if (other.icFunction === 'output') {
         return {
@@ -216,8 +186,6 @@ export function validatePinConnection(
       }
     }
   }
-
-  // ── Rule 3: VCC (+5V Power) ─────────────────────────────────────────────────
   const vccPair = checkPair((p) => p.type === 'VCC' || p.icFunction === 'vcc')
   if (vccPair) {
     const { other } = vccPair
@@ -234,8 +202,6 @@ export function validatePinConnection(
       }
     }
   }
-
-  // ── Rule 4: GND (Ground) ───────────────────────────────────────────────────
   const gndPair = checkPair((p) => p.type === 'GND' || p.icFunction === 'gnd')
   if (gndPair) {
     const { other } = gndPair
@@ -252,8 +218,6 @@ export function validatePinConnection(
       }
     }
   }
-
-  // ── Rule 5: IC to IC connections ───────────────────────────────────────────
   if (pinA.section === 'IC' && pinB.section === 'IC') {
     if (pinA.icFunction === 'output' && pinB.icFunction === 'output') {
       return {
@@ -268,6 +232,5 @@ export function validatePinConnection(
       }
     }
   }
-
   return { valid: true, message: '' }
 }

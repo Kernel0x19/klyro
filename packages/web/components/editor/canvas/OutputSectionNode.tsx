@@ -1,6 +1,5 @@
 import React from 'react'
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react'
-
 export interface OutputSectionNodeData {
   pinStates?: Record<string, boolean>
   displayValues?: [string | number, string | number]
@@ -8,7 +7,6 @@ export interface OutputSectionNodeData {
   onTogglePower?: () => void
   [key: string]: unknown
 }
-
 export type OutputSectionNodeType = Node<
   OutputSectionNodeData,
   'hardwareOutputPanel'
@@ -16,14 +14,12 @@ export type OutputSectionNodeType = Node<
 const PINS: Array<string> = [...Array(16).keys()]
   .map((i) => String(15 - i))
   .concat(['VCC'])
-
 export default function OutputSectionNode({
   data,
 }: NodeProps<OutputSectionNodeType>) {
   const pinStates = data.pinStates || {}
   const displayValues = data.displayValues || ['0', '0']
   const isPowerOn = data.isPowerOn ?? true
-
   return (
     <div
       className="relative bg-[#0ca5d7] rounded-xl shadow-lg border border-[#0a8cb8] px-6 py-4 flex items-center select-none"
@@ -32,11 +28,9 @@ export default function OutputSectionNode({
       <div className="absolute top-2 left-[25%] transform -translate-x-1/2 text-[11px] font-black tracking-wider text-[#054358]">
         OUTPUT SECTION
       </div>
-
       <div className="flex items-center gap-4.5 mt-3">
         {PINS.map((pinName) => {
           const isPinHigh = pinStates[pinName] && isPowerOn
-
           return (
             <div
               key={pinName}
@@ -81,7 +75,6 @@ export default function OutputSectionNode({
               <span className="opacity-5 text-zinc-700 absolute selection:bg-transparent">
                 8
               </span>
-
               <span
                 className={`transition-colors duration-150 font-bold ${
                   isPowerOn

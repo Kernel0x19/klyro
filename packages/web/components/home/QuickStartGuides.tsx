@@ -2,7 +2,6 @@ import { Cpu, Grid3x3, Workflow } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { openOrCreateProject } from '@/lib/supabase/projects'
-
 const cards = [
   {
     Icon: Cpu,
@@ -26,7 +25,6 @@ const cards = [
     module: 'fsm',
   },
 ]
-
 export default function QuickStartGuides() {
   return (
     <section

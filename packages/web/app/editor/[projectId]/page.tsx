@@ -6,21 +6,17 @@ import EditorCanvas from '@/components/editor/EditorCanvas'
 import GuestRedirect from '@/components/editor/GuestRedirect'
 import PropertiesPanel from '@/components/editor/PropertiesPanel'
 import BottomPanel from '@/components/editor/BottomPanel'
-
 interface Props {
   params: Promise<{ projectId: string }>
 }
-
 export default async function EditorPage({ params }: Props) {
   const { projectId } = await params
   const supabase = await createServerSupabaseClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
   const avatarUrl = user?.user_metadata?.avatar_url ?? null
   const name = user?.user_metadata?.full_name ?? user?.email ?? 'U'
-
   let projectName = 'Untitled Project'
   if (user) {
     const { data: circuit } = await supabase
@@ -31,7 +27,6 @@ export default async function EditorPage({ params }: Props) {
       .single()
     if (circuit) projectName = circuit.name
   }
-
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <ProjectSync

@@ -1,8 +1,6 @@
 'use client'
-
 import Image from 'next/image'
 import { openOrCreateProject } from '@/lib/supabase/projects'
-
 export default function HeroActions() {
   return (
     <div className="flex gap-4 mt-2 select-none">
@@ -22,7 +20,6 @@ export default function HeroActions() {
           />
         </button>
       </form>
-
       <button
         className="text-white flex items-center justify-center px-4 py-3 bg-black border-3 border-[#4F6EF7] text-xl font-bold gap-2 transition-all duration-500 hover:rounded-xl cursor-pointer"
         onClick={() =>

@@ -2,13 +2,11 @@
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Check, Loader2 } from 'lucide-react'
-
 interface Props {
   initialTitle?: string | undefined
   projectId?: string | undefined
   userId?: string | undefined
 }
-
 export default function ProjectTitle({
   initialTitle = 'Untitled Project',
   projectId,
@@ -21,12 +19,10 @@ export default function ProjectTitle({
   )
   const inputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
-
   function startEditing() {
     setEditing(true)
     setTimeout(() => inputRef.current?.select(), 0)
   }
-
   async function stopEditing() {
     setEditing(false)
     const trimmed = title.trim()
@@ -36,14 +32,12 @@ export default function ProjectTitle({
     }
     if (trimmed === initialTitle) return
     if (!projectId || !userId) return
-
     setSaveState('saving')
     const { error } = await supabase
       .from('circuits')
       .update({ name: trimmed, last_edited: new Date().toISOString() })
       .eq('project_id', projectId)
       .eq('user_id', userId)
-
     if (!error) {
       setSaveState('saved')
       setTimeout(() => setSaveState('idle'), 2000)
@@ -51,7 +45,6 @@ export default function ProjectTitle({
       setSaveState('idle')
     }
   }
-
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') stopEditing()
     if (e.key === 'Escape') {
@@ -59,7 +52,6 @@ export default function ProjectTitle({
       setEditing(false)
     }
   }
-
   return (
     <>
       <div className="flex items-center justify-center gap-2.5 p-3 cursor-pointer select-none">
@@ -82,7 +74,6 @@ export default function ProjectTitle({
           </h1>
         )}
       </div>
-
       {saveState !== 'idle' && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-[#1a1a1a] border border-neutral-700/60 rounded-xl shadow-xl">
           {saveState === 'saving' ? (

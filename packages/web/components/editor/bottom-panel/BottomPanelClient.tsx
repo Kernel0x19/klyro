@@ -4,7 +4,6 @@ import { ChevronDown, ChevronUp, X } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
 import WaveformViewer from './WaveformViewer'
 import { useBoardStore } from '@/stores/useBoardStore'
-
 const tokens = {
   dark: {
     background: '#000000',
@@ -23,18 +22,14 @@ const tokens = {
     textSecondary: '#5a5f73',
   },
 }
-
 const COLOR_TRANSITION =
   'background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease'
-
 type Tab = 'waveform' | 'console' | 'netlist'
-
 interface ConsoleEntry {
   type: 'info' | 'error' | 'warn'
   message: string
   timestamp?: string
 }
-
 interface NetlistData {
   nodes: number
   components: number
@@ -43,12 +38,10 @@ interface NetlistData {
   warnings: string[]
   raw?: string
 }
-
 interface Props {
   consoleLogs?: ConsoleEntry[]
   netlist?: NetlistData | null
 }
-
 export default function BottomPanelClient({
   consoleLogs = [],
   netlist = null,
@@ -61,11 +54,9 @@ export default function BottomPanelClient({
   const [activeTab, setActiveTab] = useState<Tab>('waveform')
   const { clearWaveform } = useBoardStore()
   const containerRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     setMounted(true)
   }, [])
-
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
@@ -73,7 +64,6 @@ export default function BottomPanelClient({
       const startY = e.clientY
       const startH =
         containerRef.current?.getBoundingClientRect().height ?? panelHeight
-
       const onMouseMove = (moveEvent: MouseEvent) => {
         const deltaY = startY - moveEvent.clientY
         const nextH = startH + deltaY
@@ -84,27 +74,22 @@ export default function BottomPanelClient({
           setPanelHeight(Math.min(Math.max(nextH, 90), 650))
         }
       }
-
       const onMouseUp = () => {
         setIsDragging(false)
         window.removeEventListener('mousemove', onMouseMove)
         window.removeEventListener('mouseup', onMouseUp)
       }
-
       window.addEventListener('mousemove', onMouseMove)
       window.addEventListener('mouseup', onMouseUp)
     },
     [panelHeight]
   )
-
   const t = tokens[theme]
-
   const tabs: { id: Tab; label: string }[] = [
     { id: 'waveform', label: 'Waveform' },
     { id: 'console', label: 'Console' },
     { id: 'netlist', label: 'Netlist' },
   ]
-
   if (!mounted) {
     return (
       <div
@@ -113,7 +98,6 @@ export default function BottomPanelClient({
       />
     )
   }
-
   return (
     <div
       ref={containerRef}
@@ -129,7 +113,7 @@ export default function BottomPanelClient({
           : `height 250ms cubic-bezier(0.4,0,0.2,1), ${COLOR_TRANSITION}`,
       }}
     >
-      {/* ── Top Drag Handle for Vertical Resizing ── */}
+      {}
       <div
         onMouseDown={handleMouseDown}
         className="absolute top-0 left-0 right-0 h-2 -translate-y-1 cursor-ns-resize z-40 group flex items-center justify-center hover:bg-sky-500/10 transition-colors"
@@ -137,7 +121,7 @@ export default function BottomPanelClient({
       >
         <div className="w-12 h-1 rounded-full bg-zinc-400/40 group-hover:bg-sky-500 group-hover:scale-x-125 transition-all duration-150" />
       </div>
-      {/* ── Header bar ── */}
+      {}
       <div
         className="flex items-center justify-between px-2 shrink-0"
         style={{
@@ -146,7 +130,7 @@ export default function BottomPanelClient({
           transition: COLOR_TRANSITION,
         }}
       >
-        {/* Tabs */}
+        {}
         <div className="flex items-center gap-0.5">
           {tabs.map((tab) => (
             <button
@@ -171,8 +155,7 @@ export default function BottomPanelClient({
             </button>
           ))}
         </div>
-
-        {/* Right controls */}
+        {}
         <div className="flex items-center gap-1">
           {!collapsed && (
             <button
@@ -207,14 +190,12 @@ export default function BottomPanelClient({
           </button>
         </div>
       </div>
-
-      {/* ── Body ── */}
+      {}
       {!collapsed && (
         <div className="flex-1 overflow-hidden">
-          {/* Waveform */}
+          {}
           {activeTab === 'waveform' && <WaveformViewer />}
-
-          {/* Console */}
+          {}
           {activeTab === 'console' && (
             <div
               className="w-full h-full overflow-y-auto p-3 font-mono text-[12px]"
@@ -265,8 +246,7 @@ export default function BottomPanelClient({
               )}
             </div>
           )}
-
-          {/* Netlist */}
+          {}
           {activeTab === 'netlist' && (
             <div
               className="w-full h-full overflow-y-auto"
@@ -302,7 +282,6 @@ export default function BottomPanelClient({
                       </div>
                     ))}
                   </div>
-
                   {netlist.errors.length > 0 &&
                     netlist.errors.map((err, i) => (
                       <div key={i} className="flex items-start gap-2 mb-0.5">
@@ -310,7 +289,6 @@ export default function BottomPanelClient({
                         <span style={{ color: '#ef4444' }}>{err}</span>
                       </div>
                     ))}
-
                   {netlist.warnings.length > 0 &&
                     netlist.warnings.map((warn, i) => (
                       <div key={i} className="flex items-start gap-2 mb-0.5">
@@ -318,7 +296,6 @@ export default function BottomPanelClient({
                         <span style={{ color: '#f59e0b' }}>{warn}</span>
                       </div>
                     ))}
-
                   {netlist.raw && (
                     <pre
                       className="mt-2 p-2 rounded-md text-[11px] overflow-x-auto"

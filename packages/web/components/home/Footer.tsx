@@ -1,8 +1,7 @@
-// Server Component — pure static footer with Next.js Link
 import Link from 'next/link'
 import Image from 'next/image'
 import { openOrCreateProject } from '@/lib/supabase/projects'
-
+import { APP_VERSION } from '@/lib/version'
 const links = {
   Product: [
     { label: 'IC Circuit Board', module: 'board' },
@@ -22,7 +21,6 @@ const links = {
     { label: 'License', href: '/license' },
   ],
 }
-
 export default function Footer() {
   return (
     <footer className="w-full border-t-2 border-border-theme bg-bg relative select-none">
@@ -39,10 +37,9 @@ export default function Footer() {
             'linear-gradient(to bottom, black 0%, transparent 100%)',
         }}
       />
-
       <div className="relative max-w-6xl mx-auto px-6 py-16 flex flex-col gap-12">
         <div className="flex flex-wrap justify-between gap-12">
-          {/* Brand */}
+          {}
           <div className="flex flex-col gap-3 max-w-xs">
             <a href="#" className="flex items-center gap-2.5 cursor-pointer">
               <Image
@@ -54,7 +51,7 @@ export default function Footer() {
               />
               <div className="flex gap-1.5 items-baseline">
                 <h1 className="text-2xl font-extrabold">Klyro</h1>
-                <h1 className="text-xs font-extrabold">v0.1.0</h1>
+                <h1 className="text-xs font-extrabold">{APP_VERSION}</h1>
               </div>
             </a>
             <p className="text-sm text-text-secondary leading-relaxed">
@@ -79,8 +76,7 @@ export default function Footer() {
               </a>
             </div>
           </div>
-
-          {/* Link columns */}
+          {}
           <div className="flex flex-wrap gap-16">
             <div className="flex flex-col gap-3">
               <h3 className="text-sm font-bold text-label tracking-wider uppercase">
@@ -125,8 +121,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
-
-        {/* Bottom bar */}
+        {}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border-theme">
           <p className="text-xs text-text-secondary">
             © {new Date().getFullYear()} Klyro. Open source, free forever.
