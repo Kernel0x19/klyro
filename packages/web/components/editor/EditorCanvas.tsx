@@ -437,6 +437,7 @@ function Canvas() {
           onPaneClick={() => {
             clearSelection()
             setSelectedEdge(null)
+            useEditorEdgesStore.getState().setHoveredEdgeId(null)
           }}
           minZoom={0.1}
           maxZoom={4}
