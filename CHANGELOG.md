@@ -9,73 +9,160 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - v0.2.0 (In Progress)
 
-The `v0.2.0` milestone focuses on advanced combinatorial/sequential tools, desktop distribution, and hardware description language (HDL) exports.
+The `v0.2.0` milestone focuses on full simulation coverage for all 31 ICs in the library, introducing dedicated combinational evaluators, a sequential clock-edge engine, counter state machines, universal shift registers, and active clock pulses.
 
-### In Progress & Planned
-- **Desktop Application**:
-  - Electron wrapper for native Windows packaging and offline simulation capabilities.
-- **K-Map Solver & Minimizer**:
-  - Interactive Karnaugh Map solver with automated Quine-McCluskey boolean expression minimization.
-- **Sequential Building Blocks**:
-  - Multiplexers (74LS151, 74LS157), Decoders (74LS138), Shift Registers (74LS164/194), and Adders (74LS83/283).
-- **FSM / ASM Chart Builder**:
-  - Visual Finite State Machine state transition diagrams with excitation table and logic synthesis generation.
-- **HDL Export**:
-  - One-click schematic-to-code export producing synthesizable Verilog and VHDL modules.
-- **Multi-bit Bus & Subcircuit Packaging**:
-  - Modular subcircuit packaging into reusable custom IC blocks and multi-wire bus routing.
+### Target: All 31 ICs Simulate Correctly
+
+#### Combinational IC Evaluators
+- **74LS83**: 4-bit binary full adder with fast internal carry lookahead/propagation.
+- **74LS85**: 4-bit magnitude comparator ($A > B$, $A < B$, $A = B$) with cascading inputs.
+- **74LS138**: 3-to-8 line decoder / demultiplexer with 3 enable pins ($G_1$, $\overline{G}_{2A}$, $\overline{G}_{2B}$).
+- **74LS139**: Dual 2-to-4 line decoder / demultiplexer with individual active-low enables.
+- **74LS151**: 8-to-1 data selector / multiplexer with strobe and complementary ($Y$, $W$) outputs.
+- **74LS153**: Dual 4-to-1 data selector / multiplexer with separate select and enable inputs.
+
+#### Sequential IC Engine
+- Clock edge transition detector (rising $\uparrow$ and falling $\downarrow$ edge detection).
+- **74LS74**: Dual D-type positive-edge-triggered flip-flops with asynchronous preset ($\overline{PRE}$) and clear ($\overline{CLR}$).
+- **74LS76**: Dual JK flip-flops with preset and clear (master-slave architecture).
+
+#### Counter State Machines
+- **74LS90**: Asynchronous BCD decade counter (independent divide-by-2 and divide-by-5 sections).
+- **74LS93**: 4-bit binary counter (independent divide-by-2 and divide-by-8 sections).
+- **74HC191 / 74LS191**: Synchronous 4-bit reversible up/down counters with mode and enable controls.
+
+#### Universal Shift Register Modes
+- **74HC194 / 74LS194**: 4-bit bidirectional universal shift registers with full mode support:
+  - SISO (Serial-In, Serial-Out)
+  - SIPO (Serial-In, Parallel-Out)
+  - PISO (Parallel-In, Serial-Out)
+  - PIPO (Parallel-In, Parallel-Out)
+  - Parallel load and asynchronous master reset.
+
+#### Active Clock Driver
+- Functional clock generator: frequency selector (0.5 Hz, 1 Hz, 5 Hz, 10 Hz) driving periodic clock pulses to sequential ICs.
+- `GENERATE PULSE` button triggering a clean single rising-edge pulse for single-step debugging.
+
+---
+
+## [0.1.4] - 2026-11-06
+
+### Added
+- **Functional Editor Tool Switcher**:
+  - Implemented working tools in sidebar: **Select** (`V`), **Wire** (`W`), **Pan** (`H`), and **Delete** (`D`).
+  - Restricted canvas panning strictly to the Pan tool (`panOnDrag`), preventing unintentional canvas shifts during wiring and IC selection.
+  - Restricted wire creation strictly to the Wire tool (`nodesConnectable`), disabling pin handles in other modes.
+  - Added click-to-delete for wires and IC slots, with automatic cleanup of all connected wires on IC removal.
+  - Added visual hover feedback for Delete mode: 16px wide interaction stroke, red dashed line with drop-shadow glow for wires, and red highlight with remove badge for ICs.
+  - Added keyboard shortcuts (<kbd>V</kbd>, <kbd>W</kbd>, <kbd>H</kbd>, <kbd>D</kbd>) and dynamic bottom panel tool hints.
+
+### Fixed
+- **Navbar Scroll Persistence**: Removed legacy `klyro_scrolled` from `sessionStorage` in `NavbarClient.tsx` that caused the navbar to incorrectly load in a detached/floating state when returning to the top of the homepage from other pages.
+
+---
+
+## [0.1.3] - 2026-11-06
+
+### Fixed
+- **App Version Resolution**: Resolved `.env.local` priority shadowing in Next.js build using `@next/env` to ensure `NEXT_PUBLIC_APP_VERSION` accurately updates client bundles.
+
+### Changed
+- Refactored internal workspace packages to `@klyro/core`.
+
+---
+
+## [0.1.2] - 2026-11-06
+
+### Added
+- **Email Verification Callback**: Updated Supabase `/auth/callback` to redirect to `/auth/verify?type=signup-success` upon successful email confirmation instead of dumping users on `/` with raw access tokens.
+
+---
+
+## [0.1.1] - 2026-11-06
+
+### Added
+- **Dynamic Verification Route**: Added `/auth/verify` supporting email verification, magic links, email change confirmations, and password recovery states.
+- **Form State Preservation**: Fixed `SignupForm` controlled state to retain entered field values during validation errors and added real-time pre-submit validation.
 
 ---
 
 ## [0.1.0] - 2026-11-05
 
-The inaugural release of **Klyro** — a full-featured, open-source web-based lab bench and digital logic simulator.
+The inaugural release of **Klyro** — an open-source, web-based digital logic lab bench and 7400-series circuit simulator.
 
 ### Added
 
-#### Virtual Breadboard & Schematic Canvas
-- Interactive digital breadboard canvas built on React Flow with custom rendering nodes.
-- Modular component placement: DIP-14 and DIP-16 IC sockets, VCC/GND power rails, digital input toggles (switches, buttons), variable clock generators, and output LED probes.
-- Deterministic orthogonal channel router for clean wire runs and pin collision avoidance.
-- Smart pin connection rules: prevents invalid topologies (e.g., output-to-output conflicts, unpowered IC pins) with contextual toast alerts.
-- Canvas keyboard shortcuts: selection clearance on `Escape`, hotkey panning, and fast component placement.
-- Side panel IC catalog with instant drag-and-drop / click-to-place assignment.
-- Collapsible Properties Panel detailing IC pinouts, active pin voltages, and gate configurations.
+#### Circuit Board (3-Zone Layout)
+- **Output Section (Top)**:
+  - 16 output pins (`0`–`15`) plus `VCC` reference.
+  - Live red LED indicators per output pin (`HIGH` = ON, `LOW` = OFF).
+  - 2-digit 7-segment hex display decoding output pins `0`–`7` (`00` to `FF`) in real time (turns dark when power is OFF).
+  - Master simulation power toggle button.
+- **Breadboard Workspace (Middle)**:
+  - Realistic blue lab bench canvas with 5 standardized 20-pin DIP IC slots.
+  - Clear pin numbering (`1`–`20`) per slot, part number labeling, and pin connection handles.
+  - Slot selection with blue highlight border and empty-slot hint banner.
+  - Direct IC assignment via sidebar click or drag-and-drop.
+- **Input Section (Bottom)**:
+  - 16 digital input pins (`0`–`15`) plus `GND`.
+  - Individual toggle switches to flip between `HIGH` and `LOW` with amber LED indicators.
+  - Clock section with selectable frequency markers (0.5 Hz, 1 Hz, 5 Hz, 10 Hz), `GENERATE PULSE` button, and manual HIGH/LOW controls.
 
-#### Event-Driven Simulation Engine (`@klyro/core`)
-- Discrete event simulation engine supporting 4-value logic states (`0`, `1`, `X` [undefined], `Z` [high-impedance]).
-- Centralized `EventScheduler` and typed `EventBus` architecture for deterministic signal propagation.
-- Real-time wire state visualization with instant color-coded feedback (High, Low, Floating).
-- Bidirectional signal propagation across interconnected jumper wires and IC internal gates.
-- Built-in `NetlistCompiler` to serialize and validate circuit connectivity.
+#### IC Library & Navigation
+- **31 7400-Series ICs** organized across 5 distinct categories:
+  - Basic Gates (17 ICs)
+  - Flip-Flops (2 ICs)
+  - Counters (4 ICs)
+  - Registers (2 ICs)
+  - Combinational Logic (6 ICs)
+- Instant search filtering by part number or name, collapsible categories, and star indicators for advanced MSI ICs.
+- Responsive sidebar with smooth collapse to a compact icon rail.
 
-#### 7400-Series TTL IC Library
-- Standard combinatorial gates:
+#### Wire Routing & Real-Time Signal Colors
+- Interactive click-and-drag wiring between pin handles.
+- Orthogonal routing engine generating clean step-path schematics.
+- Dynamic 4-value logic coloring in real time:
+  - **GREEN**: `HIGH` (`1`)
+  - **RED**: `LOW` (`0`)
+  - **GRAY**: Unconnected / Not Simulated
+  - **YELLOW**: Unknown / Contention (`X`)
+- Connection validation rules preventing illegal wiring (e.g., output-to-output conflicts) with toast alerts.
+- Wire selection and deletion via `Delete` / `Backspace`.
+
+#### Signal Simulation — Basic Gates
+- Event-driven discrete simulation engine evaluating circuit state on every input transition.
+- Full gate evaluation for all 17 fundamental gate ICs:
   - **74LS00**: Quad 2-Input NAND
   - **74LS02**: Quad 2-Input NOR
+  - **74LS03**: Quad 2-Input NAND (Open Collector)
   - **74LS04**: Hex Inverter (NOT)
+  - **74LS05**: Hex Inverter (Open Collector)
   - **74LS08**: Quad 2-Input AND
+  - **74LS10**: Triple 3-Input NAND
+  - **74LS11**: Triple 3-Input AND
+  - **74LS14**: Hex Schmitt-Trigger Inverter
+  - **74LS20**: Dual 4-Input NAND
+  - **74LS21**: Dual 4-Input AND
+  - **74LS27**: Triple 3-Input NOR
+  - **74LS30**: 8-Input NAND
   - **74LS32**: Quad 2-Input OR
+  - **74LS38**: Quad 2-Input NAND Buffer (Open Collector)
   - **74LS86**: Quad 2-Input XOR
-- Sequential & arithmetic building blocks:
-  - **74LS74**: Dual D-Type Positive-Edge-Triggered Flip-Flops with Preset & Clear
-  - **74LS90**: 4-Bit Decade / BCD Counter with dual clock inputs
-- Accurate physical pinouts, pin labeling, and internal gate mapping for all components.
+  - **74LS132**: Quad 2-Input NAND Schmitt-Trigger
 
 #### Waveform Viewer & Diagnostics
-- Multi-tab bottom panel containing:
-  - **Waveform Viewer**: Oscilloscope-style timing diagrams with clock cycle markers, signal toggles, and pan/zoom.
-  - **Console**: Real-time simulation event logging and error diagnostics.
-  - **Netlist**: Raw netlist inspection of the active breadboard circuit.
+- Multi-channel digital timing diagram recording signal history on every state change.
+- Dedicated tracks for active inputs (`IN-x`), outputs (`OUT-x`), and clock signals.
+- Color-coded waveforms (Green = `HIGH`, Red = `LOW`) with horizontal scroll support and history clearing.
 
-#### Cloud Workspace & Supabase Backend
-- Complete board state serialization: saves and restores IC positions, wire connections, inputs, clock states, and project metadata.
-- Frictionless guest mode: instant anonymous circuit playground with single-project isolation and smooth login handoff.
-- Supabase authentication: Email/Password, OAuth callbacks, SSR session handling, and activity timeout middleware.
-- Account dashboard: circuit history grid, project renaming, last-edited sorting, and custom avatar upload modal.
+#### Cloud Persistence & Project Isolation
+- Full circuit state serialization to Supabase `circuits` table (`board_state`): IC slot placements, wire topology, input states, and power status.
+- Strict project isolation ensuring IC assignments, wire connections, and inputs do not bleed between projects.
+- Inline project title editing with automatic persistence and last-edited timestamp updates.
+- Row-Level Security (RLS) policies protecting user circuits.
 
-#### Web Platform & SEO
-- Full Next.js 15 App Router architecture with Turborepo monorepo management.
-- Dynamic theme provider (Dark / Light mode) with flash-free local storage persistence.
-- Comprehensive OpenGraph, Twitter Cards, robots indexing directives, and metadata configurations across `/`, `/account`, `/auth/login`, `/auth/signup`, and `/editor/[projectId]`.
+#### Properties Panel
+- Collapsible right-hand inspector displaying part number, description, package type (DIP14/DIP16/DIP20), logic family (LSTTL/HCMOS), propagation delay, and live pin states table during simulation.
+- Quick actions for viewing datasheets and component removal.
+- Seamless Dark and Light theme integration.
 
