@@ -181,7 +181,8 @@ export default function EditorActions({
               alt="Profile"
               width={32}
               height={32}
-              className="rounded-full hover:ring-2 hover:ring-[#4F6EF7] transition-all duration-200"
+              unoptimized
+              className="rounded-full hover:ring-2 hover:ring-[#4F6EF7] transition-all duration-200 object-cover"
             />
           ) : (
             <div className="w-8 h-8 rounded-full bg-[#262626] border border-neutral-700 flex items-center justify-center hover:ring-2 hover:ring-[#4F6EF7] transition-all duration-200">
