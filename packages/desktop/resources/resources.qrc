@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/assets">
+    <file>images/klyro-logo-new.png</file>
+    <file>images/favicon.svg</file>
+  </qresource>
+</RCC>
