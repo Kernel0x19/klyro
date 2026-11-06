@@ -31,6 +31,17 @@ MainWindow::MainWindow(QWidget* parent)
     m_library = new ICLibraryPanel(ui->leftPanelHost);
     ui->leftPanelHostLayout->addWidget(m_library);
 
+    // Keep the parent container in sync with the actual panel width.
+    ui->leftPanelHost->setFixedWidth(
+        m_library->isCollapsed() ? 40 : 224
+    );
+
+    // Resize the parent whenever the library is collapsed or expanded.
+    connect(m_library, &ICLibraryPanel::collapseChanged, this,
+        [this](bool collapsed) {
+            ui->leftPanelHost->setFixedWidth(collapsed ? 40 : 224);
+        });
+
     m_properties = new PropertiesPanel(ui->rightPanelHost);
     ui->rightPanelHostLayout->addWidget(
         m_properties,

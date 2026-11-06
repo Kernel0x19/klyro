@@ -51,11 +51,12 @@ const ICItem basicICs[] = {
 ICLibraryPanel::ICLibraryPanel(QWidget* parent) : QWidget(parent)
 {
     setObjectName("PanelSurface");
+    setAttribute(Qt::WA_StyledBackground, true);
     setMinimumWidth(40);
     setMaximumWidth(224);
 
     auto* root = new QVBoxLayout(this);
-    root->setContentsMargins(0, 0, 0, 0);
+    root->setContentsMargins(1, 1, 1, 1);
     root->setSpacing(0);
 
     m_stack = new QStackedWidget(this);
@@ -77,6 +78,7 @@ QWidget* ICLibraryPanel::buildExpanded()
 
     auto* header = new QWidget(page);
     header->setObjectName("PanelHeader");
+    header->setAttribute(Qt::WA_StyledBackground, true);
     auto* headerLayout = new QHBoxLayout(header);
     headerLayout->setContentsMargins(10, 6, 7, 6);
     auto* title = new QLabel("IC LIBRARY", header);

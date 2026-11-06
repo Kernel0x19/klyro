@@ -2,12 +2,23 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry"><rect><x>0</x><y>0</y><width>1600</width><height
-        >830</height></rect></property>
-  <property name="windowTitle"><string
-      >Klyro — Digital Electronics Trainer</string></property>
-  <property name="minimumSize"><size><width>1100</width><height
-        >650</height></size></property>
+  <property name="geometry">
+      <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>1600</width>
+          <height>830</height>
+      </rect>
+  </property>
+  <property name="windowTitle">
+      <string>Klyro — Digital Circuit Simulator</string>
+  </property>
+  <property name="minimumSize">
+      <size>
+          <width>1100</width>
+          <height >650</height>
+      </size>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="rootLayout">
     <property name="spacing"><number>0</number></property>
@@ -17,79 +28,94 @@
     <property name="bottomMargin"><number>0</number></property>
     <item>
      <widget class="QWidget" name="topBarHost" native="true">
-      <property name="minimumSize"><size><width>0</width><height
-                >84</height></size></property>
-      <property name="maximumSize"><size><width>16777215</width><height
-                >84</height></size></property>
+      <property name="minimumSize">
+          <size>
+              <width>0</width>
+              <height>84</height>
+          </size>
+      </property>
+      <property name="maximumSize">
+          <size>
+              <width>16777215</width>
+              <height>84</height>
+          </size>
+      </property>
       <layout class="QVBoxLayout" name="topBarHostLayout">
        <property name="spacing"><number>0</number></property>
-       <property name="leftMargin"><number>0</number></property><property
-                name="topMargin"
-              ><number>0</number></property><property name="rightMargin"><number
-                >0</number></property><property name="bottomMargin"><number
-                >0</number></property>
+       <property name="leftMargin"><number>0</number></property>
+       <property name="topMargin"><number>0</number></property>
+       <property name="rightMargin"><number>0</number></property>
+       <property name="bottomMargin"><number>0</number></property>
       </layout>
      </widget>
     </item>
     <item>
      <widget class="QWidget" name="bodyHost" native="true">
       <layout class="QHBoxLayout" name="bodyLayout">
-       <property name="spacing"><number>3</number></property>
-       <property name="leftMargin"><number>0</number></property><property
-                name="topMargin"
-              ><number>0</number></property><property name="rightMargin"><number
-                >0</number></property><property name="bottomMargin"><number
-                >0</number></property>
+       <property name="spacing"><number>6</number></property>
+       <property name="leftMargin"><number>6</number></property>
+       <property name="topMargin"><number>6</number></property>
+       <property name="rightMargin"><number>6</number></property>
+       <property name="bottomMargin"><number>6</number></property>
        <item>
         <widget class="QWidget" name="leftPanelHost" native="true">
-         <property name="minimumSize"><size><width>40</width><height
-                      >0</height></size></property>
-         <property name="maximumSize"><size><width>224</width><height
-                      >16777215</height></size></property>
+         <property name="minimumSize">
+             <size>
+                 <width>40</width>
+                 <height>0</height>
+             </size>
+         </property>
+         <property name="maximumSize">
+             <size>
+                 <width>224</width>
+                 <height >16777215</height>
+             </size>
+         </property>
          <layout class="QVBoxLayout" name="leftPanelHostLayout">
           <property name="spacing"><number>0</number></property>
-          <property name="leftMargin"><number>0</number></property><property
-                      name="topMargin"
-                    ><number>0</number></property><property
-                      name="rightMargin"
-                    ><number>0</number></property><property
-                      name="bottomMargin"
-                    ><number>0</number></property>
+          <property name="leftMargin"><number>0</number></property>
+          <property name="topMargin"><number>0</number></property>
+          <property name="rightMargin"><number>0</number></property>
+          <property name="bottomMargin"><number>0</number></property>
          </layout>
         </widget>
        </item>
        <item>
         <widget class="QWidget" name="centerPanelHost" native="true">
          <layout class="QVBoxLayout" name="centerPanelHostLayout">
-          <property name="spacing"><number>0</number></property>
-          <property name="leftMargin"><number>0</number></property><property
-                      name="topMargin"
-                    ><number>0</number></property><property
-                      name="rightMargin"
-                    ><number>0</number></property><property
-                      name="bottomMargin"
-                    ><number>0</number></property>
+          <property name="spacing"><number>6</number></property>
+          <property name="leftMargin"><number>0</number></property>
+          <property name="topMargin"><number>0</number></property>
+          <property name="rightMargin"><number>0</number></property>
+          <property name="bottomMargin"><number>0</number></property>
           <item>
            <widget class="BoardView" name="boardView">
-            <property name="minimumSize"><size><width>0</width><height
-                            >250</height></size></property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>250</height>
+                </size>
+            </property>
            </widget>
           </item>
           <item>
            <widget class="QWidget" name="bottomPanelHost" native="true">
-            <property name="minimumSize"><size><width>0</width><height
-                            >32</height></size></property>
-            <property name="maximumSize"><size><width>16777215</width><height
-                            >164</height></size></property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>32</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>16777215</width>
+                    <height>164</height>
+                </size>
+            </property>
             <layout class="QVBoxLayout" name="bottomPanelHostLayout">
              <property name="spacing"><number>0</number></property>
-             <property name="leftMargin"><number>0</number></property><property
-                            name="topMargin"
-                          ><number>0</number></property><property
-                            name="rightMargin"
-                          ><number>0</number></property><property
-                            name="bottomMargin"
-                          ><number>0</number></property>
+             <property name="leftMargin"><number>0</number></property><property name="topMargin"><number>0</number></property>
+             <property name="rightMargin"><number>0</number></property><property name="bottomMargin"><number>0</number></property>
             </layout>
            </widget>
           </item>
@@ -98,19 +124,24 @@
        </item>
        <item>
         <widget class="QWidget" name="rightPanelHost" native="true">
-         <property name="minimumSize"><size><width>40</width><height
-                      >0</height></size></property>
-         <property name="maximumSize"><size><width>216</width><height
-                      >16777215</height></size></property>
+         <property name="minimumSize">
+             <size>
+                 <width>40</width>
+                 <height>0</height>
+             </size>
+         </property>
+         <property name="maximumSize">
+             <size>
+                 <width>216</width>
+                 <height>16777215</height>
+             </size>
+         </property>
          <layout class="QVBoxLayout" name="rightPanelHostLayout">
           <property name="spacing"><number>0</number></property>
-          <property name="leftMargin"><number>0</number></property><property
-                      name="topMargin"
-                    ><number>0</number></property><property
-                      name="rightMargin"
-                    ><number>0</number></property><property
-                      name="bottomMargin"
-                    ><number>0</number></property>
+          <property name="leftMargin"><number>0</number></property>
+          <property name="topMargin"><number>0</number></property>
+          <property name="rightMargin"><number>0</number></property>
+          <property name="bottomMargin" ><number>0</number></property>
          </layout>
         </widget>
        </item>

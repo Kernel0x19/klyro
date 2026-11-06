@@ -11,11 +11,12 @@
 PropertiesPanel::PropertiesPanel(QWidget* parent) : QWidget(parent)
 {
     setObjectName("PanelSurface");
+    setAttribute(Qt::WA_StyledBackground, true);
     setMinimumWidth(40);
     setMaximumWidth(216);
 
     auto* root = new QVBoxLayout(this);
-    root->setContentsMargins(0, 0, 0, 0);
+    root->setContentsMargins(1, 1, 1, 1);
     root->setSpacing(0);
 
     m_stack = new QStackedWidget(this);
@@ -26,6 +27,7 @@ PropertiesPanel::PropertiesPanel(QWidget* parent) : QWidget(parent)
 
     auto* header = new QWidget(m_expanded);
     header->setObjectName("PanelHeader");
+    header->setAttribute(Qt::WA_StyledBackground, true);
     auto* headerLayout = new QHBoxLayout(header);
     headerLayout->setContentsMargins(10, 6, 7, 6);
     auto* heading = new QLabel("PROPERTIES", header);

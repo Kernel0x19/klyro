@@ -136,17 +136,19 @@ void BoardView::fitBoard()
 void BoardView::drawBackground(QPainter* painter, const QRectF& rect)
 {
     const QColor background = m_dark ? QColor("#000000") : QColor("#ffffff");
-    const QColor grid = m_dark ? QColor(255, 255, 255, 24) : QColor(0, 0, 0, 34);
+    const QColor grid = m_dark ? QColor(255, 255, 255, 84) : QColor(0, 0, 0, 82);
     painter->fillRect(rect, background);
     painter->save();
     painter->setPen(Qt::NoPen);
     painter->setBrush(grid);
+
     constexpr int spacing = 20;
+    constexpr qreal dotRadius = 1.2;
     const int left = qFloor(rect.left() / spacing) * spacing;
     const int top = qFloor(rect.top() / spacing) * spacing;
     for (int x = left; x <= rect.right(); x += spacing) {
         for (int y = top; y <= rect.bottom(); y += spacing) {
-            painter->drawEllipse(QPointF(x, y), 1.0, 1.0);
+            painter->drawEllipse(QPointF(x, y), dotRadius, dotRadius);
         }
     }
     painter->restore();
@@ -415,6 +417,16 @@ void BoardView::paintEvent(QPaintEvent* event)
 {
     QGraphicsView::paintEvent(event);
     QPainter p(viewport());
+
+    // Canvas border
+    const QColor borderColor = m_dark ? QColor("#3e4864") : QColor("#cbd0df");
+
+    p.setRenderHint(QPainter::Antialiasing, false);
+    p.setPen(QPen(borderColor, 1));
+    p.setBrush(Qt::NoBrush);
+
+    p.drawRect( viewport()->rect().adjusted(0, 0, -1, -1) );
+
     const QRect box = zoomOverlayRect();
     p.setRenderHint(QPainter::Antialiasing, true);
     p.setPen(QPen(m_dark ? QColor("#343a40") : QColor("#d9dce6"), 1));
