@@ -12,6 +12,7 @@ class TopBarWidget final : public QWidget {
     Q_OBJECT
 public:
     explicit TopBarWidget(QWidget* parent = nullptr);
+    void setDarkTheme(bool dark);
 
 signals:
     void runRequested();

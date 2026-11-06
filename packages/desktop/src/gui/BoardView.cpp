@@ -312,7 +312,7 @@ void BoardView::drawInputPanel(QPainter* p)
     // Four manual clock terminals.
     const QStringList clockNames = {"10", "5", "1", "0.5"};
     for (int i = 0; i < clockNames.size(); ++i) {
-        const qreal x = INPUT_PANEL.left() + 985 + i * 47.0;
+        const qreal x = INPUT_PANEL.left() + 920 + i * 47.0;
         drawLed(p, QPointF(x, INPUT_PANEL.top() + 24), false, QColor("#ef4444"));
         p->setPen(QPen(QColor("#777f89"), 1.5));
         p->drawLine(QPointF(x, INPUT_PANEL.top() + 32), QPointF(x, INPUT_PANEL.top() + 57));
@@ -320,12 +320,49 @@ void BoardView::drawInputPanel(QPainter* p)
         p->drawText(QRectF(x - 18, INPUT_PANEL.top() + 70, 36, 12), Qt::AlignCenter, clockNames[i]);
     }
 
-    // HIGH / LOW legend.
+    // Divider between clock terminals and HIGH/LOW indicators.
+    const qreal dividerX = INPUT_PANEL.left() + 1120;
+
+    p->setPen(QPen(QColor("#0787b0"), 2));
+
+    p->drawLine(
+        QPointF(dividerX, INPUT_PANEL.top() + 30),
+        QPointF(dividerX, INPUT_PANEL.top() + 80)
+        );
+
+    p->setPen(BOARD_LABEL);
+
+    // HIGH/LOW indicators
     p->setFont(QFont("Inter", 6, QFont::Bold));
-    p->drawText(QRectF(INPUT_PANEL.left() + 1170, INPUT_PANEL.top() + 20, 45, 12), Qt::AlignCenter, "HIGH");
-    p->drawText(QRectF(INPUT_PANEL.left() + 1220, INPUT_PANEL.top() + 20, 45, 12), Qt::AlignCenter, "LOW");
-    drawLed(p, QPointF(INPUT_PANEL.left() + 1193, INPUT_PANEL.top() + 44), false, QColor("#777777"));
-    drawLed(p, QPointF(INPUT_PANEL.left() + 1243, INPUT_PANEL.top() + 44), false, QColor("#777777"));
+
+    const qreal highX = INPUT_PANEL.left() + 1170;
+    const qreal lowX  = INPUT_PANEL.left() + 1205;
+
+    p->drawText(
+        QRectF(highX - 22, INPUT_PANEL.top() + 20, 44, 12),
+        Qt::AlignCenter,
+        "HIGH"
+        );
+
+    p->drawText(
+        QRectF(lowX - 22, INPUT_PANEL.top() + 20, 44, 12),
+        Qt::AlignCenter,
+        "LOW"
+        );
+
+    drawLed(
+        p,
+        QPointF(highX, INPUT_PANEL.top() + 44),
+        false,
+        QColor("#777777")
+        );
+
+    drawLed(
+        p,
+        QPointF(lowX, INPUT_PANEL.top() + 44),
+        false,
+        QColor("#777777")
+        );
 
     // Generate-pulse button (visual only in this UI milestone).
     const QRectF pulse(INPUT_PANEL.right() - 170, INPUT_PANEL.top() + 30, 135, 52);

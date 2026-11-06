@@ -1,4 +1,5 @@
 #include "gui/ICLibraryPanel.hpp"
+#include "gui/SvgIcon.hpp"
 
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -9,6 +10,8 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QHBoxLayout>
+#include <QColor>
+#include <QSize>
 
 namespace {
 QToolButton* toolButton(const QString& text, const QString& name, QWidget* parent)
@@ -147,11 +150,20 @@ QWidget* ICLibraryPanel::buildExpanded()
     toolsLayout->setContentsMargins(7, 5, 7, 5);
     toolsLayout->setSpacing(5);
     const QList<QPair<QString, QString>> items = {
-        {"↖", "select"}, {"ϟ", "wire"}, {"✋", "pan"}, {"⌫", "delete"}
+        {"select", ":/assets/icons/mousepointer.svg"},
+        {"wire",   ":/assets/icons/wire.svg"},
+        {"pan",    ":/assets/icons/pan.svg"},
+        {"delete", ":/assets/icons/trash.svg"}
     };
     for (const auto& item : items) {
-        auto* b = toolButton(item.first, item.second, tools);
-        connect(b, &QToolButton::clicked, this, [this, id = item.second]() { setActiveTool(id); });
+        auto* b = toolButton("", item.first, tools);
+        b->setProperty("svgResource", item.second);
+        b->setToolButtonStyle(Qt::ToolButtonIconOnly);
+        b->setIconSize(QSize(18, 18));
+        connect(b, &QToolButton::clicked, this,
+                [this, id = item.first]() {
+                    setActiveTool(id);
+                });
         toolsLayout->addWidget(b);
     }
     layout->addWidget(tools);
@@ -178,11 +190,26 @@ QWidget* ICLibraryPanel::buildCollapsed()
     layout->addWidget(line);
 
     const QList<QPair<QString, QString>> items = {
-        {"↖", "select"}, {"ϟ", "wire"}, {"✋", "pan"}, {"⌫", "delete"}
+        {"select", ":/assets/icons/mousepointer.svg"},
+        {"wire",   ":/assets/icons/wire.svg"},
+        {"pan",    ":/assets/icons/pan.svg"},
+        {"delete", ":/assets/icons/trash.svg"}
     };
-    for (const auto& item : items) {
-        auto* b = toolButton(item.first, item.second, page);
-        connect(b, &QToolButton::clicked, this, [this, id = item.second]() { setActiveTool(id); });
+
+    for (const auto& item : items)
+    {
+        auto* b = toolButton("", item.first, page);
+
+        b->setProperty("svgResource", item.second);
+
+        b->setToolButtonStyle(Qt::ToolButtonIconOnly);
+        b->setIconSize(QSize(18, 18));
+
+        connect(b, &QToolButton::clicked, this,
+                [this, id = item.first]() {
+                    setActiveTool(id);
+                });
+
         layout->addWidget(b, 0, Qt::AlignHCenter);
     }
     layout->addStretch();
@@ -200,7 +227,30 @@ void ICLibraryPanel::setCollapsed(bool collapsed)
 void ICLibraryPanel::setDarkTheme(bool dark)
 {
     m_dark = dark;
-    Q_UNUSED(m_dark);
+
+    const QColor normalColor = dark ? QColor("#8b8fa8") : QColor("#5a5f73");
+    const QColor activeColor("#4f6ef7");
+
+    for (QToolButton* button : findChildren<QToolButton*>())
+    {
+        if (!button->objectName().startsWith("ToolButton_"))
+            continue;
+
+        const QString resourcePath =
+            button->property("svgResource").toString();
+
+        if (resourcePath.isEmpty())
+            continue;
+
+        button->setIcon(
+            makeStatefulSvgIcon(
+                resourcePath,
+                QSize(18, 18),
+                normalColor,
+                activeColor
+                )
+            );
+    }
 }
 
 void ICLibraryPanel::filterItems(const QString& text)

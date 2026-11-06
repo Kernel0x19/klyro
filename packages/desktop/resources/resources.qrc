@@ -1,6 +1,18 @@
 <RCC>
   <qresource prefix="/assets">
+
     <file>images/klyro-logo-new.png</file>
     <file>images/favicon.svg</file>
+
+    <file>icons/run.svg</file>
+    <file>icons/open.svg</file>
+    <file>icons/save.svg</file>
+    <file>icons/settings.svg</file>
+
+    <file>icons/mousepointer.svg</file>
+    <file>icons/wire.svg</file>
+    <file>icons/pan.svg</file>
+    <file>icons/trash.svg</file>
+
   </qresource>
 </RCC>

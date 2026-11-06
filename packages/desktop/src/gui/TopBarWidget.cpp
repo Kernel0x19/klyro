@@ -1,4 +1,5 @@
 #include "gui/TopBarWidget.hpp"
+#include "gui/SvgIcon.hpp"
 
 #include <QAction>
 #include <QFrame>
@@ -106,15 +107,63 @@ TopBarWidget::TopBarWidget(QWidget* parent) : QWidget(parent)
     actionLayout->setContentsMargins(0, 0, 0, 0);
     actionLayout->setSpacing(5);
 
-    auto* run = makeButton("▶", "Run simulation", "IconButton", actions);
+    auto* run = makeButton("", "Run simulation", "IconButton", actions);
+
+    run->setProperty(
+        "svgResource",
+        ":/assets/icons/run.svg"
+    );
+
+    run->setIcon(
+        makeSvgIcon(
+            ":/assets/icons/run.svg",
+            QSize(24, 24),
+            QColor("#e8eaf0")
+        )
+    );
+
+    run->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    run->setIconSize(QSize(24, 24));
     connect(run, &QToolButton::clicked, this, &TopBarWidget::runRequested);
     actionLayout->addWidget(run);
 
-    auto* open = makeButton("▣", "Open project", "IconButton", actions);
+    auto* open = makeButton("", "Open project", "IconButton", actions);
+
+    open->setProperty(
+        "svgResource",
+        ":/assets/icons/open.svg"
+        );
+
+    open->setIcon(
+        makeSvgIcon(
+            ":/assets/icons/open.svg",
+            QSize(24, 24),
+            QColor("#e8eaf0")
+            )
+        );
+
+    open->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    open->setIconSize(QSize(24, 24));
     connect(open, &QToolButton::clicked, this, &TopBarWidget::openRequested);
     actionLayout->addWidget(open);
 
-    auto* save = makeButton("▤", "Save project", "IconButton", actions);
+    auto* save = makeButton("", "Save Project", "IconButton", actions);
+
+    save->setProperty(
+        "svgResource",
+        ":/assets/icons/save.svg"
+        );
+
+    save->setIcon(
+        makeSvgIcon(
+            ":/assets/icons/save.svg",
+            QSize(24, 24),
+            QColor("#e8eaf0")
+            )
+        );
+
+    save->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    save->setIconSize(QSize(24, 24));
     connect(save, &QToolButton::clicked, this, &TopBarWidget::saveRequested);
     actionLayout->addWidget(save);
 
@@ -123,15 +172,37 @@ TopBarWidget::TopBarWidget(QWidget* parent) : QWidget(parent)
     actionSeparator->setFixedHeight(38);
     actionLayout->addWidget(actionSeparator);
 
-    auto* settings = makeButton("⚙", "Settings", "IconButton", actions);
+    auto* settings = makeButton("", "Settings", "IconButton", actions);
+
+    settings->setProperty(
+        "svgResource",
+        ":/assets/icons/settings.svg"
+        );
+
+    settings->setIcon(
+        makeSvgIcon(
+            ":/assets/icons/settings.svg",
+            QSize(24, 24),
+            QColor("#e8eaf0")
+            )
+        );
+
+    settings->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    settings->setIconSize(QSize(24, 24));
+
     auto* settingsMenu = new QMenu(settings);
+
     QAction* themeAction = settingsMenu->addAction("Toggle light / dark theme");
+
     connect(themeAction, &QAction::triggered, this, &TopBarWidget::themeToggleRequested);
+
     settingsMenu->addSeparator();
     settingsMenu->addAction("Grid settings")->setEnabled(false);
     settingsMenu->addAction("Keyboard shortcuts")->setEnabled(false);
+
     settings->setMenu(settingsMenu);
     settings->setPopupMode(QToolButton::InstantPopup);
+
     actionLayout->addWidget(settings);
 
     auto* avatar = makeButton("M", "Profile", "AvatarButton", actions);
@@ -139,6 +210,28 @@ TopBarWidget::TopBarWidget(QWidget* parent) : QWidget(parent)
     actionLayout->addWidget(avatar);
 
     row->addWidget(actions);
+}
+
+void TopBarWidget::setDarkTheme(bool dark)
+{
+    const QColor iconColor = dark ? QColor("#e8eaf0") : QColor("#14161c");
+
+    for (QToolButton* button : findChildren<QToolButton*>())
+    {
+        const QString resourcePath =
+            button->property("svgResource").toString();
+
+        if (resourcePath.isEmpty())
+            continue;
+
+        button->setIcon(
+            makeSvgIcon(
+                resourcePath,
+                QSize(24, 24),
+                iconColor
+                )
+            );
+    }
 }
 
 void TopBarWidget::setActiveModule(const QString& moduleName)

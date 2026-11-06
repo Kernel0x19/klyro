@@ -32,7 +32,11 @@ MainWindow::MainWindow(QWidget* parent)
     ui->leftPanelHostLayout->addWidget(m_library);
 
     m_properties = new PropertiesPanel(ui->rightPanelHost);
-    ui->rightPanelHostLayout->addWidget(m_properties);
+    ui->rightPanelHostLayout->addWidget(
+        m_properties,
+        0,
+        Qt::AlignRight
+    );
 
     m_bottom = new BottomPanel(ui->bottomPanelHost);
     ui->bottomPanelHostLayout->addWidget(m_bottom);
@@ -118,6 +122,7 @@ void MainWindow::toggleTheme()
 void MainWindow::applyTheme()
 {
     ThemeManager::apply(*qApp, m_dark);
+    m_topBar->setDarkTheme(m_dark);
     m_board->setDarkTheme(m_dark);
     m_library->setDarkTheme(m_dark);
     m_properties->setDarkTheme(m_dark);
