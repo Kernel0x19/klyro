@@ -95,6 +95,22 @@ export function simulateBoard(
   for (const [pin, isHigh] of Object.entries(clockStates)) {
     setSignal('main-input-clock-panel', `clock-${pin}`, isHigh ? 'HIGH' : 'LOW')
   }
+  const isDriver = (nodeId: string, pinId: string): boolean => {
+    if (nodeId === 'main-input-clock-panel') return true
+    if (nodeId === 'main-output-panel' && pinId === 'pin-VCC') return true
+    if (nodeId.startsWith('ic-chip-')) {
+      const chipIndex = parseInt(nodeId.replace('ic-chip-', ''), 10) - 1
+      const slot = icSlots[chipIndex]
+      if (!slot?.icDefinition) return false
+      const ic = findIC(slot.icDefinition.partNumber)
+      if (!ic) return false
+      const pinNum = parseInt(pinId.replace('pin-', ''), 10)
+      const pin = ic.pins.find((p) => p.number === pinNum)
+      return pin?.function === 'output'
+    }
+    return false
+  }
+
   const propagateEdges = (): boolean => {
     let changed = false
     for (const edge of edges) {
@@ -102,12 +118,28 @@ export function simulateBoard(
       const tHandle = edge.targetHandle ?? ''
       const sSig = getSignal(edge.source, sHandle)
       const tSig = getSignal(edge.target, tHandle)
-      if (sSig !== 'unconnected' && tSig === 'unconnected') {
-        setSignal(edge.target, tHandle, sSig)
-        changed = true
-      } else if (tSig !== 'unconnected' && sSig === 'unconnected') {
-        setSignal(edge.source, sHandle, tSig)
-        changed = true
+
+      const sDriver = isDriver(edge.source, sHandle)
+      const tDriver = isDriver(edge.target, tHandle)
+
+      if (sDriver && !tDriver) {
+        if (tSig !== sSig) {
+          setSignal(edge.target, tHandle, sSig)
+          changed = true
+        }
+      } else if (tDriver && !sDriver) {
+        if (sSig !== tSig) {
+          setSignal(edge.source, sHandle, tSig)
+          changed = true
+        }
+      } else {
+        if (sSig !== 'unconnected' && tSig === 'unconnected') {
+          setSignal(edge.target, tHandle, sSig)
+          changed = true
+        } else if (tSig !== 'unconnected' && sSig === 'unconnected') {
+          setSignal(edge.source, sHandle, tSig)
+          changed = true
+        }
       }
     }
     return changed
@@ -163,7 +195,7 @@ export function simulateBoard(
     }
     return changed
   }
-  for (let pass = 0; pass < 5; pass++) {
+  for (let pass = 0; pass < 10; pass++) {
     const p1 = propagateEdges()
     const p2 = evaluateAllICs()
     const p3 = propagateEdges()
