@@ -10,7 +10,7 @@ An interactive Digital Logic & Computer Systems simulator designed for students,
 [![Next.js](https://img.shields.io/badge/Next.js-15.3-black?style=flat&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Turborepo](https://img.shields.io/badge/Monorepo-Turborepo-red?style=flat&logo=turborepo)](https://turbo.build/)
-[![Status](https://img.shields.io/badge/Status-v0.1.0%20(Complete)%20%7C%20v0.2.0%20(In%20Progress)-brightgreen)](#status)
+[![Status](https://img.shields.io/badge/Status-v0.1.5%20(Latest)%20%7C%20v0.2.0%20(In%20Progress)-brightgreen)](#status)
 
 </div>
 
@@ -18,7 +18,7 @@ An interactive Digital Logic & Computer Systems simulator designed for students,
 
 ## 🚀 Status
 
-- ✅ **`v0.1.0` (Complete)** — Foundational web release featuring the interactive 3-zone circuit board, 31-component 7400-series TTL library, real-time simulation for all 17 basic gate ICs, orthogonal wire routing, 2-digit 7-segment hex display, multi-track waveform viewer, dedicated editor tool switcher (Select, Wire, Pan, Delete), Supabase cloud persistence, and isolated project workspaces.
+- ✅ **`v0.1.5` (Latest Stable)** — Web release featuring clean bounded orthogonal wire routing with crossover bridge hops, 12-color net palettes, focus dimming, multi-pass simulation convergence, 3-zone circuit board, 31-component TTL library, real-time simulation for all 17 basic gate ICs, 2-digit 7-segment hex display, multi-track waveform viewer, dedicated editor tool switcher (Select, Wire, Pan, Delete), Supabase cloud persistence, and isolated project workspaces.
 - 🚧 **`v0.2.0` (In Progress)** — Active development focusing on full simulation coverage for all 31 ICs: custom combinational evaluators (adders, comparators, decoders, multiplexers), sequential clock-edge engine (flip-flops), counter state machines, universal shift registers (SISO, SIPO, PISO, PIPO), and active clock pulsing.
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and patch histories.

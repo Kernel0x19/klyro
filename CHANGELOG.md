@@ -45,6 +45,29 @@ The `v0.2.0` milestone focuses on full simulation coverage for all 31 ICs in the
 
 ---
 
+## [0.1.5] - 2026-11-06
+
+### Added
+- **Multi-Color Wire Net Palette**:
+  - Implemented 12 high-contrast wire net colors derived deterministically from the source driver pin, making dense multi-IC circuit nets instantly distinguishable.
+- **Interactive Wire Focus Dimming**:
+  - Hovering any wire dims unrelated wires to 20% opacity while elevating the active net with a highlight glow.
+- **Pin Inspection Tooltips**:
+  - Hovering a wire displays a midpoint badge indicating origin and destination pin labels (e.g., `IN-0 → 74LS08:1A`).
+- **Crossover Bridge Hops**:
+  - Manhattan routing engine automatically detects orthogonal intersections and renders SVG arc jumper hops to clearly distinguish crossing wires.
+
+### Fixed
+- **Wire Routing Boundary Clamping**:
+  - Resolved wire routing overflow where unmounted edges with uninitialized handle coordinates caused wires to project outside the canvas.
+  - Implemented exact pin coordinate resolution (`resolveHandlePosition`) and clamped orthogonal wire corridors to board boundaries ($X \in [85, 1415]$) with adaptive track pitch.
+- **Simulation Signal Freeze on Cascaded Gates**:
+  - Fixed edge propagation logic in `propagateEdges` where non-unconnected receiving pins were prevented from updating when driver outputs changed.
+  - Added directional `isDriver` awareness to ensure downstream gate inputs update reliably on state changes.
+  - Increased convergence iteration limit to 10 passes for complete settling of deep combinational networks (e.g., multi-stage full adders).
+
+---
+
 ## [0.1.4] - 2026-11-06
 
 ### Added
