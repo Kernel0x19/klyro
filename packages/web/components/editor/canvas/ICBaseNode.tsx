@@ -1,5 +1,6 @@
 import React from 'react'
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react'
+import { Trash2 } from 'lucide-react'
 import { IC_LIBRARY, type ICPin } from '@/lib/icLibrary'
 export interface ICBaseNodeData {
   label?: string
@@ -13,7 +14,17 @@ export interface ICBaseNodeData {
     gnd: number
   } | null
   onSelect?: () => void
+  onAssignIC?: (ic: {
+    partNumber: string
+    name: string
+    packageType: string
+    family: string
+    delay: number
+    vcc: number
+    gnd: number
+  }) => void
   isSelected?: boolean
+  isDeleteMode?: boolean
   [key: string]: unknown
 }
 export type ICBaseNodeType = Node<ICBaseNodeData, 'icBaseNode'>
@@ -115,13 +126,36 @@ export default function ICBaseNode({ data }: NodeProps<ICBaseNodeType>) {
       </div>
       {}
       <div
-        className={`relative bg-[#1a1a1a] rounded-md flex items-center justify-center shadow-xl cursor-pointer transition-all ${
-          data.isSelected
+        className={`relative bg-[#1a1a1a] rounded-md flex items-center justify-center shadow-xl cursor-pointer transition-all group ${
+          data.isDeleteMode && data.icDefinition
+            ? 'border-[3px] border-red-500/80 hover:border-red-500 hover:shadow-[0_0_15px_rgba(239,68,68,0.5)]'
+            : data.isSelected
             ? 'border-[3px] border-[#4F6EF7]'
             : 'border-[3px] border-[#0a0a0a] hover:border-zinc-600'
         }`}
         style={{ width: '90px', height: `${bodyH}px` }}
         onClick={() => data.onSelect?.()}
+        onDragOver={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+        }}
+        onDrop={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          const part = e.dataTransfer.getData('ic-part')
+          if (!part) return
+          const found = getICEntry(part)
+          if (!found) return
+          data.onAssignIC?.({
+            partNumber: found.part,
+            name: found.name,
+            packageType: found.packageType,
+            family: found.family,
+            delay: found.delay,
+            vcc: found.vcc,
+            gnd: found.gnd,
+          })
+        }}
       >
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-3 bg-[#262626] rounded-b-full border-b-2 border-black" />
         <div
@@ -137,6 +171,14 @@ export default function ICBaseNode({ data }: NodeProps<ICBaseNodeType>) {
             </span>
           )}
         </div>
+        {data.isDeleteMode && data.icDefinition && (
+          <div className="absolute inset-0 bg-red-950/70 rounded-md flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+            <Trash2 size={20} className="text-red-400 animate-pulse" />
+            <span className="text-[9px] text-red-300 font-bold uppercase tracking-wider font-mono">
+              Remove
+            </span>
+          </div>
+        )}
       </div>
       {}
       <div

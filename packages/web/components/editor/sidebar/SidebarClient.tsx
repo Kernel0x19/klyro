@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
 import { IC_LIBRARY } from '@/lib/icLibrary'
-import { useBoardStore } from '@/stores/useBoardStore'
+import { useBoardStore, type EditorTool } from '@/stores/useBoardStore'
 const tokens = {
   dark: {
     background: '#000000',
@@ -35,7 +35,6 @@ const tokens = {
 }
 const COLOR_TRANSITION =
   'background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease'
-type Tool = 'select' | 'wire' | 'pan' | 'delete'
 export default function SidebarClient() {
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -48,7 +47,8 @@ export default function SidebarClient() {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
     Object.fromEntries(IC_LIBRARY.map((g) => [g.category, true]))
   )
-  const [activeTool, setActiveTool] = useState<Tool>('select')
+  const activeTool = useBoardStore((s) => s.activeTool)
+  const setActiveTool = useBoardStore((s) => s.setActiveTool)
   const [hoveredIC, setHoveredIC] = useState<string | null>(null)
   const { selectedSlotId, icSlots, assignIC } = useBoardStore()
   const filtered = useMemo(() => {
@@ -65,11 +65,11 @@ export default function SidebarClient() {
   function toggleGroup(cat: string) {
     setOpenGroups((prev) => ({ ...prev, [cat]: !prev[cat] }))
   }
-  const tools: { id: Tool; icon: React.ReactNode; label: string }[] = [
-    { id: 'select', icon: <MousePointer2 size={18} />, label: 'Select' },
-    { id: 'wire', icon: <Zap size={18} />, label: 'Wire' },
-    { id: 'pan', icon: <Hand size={18} />, label: 'Pan' },
-    { id: 'delete', icon: <Trash2 size={18} />, label: 'Delete' },
+  const tools: { id: EditorTool; icon: React.ReactNode; label: string }[] = [
+    { id: 'select', icon: <MousePointer2 size={18} />, label: 'Select (V)' },
+    { id: 'wire', icon: <Zap size={18} />, label: 'Wire (W)' },
+    { id: 'pan', icon: <Hand size={18} />, label: 'Pan (H)' },
+    { id: 'delete', icon: <Trash2 size={18} />, label: 'Delete (D)' },
   ]
   if (!mounted) {
     return (
@@ -120,24 +120,33 @@ export default function SidebarClient() {
             transition: COLOR_TRANSITION,
           }}
         />
-        {tools.map((tool) => (
-          <button
-            key={tool.id}
-            title={tool.label}
-            onClick={() => setActiveTool(tool.id)}
-            className="w-8 h-8 flex items-center justify-center rounded-md cursor-pointer border-none"
-            style={{
-              color: activeTool === tool.id ? '#4F6EF7' : t.textSecondary,
-              background:
-                activeTool === tool.id
-                  ? 'rgba(79,110,247,0.12)'
+        {tools.map((tool) => {
+          const isActive = activeTool === tool.id
+          const isDelete = tool.id === 'delete'
+          return (
+            <button
+              key={tool.id}
+              title={tool.label}
+              onClick={() => setActiveTool(tool.id)}
+              className="w-8 h-8 flex items-center justify-center rounded-md cursor-pointer border-none transition-colors duration-150"
+              style={{
+                color: isActive
+                  ? isDelete
+                    ? '#ef4444'
+                    : '#4F6EF7'
+                  : t.textSecondary,
+                background: isActive
+                  ? isDelete
+                    ? 'rgba(239, 68, 68, 0.15)'
+                    : 'rgba(79, 110, 247, 0.12)'
                   : 'transparent',
-              transition: COLOR_TRANSITION,
-            }}
-          >
-            {tool.icon}
-          </button>
-        ))}
+                transition: COLOR_TRANSITION,
+              }}
+            >
+              {tool.icon}
+            </button>
+          )
+        })}
       </div>
       {}
       <div
@@ -344,40 +353,49 @@ export default function SidebarClient() {
             transition: COLOR_TRANSITION,
           }}
         >
-          {tools.map((tool) => (
-            <button
-              key={tool.id}
-              title={tool.label}
-              onClick={() => setActiveTool(tool.id)}
-              onMouseEnter={(e) => {
-                if (tool.id === 'delete') {
-                  e.currentTarget.style.color = '#ef4444'
-                  e.currentTarget.style.background = 'rgba(239,68,68,0.1)'
-                } else if (activeTool !== tool.id) {
-                  e.currentTarget.style.background = t.surfaceElevated
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (tool.id === 'delete' && activeTool !== 'delete') {
-                  e.currentTarget.style.color = t.textSecondary
-                  e.currentTarget.style.background = 'transparent'
-                } else if (activeTool !== tool.id) {
-                  e.currentTarget.style.background = 'transparent'
-                }
-              }}
-              className="w-9 h-9 flex items-center justify-center rounded-md cursor-pointer border-none transition-all duration-150"
-              style={{
-                background:
-                  activeTool === tool.id
-                    ? 'rgba(79,110,247,0.12)'
+          {tools.map((tool) => {
+            const isActive = activeTool === tool.id
+            const isDelete = tool.id === 'delete'
+            return (
+              <button
+                key={tool.id}
+                title={tool.label}
+                onClick={() => setActiveTool(tool.id)}
+                onMouseEnter={(e) => {
+                  if (isDelete) {
+                    e.currentTarget.style.color = '#ef4444'
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'
+                  } else if (!isActive) {
+                    e.currentTarget.style.background = t.surfaceElevated
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (isDelete && !isActive) {
+                    e.currentTarget.style.color = t.textSecondary
+                    e.currentTarget.style.background = 'transparent'
+                  } else if (!isActive) {
+                    e.currentTarget.style.background = 'transparent'
+                  }
+                }}
+                className="w-9 h-9 flex items-center justify-center rounded-md cursor-pointer border-none transition-all duration-150"
+                style={{
+                  background: isActive
+                    ? isDelete
+                      ? 'rgba(239, 68, 68, 0.15)'
+                      : 'rgba(79, 110, 247, 0.12)'
                     : 'transparent',
-                color: activeTool === tool.id ? '#4F6EF7' : t.textSecondary,
-                transition: COLOR_TRANSITION,
-              }}
-            >
-              {tool.icon}
-            </button>
-          ))}
+                  color: isActive
+                    ? isDelete
+                      ? '#ef4444'
+                      : '#4F6EF7'
+                    : t.textSecondary,
+                  transition: COLOR_TRANSITION,
+                }}
+              >
+                {tool.icon}
+              </button>
+            )
+          })}
         </div>
       </div>
     </aside>

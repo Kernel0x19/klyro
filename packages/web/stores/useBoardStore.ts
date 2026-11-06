@@ -9,12 +9,15 @@ export interface ICDefinitionSlot {
   vcc: number
   gnd: number
 }
+export type EditorTool = 'select' | 'wire' | 'pan' | 'delete'
 export interface ICSlot {
   slotId: string
   icDefinition: ICDefinitionSlot | null
   isSelected: boolean
 }
 interface BoardState {
+  activeTool: EditorTool
+  setActiveTool: (tool: EditorTool) => void
   isPowerOn: boolean
   inputStates: Record<string, boolean>
   clockStates: Record<string, boolean>
@@ -55,6 +58,8 @@ const createDefaultSlots = (): ICSlot[] =>
     isSelected: false,
   }))
 export const useBoardStore = create<BoardState>((set, get) => ({
+  activeTool: 'select',
+  setActiveTool: (tool) => set({ activeTool: tool }),
   isPowerOn: true,
   inputStates: {},
   clockStates: {},
@@ -113,6 +118,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   resetBoard: () => {
     useEditorEdgesStore.getState().setEdges([])
     set({
+      activeTool: 'select',
       isPowerOn: true,
       inputStates: {},
       clockStates: {},

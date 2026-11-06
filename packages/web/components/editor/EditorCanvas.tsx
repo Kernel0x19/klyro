@@ -53,6 +53,8 @@ function Canvas() {
   const liveNodes = useNodes()
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const activeTool = useBoardStore((s) => s.activeTool)
+  const setActiveTool = useBoardStore((s) => s.setActiveTool)
   const isPowerOn = useBoardStore((s) => s.isPowerOn)
   const inputStates = useBoardStore((s) => s.inputStates)
   const clockStates = useBoardStore((s) => s.clockStates)
@@ -64,6 +66,7 @@ function Canvas() {
   const toggleClock = useBoardStore((s) => s.toggleClock)
   const selectSlot = useBoardStore((s) => s.selectSlot)
   const assignIC = useBoardStore((s) => s.assignIC)
+  const removeIC = useBoardStore((s) => s.removeIC)
   const clearSelection = useBoardStore((s) => s.clearSelection)
   const outputStates = useBoardStore((s) => s.outputStates)
   const setOutputStates = useBoardStore((s) => s.setOutputStates)
@@ -143,8 +146,38 @@ function Canvas() {
         data: {
           label: `IC BASE ${index + 1}`,
           icDefinition: slot.icDefinition,
-          isSelected: slot.isSelected,
-          onSelect: () => selectSlot(slot.slotId),
+          isSelected: activeTool === 'select' && slot.isSelected,
+          isDeleteMode: activeTool === 'delete',
+          onAssignIC: (icDef: {
+            partNumber: string
+            name: string
+            packageType: string
+            family: string
+            delay: number
+            vcc: number
+            gnd: number
+          }) => assignIC(slot.slotId, icDef),
+          onSelect: () => {
+            if (activeTool === 'delete') {
+              if (slot.icDefinition) {
+                const part = slot.icDefinition.partNumber
+                removeIC(slot.slotId)
+                const chipNodeId = `ic-chip-${index + 1}`
+                setEdges(
+                  edgesRef.current.filter(
+                    (e) => e.source !== chipNodeId && e.target !== chipNodeId
+                  )
+                )
+                useToastStore
+                  .getState()
+                  .showToast(`Removed ${part} from Slot ${index + 1}`)
+              }
+              return
+            }
+            if (activeTool === 'select') {
+              selectSlot(slot.slotId)
+            }
+          },
         },
       })),
       {
@@ -163,6 +196,7 @@ function Canvas() {
       },
     ],
     [
+      activeTool,
       isPowerOn,
       inputStates,
       clockStates,
@@ -172,6 +206,9 @@ function Canvas() {
       toggleInput,
       toggleClock,
       selectSlot,
+      assignIC,
+      removeIC,
+      setEdges,
       outputStates,
       displayValues,
     ]
@@ -262,15 +299,45 @@ function Canvas() {
   }, [liveNodes])
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement
+      const isInputFocused =
+        activeEl instanceof HTMLInputElement ||
+        activeEl instanceof HTMLTextAreaElement ||
+        activeEl?.getAttribute('contenteditable') === 'true'
+
+      if (!isInputFocused && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const key = e.key.toLowerCase()
+        if (key === 'v') {
+          setActiveTool('select')
+          return
+        }
+        if (key === 'w') {
+          setActiveTool('wire')
+          return
+        }
+        if (key === 'h') {
+          setActiveTool('pan')
+          return
+        }
+        if (key === 'd') {
+          setActiveTool('delete')
+          return
+        }
+      }
+
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEdge) {
         setEdges(edges.filter((ed) => ed.id !== selectedEdge))
         setSelectedEdge(null)
+        useToastStore.getState().showToast('Wire deleted')
       }
-      if (e.key === 'Escape') clearSelection()
+      if (e.key === 'Escape') {
+        clearSelection()
+        setSelectedEdge(null)
+      }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedEdge, edges, setEdges, clearSelection])
+  }, [selectedEdge, edges, setEdges, clearSelection, setActiveTool])
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -294,21 +361,75 @@ function Canvas() {
     },
     [icSlots, edges, setEdges]
   )
-  const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
-    setSelectedEdge(edge.id)
-  }, [])
+  const onEdgeClick = useCallback(
+    (_: React.MouseEvent, edge: Edge) => {
+      if (activeTool === 'delete') {
+        setEdges(edgesRef.current.filter((e) => e.id !== edge.id))
+        setSelectedEdge(null)
+        useToastStore.getState().showToast('Wire deleted')
+        return
+      }
+      if (activeTool === 'select') {
+        setSelectedEdge(edge.id)
+      }
+    },
+    [activeTool, setEdges]
+  )
+  const toolCursorClass = useMemo(() => {
+    switch (activeTool) {
+      case 'pan':
+        return 'cursor-grab active:cursor-grabbing'
+      case 'wire':
+        return 'cursor-crosshair'
+      case 'delete':
+        return 'cursor-pointer'
+      case 'select':
+      default:
+        return 'cursor-default'
+    }
+  }, [activeTool])
   return (
     <RoutingContext.Provider value={obstacles}>
       <div
         style={{ width: '100%', height: '100%' }}
-        className={`relative ${themeClass}`}
+        className={`relative ${themeClass} ${toolCursorClass} tool-${activeTool}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       >
+        <style>{`
+          .tool-pan .react-flow__pane {
+            cursor: grab !important;
+          }
+          .tool-pan .react-flow__pane:active {
+            cursor: grabbing !important;
+          }
+          .tool-wire .react-flow__pane {
+            cursor: crosshair !important;
+          }
+          .tool-wire .react-flow__handle {
+            cursor: crosshair !important;
+            pointer-events: auto !important;
+          }
+          .tool-select .react-flow__handle,
+          .tool-pan .react-flow__handle,
+          .tool-delete .react-flow__handle {
+            pointer-events: none !important;
+          }
+          .tool-delete .react-flow__pane {
+            cursor: default !important;
+          }
+          .tool-select .react-flow__pane {
+            cursor: default !important;
+          }
+        `}</style>
         <ReactFlow
           nodes={nodes}
           nodesDraggable={false}
-          nodesConnectable={true}
+          nodesConnectable={activeTool === 'wire'}
+          panOnDrag={activeTool === 'pan'}
+          panOnScroll={false}
+          elementsSelectable={activeTool === 'select'}
+          selectionOnDrag={false}
           edges={edges}
           nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
@@ -356,7 +477,14 @@ function Canvas() {
           />
           <Panel position="bottom-center">
             <span className="canvas-hint">
-              Scroll to pan · Ctrl+scroll to zoom · Drag to select
+              {activeTool === 'select' &&
+                'Select Tool (V) · Click IC to select · Drag & drop IC to slot'}
+              {activeTool === 'wire' &&
+                'Wire Tool (W) · Drag between pin handles to connect wires'}
+              {activeTool === 'pan' &&
+                'Pan Tool (H) · Click and drag to move canvas · Scroll to zoom'}
+              {activeTool === 'delete' &&
+                'Delete Tool (D) · Click any wire or IC to delete'}
             </span>
           </Panel>
         </ReactFlow>
