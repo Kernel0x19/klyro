@@ -177,7 +177,8 @@ export default function NavbarClient({
                   alt="Profile"
                   width={36}
                   height={36}
-                  className="rounded-full hover:ring-2 hover:ring-[#4F6EF7] transition-all duration-200 cursor-pointer"
+                  unoptimized
+                  className="rounded-full hover:ring-2 hover:ring-[#4F6EF7] transition-all duration-200 cursor-pointer object-cover"
                 />
               ) : (
                 <div className="w-9 h-9 rounded-full bg-[#343a40] border border-neutral-600 flex items-center justify-center hover:ring-2 hover:ring-[#4F6EF7] transition-all duration-200 cursor-pointer">
