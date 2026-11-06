@@ -43,7 +43,7 @@ export default function NavbarClient({
   useIsomorphicLayoutEffect(() => {
     try {
       sessionStorage.removeItem('klyro_scrolled')
-    } catch {}
+    } catch { }
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
@@ -70,21 +70,21 @@ export default function NavbarClient({
         animate={
           scrolled
             ? {
-                marginTop: '16px',
-                marginLeft: '40px',
-                marginRight: '40px',
-                borderRadius: '16px',
-                border: '3px solid rgba(255,255,255,0.1)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-              }
+              marginTop: '16px',
+              marginLeft: '40px',
+              marginRight: '40px',
+              borderRadius: '16px',
+              border: '3px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            }
             : {
-                marginTop: '0px',
-                marginLeft: '0px',
-                marginRight: '0px',
-                borderRadius: '0px',
-                border: '0px solid rgba(255,255,255,0)',
-                boxShadow: '0 0px 0px rgba(0,0,0,0)',
-              }
+              marginTop: '0px',
+              marginLeft: '0px',
+              marginRight: '0px',
+              borderRadius: '0px',
+              border: '0px solid rgba(255,255,255,0)',
+              boxShadow: '0 0px 0px rgba(0,0,0,0)',
+            }
         }
         transition={{
           duration: canAnimate ? 0.4 : 0,

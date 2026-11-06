@@ -18,62 +18,100 @@ An interactive Digital Logic & Computer Systems simulator designed for students,
 
 ## 🚀 Status
 
-- ✅ **`v0.1.0` (Complete)** — Foundational web release featuring the interactive breadboard canvas, discrete event simulation engine (`@klyro/core`), 7400-series TTL IC library, live waveform viewer, Supabase cloud sync, and user project management.
-- 🚧 **`v0.2.0` (In Progress)** — Active development focusing on native desktop distribution (Electron), Karnaugh Map solver with Quine-McCluskey minimization, visual FSM/ASM chart builder, and HDL code generation (Verilog / VHDL).
+- ✅ **`v0.1.0` (Complete)** — Foundational web release featuring the interactive 3-zone circuit board, 31-component 7400-series TTL library, real-time simulation for all 17 basic gate ICs, orthogonal wire routing, 2-digit 7-segment hex display, multi-track waveform viewer, dedicated editor tool switcher (Select, Wire, Pan, Delete), Supabase cloud persistence, and isolated project workspaces.
+- 🚧 **`v0.2.0` (In Progress)** — Active development focusing on full simulation coverage for all 31 ICs: custom combinational evaluators (adders, comparators, decoders, multiplexers), sequential clock-edge engine (flip-flops), counter state machines, universal shift registers (SISO, SIPO, PISO, PIPO), and active clock pulsing.
 
-See [CHANGELOG.md](CHANGELOG.md) for full release notes and milestone breakdown.
+See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and patch histories.
 
 ---
 
 ## ✨ Features Delivered in v0.1.0
 
-### 🧪 Interactive Virtual Breadboard & Schematic Canvas
-- **DIP-14 & DIP-16 IC Mounting**: Place and arrange standard dual-inline package ICs with realistic pin spacing.
-- **Power & Signal Rails**: Integrated VCC and GND power buses, interactive digital input toggles (switches and momentary pushbuttons), pulse generators, and output LED probes.
-- **Deterministic Channel Routing**: Smart orthogonal wire routing engine that prevents overlapping traces and maintains clean schematics.
-- **Pin Constraint & Collision Enforcement**: Real-time validation preventing illegal topologies (output-to-output conflicts, invalid shorts) with contextual error toasts.
-- **Keyboard Shortcuts**: Quick selection clearing with `Escape`, component navigation, and hotkey controls.
+### 🧪 3-Zone Virtual Breadboard & Canvas
+- **Output Section (Top)**:
+  - 16 output pins (`0`–`15`) plus `VCC` voltage reference.
+  - Real-time LED indicators per pin (Red = `HIGH`, Off = `LOW`).
+  - 2-digit 7-segment hex display reading output pins `0`–`7` (`00` to `FF`) with realistic dark state when power is switched off.
+  - Master simulation power toggle switch.
+- **Breadboard Workspace (Middle)**:
+  - Blue digital lab bench canvas featuring 5 standardized 20-pin DIP IC sockets.
+  - Pin numbering (`1`–`20`) per slot, part number labeling, and pin connection handles.
+  - Empty-slot hint banners and blue selection borders.
+  - Component placement via sidebar click or direct drag-and-drop.
+- **Input Section (Bottom)**:
+  - 16 digital input pins (`0`–`15`) plus `GND`.
+  - Individual toggle switches to flip between `HIGH` and `LOW` with amber LED indicators.
+  - Clock section with selectable frequency markers (0.5 Hz, 1 Hz, 5 Hz, 10 Hz), `GENERATE PULSE` button, and manual HIGH/LOW momentary triggers.
 
-### ⚡ Event-Driven Simulation Engine (`@klyro/core`)
-- **4-Value Logic**: Accurate digital logic simulation supporting `0` (LOW), `1` (HIGH), `X` (Undefined/Contention), and `Z` (High Impedance).
-- **Event-Driven Signal Propagation**: Centralized `EventScheduler` and event bus architecture ensure zero-delay or realistic propagation delay modeling.
-- **Live Wire Recoloring**: Wires update color dynamically reflecting voltage state in real time.
-- **Bidirectional Signal Paths**: True multi-point junction support across jumper wires and IC pin networks.
-- **Netlist Compiler**: Validates and serializes circuit graphs into standardized netlists.
+### 🧰 IC Library & Editor Tool System
+- **31 7400-Series ICs** organized into 5 categories: Basic Gates (17), Flip-Flops (2), Counters (4), Registers (2), and Combinational Logic (6).
+- Real-time search filter by part number or name, collapsible category groups, and star badges for advanced ICs.
+- Sidebar collapses into a sleek icon rail.
+- **Dedicated Editor Tools**:
+  - **Select (`V`)**: Fixed canvas (`panOnDrag` disabled) for selecting ICs and dragging & dropping chips from the library.
+  - **Wire (`W`)**: Fixed canvas with active pin handles and crosshair cursor for drawing connections.
+  - **Pan (`H`)**: Smooth canvas dragging (`panOnDrag`) with grab cursor.
+  - **Delete (`D`)**: Click any wire or IC slot to delete it immediately (with automatic cascade deletion of connected wires).
+  - Hover highlights: 16px wide interaction hitboxes, red dashed outlines with glow for wires, and remove badges for ICs.
 
-### 📦 7400-Series TTL IC Library
-Modeled with physical pinouts, logic gate mappings, and functional truth tables:
-- **74LS00**: Quad 2-Input NAND Gate
-- **74LS02**: Quad 2-Input NOR Gate
-- **74LS04**: Hex Inverter (NOT Gate)
-- **74LS08**: Quad 2-Input AND Gate
-- **74LS32**: Quad 2-Input OR Gate
-- **74LS86**: Quad 2-Input XOR Gate
-- **74LS74**: Dual D-Type Positive-Edge-Triggered Flip-Flop with Preset & Clear
-- **74LS90**: 4-Bit Decade / BCD Counter
+### ⚡ Signal Simulation — Basic Gates (17 ICs)
+- Event-driven simulation engine evaluating logic propagation across inputs, ICs, and outputs on every state change.
+- 4-value logic model: `HIGH` (`1`), `LOW` (`0`), `X` (Unknown/Contention), and `Unconnected`.
+- Full gate evaluation implemented for all 17 fundamental gate ICs:
+  - **NAND**: 74LS00, 74LS03 (Open Collector), 74LS10 (3-Input), 74LS20 (4-Input), 74LS30 (8-Input), 74LS38 (Buffer OC), 74LS132 (Schmitt-Trigger)
+  - **AND**: 74LS08, 74LS11 (3-Input), 74LS21 (4-Input)
+  - **NOR**: 74LS02, 74LS27 (3-Input)
+  - **OR**: 74LS32
+  - **XOR**: 74LS86
+  - **NOT**: 74LS04, 74LS05 (Open Collector), 74LS14 (Schmitt-Trigger)
 
-### 📊 Waveform Viewer & Diagnostics
-- **Oscilloscope-Style Timing Diagrams**: Multi-channel waveform viewer synchronized with clock ticks, supporting zoom, pan, and transition inspection.
-- **Simulation Console**: Live event stream logging pin state changes and debug diagnostics.
-- **Netlist Inspector**: Inspect generated circuit connections on the fly.
-- **Properties Inspector**: Detailed side drawer showcasing active IC pin voltages, gate assignments, and logic states.
+### 📈 Waveform Viewer & Diagnostics
+- Oscilloscope-style timing diagrams tracking signal histories for active inputs (`IN-x`), outputs (`OUT-x`), and clock signals.
+- Color-coded waveforms (Green = `HIGH`, Red = `LOW`) with horizontal scroll support and history clearing.
 
-### ☁️ Cloud Persistence & User Accounts
-- **Supabase Cloud Sync**: Complete circuit state serialization (components, wire graphs, inputs, project details) synced seamlessly.
-- **Guest Playground**: Immediate anonymous circuit sandbox with automatic project handoff upon sign-up.
-- **Secure Authentication**: Email/Password and OAuth authentication, SSR session handling, and activity timeout middleware.
-- **Account Dashboard**: Manage circuit projects, review edit histories, rename projects, and customize user avatars.
+### ☁️ Cloud Persistence & Project Isolation
+- Full circuit state serialization to Supabase `circuits` table (`board_state`): IC slots, wire network, input states, and power status.
+- Strict project isolation ensuring IC assignments, wire connections, and inputs do not bleed between projects.
+- Inline project title editing with automatic persistence and last-edited timestamp updates.
+
+### 📋 Properties Inspector
+- Collapsible right drawer showing part number, full IC name, package type (DIP14/DIP16/DIP20), logic family (LSTTL/HCMOS), propagation delay in ns, live pin states table, and datasheet link.
 
 ---
 
 ## 🛠️ v0.2.0 Roadmap (In Active Development)
 
-- [ ] **Electron Desktop App**: Cross-platform native Windows desktop installer and offline lab bench.
-- [ ] **K-Map Solver**: Interactive Karnaugh maps with Quine-McCluskey boolean algebraic simplification.
-- [ ] **Sequential MSI ICs**: 74LS138 (3-to-8 Decoder), 74LS151/157 (Multiplexers), and 74LS164/194 (Shift Registers).
-- [ ] **FSM / ASM Chart Builder**: State transition diagram editor with excitation table auto-generation.
-- [ ] **HDL Code Generation**: Export completed breadboard schematics to synthesizable Verilog and VHDL.
-- [ ] **Subcircuits & Bus Routing**: Package circuits into custom multi-pin IC modules and multi-bit signal buses.
+**Primary Target**: All 31 ICs simulate correctly with complete combinational, sequential, and clocking behavior.
+
+### 🧩 Custom Evaluators for Combinational ICs
+- [ ] **74LS83**: 4-bit binary adder with carry
+- [ ] **74LS85**: Magnitude comparator logic ($A > B$, $A < B$, $A = B$) with cascading inputs
+- [ ] **74LS138**: 3-to-8 decoder with enable pins ($G_1$, $\overline{G}_{2A}$, $\overline{G}_{2B}$)
+- [ ] **74LS139**: Dual 2-to-4 demultiplexer with individual active-low enables
+- [ ] **74LS151**: 8-to-1 MUX with select logic, strobe, and complementary outputs
+- [ ] **74LS153**: Dual 4-to-1 MUX with independent enable inputs
+
+### ⏱️ Sequential IC Engine
+- [ ] Dynamic clock edge detection (rising $\uparrow$ and falling $\downarrow$ transitions)
+- [ ] **74LS74**: Dual D flip-flop with preset ($\overline{PRE}$) and clear ($\overline{CLR}$)
+- [ ] **74LS76**: Dual JK flip-flop master-slave architecture with preset and clear
+
+### 🔢 Counter State Machines
+- [ ] **74LS90**: BCD decade counter (mod-2 and mod-5 sections)
+- [ ] **74LS93**: 4-bit binary counter (mod-2 and mod-8 sections)
+- [ ] **74HC191 / 74LS191**: Synchronous up/down counter with mode and enable controls
+
+### 🔄 Shift Register Modes
+- [ ] **74HC194 / 74LS194**: 4-bit bidirectional universal shift register supporting all operational modes:
+  - SISO (Serial-In, Serial-Out)
+  - SIPO (Serial-In, Parallel-Out)
+  - PISO (Parallel-In, Serial-Out)
+  - PIPO (Parallel-In, Parallel-Out)
+  - Parallel load and asynchronous master reset
+
+### ⚡ Active Clock Driving Sequential ICs
+- [ ] Interactive frequency selector (0.5 Hz, 1 Hz, 5 Hz, 10 Hz) pulsing the clock periodically
+- [ ] `GENERATE PULSE` button delivering a single rising edge for step-by-step debugging
 
 ---
 
