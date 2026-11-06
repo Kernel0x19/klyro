@@ -1,7 +1,7 @@
 'use client'
 import { motion } from 'motion/react'
 import { useEffect, useLayoutEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
 import Image from 'next/image'
@@ -26,6 +26,7 @@ export default function NavbarClient({
   name,
 }: NavbarClientProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [canAnimate, setCanAnimate] = useState(false)
   const { theme, toggleTheme } = useTheme()
@@ -34,34 +35,34 @@ export default function NavbarClient({
     setMounted(true)
   }, [])
   const scrollToTop = () => {
-    router.push('/')
+    if (pathname !== '/') {
+      router.push('/')
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   useIsomorphicLayoutEffect(() => {
-    const isScrolled =
-      window.scrollY > 20 || sessionStorage.getItem('klyro_scrolled') === 'true'
-    if (isScrolled) {
-      setScrolled(true)
+    try {
+      sessionStorage.removeItem('klyro_scrolled')
+    } catch {}
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
     }
+
+    handleScroll()
+    const rafId = requestAnimationFrame(handleScroll)
+
     const timer = setTimeout(() => {
       setCanAnimate(true)
     }, 150)
-    const handleScroll = () => {
-      const nextScrolled = window.scrollY > 20
-      setScrolled(nextScrolled)
-      try {
-        sessionStorage.setItem('klyro_scrolled', String(nextScrolled))
-      } catch {}
-    }
+
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
+      cancelAnimationFrame(rafId)
       clearTimeout(timer)
       window.removeEventListener('scroll', handleScroll)
-      try {
-        sessionStorage.setItem('klyro_scrolled', String(window.scrollY > 20))
-      } catch {}
     }
-  }, [])
+  }, [pathname])
   return (
     <div className="sticky top-5 z-50 flex justify-center select-none">
       <motion.nav
