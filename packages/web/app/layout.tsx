@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 import { NavigationProgress } from '@/components/ui/NavigationProgress'
 import ProgressStarter from '@/components/ui/ProgressStarter'
 import ScrollToTop from '@/components/ScrollToTop'
+import MobileDeviceNotice from '@/components/mobile/MobileDeviceNotice'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -137,6 +138,7 @@ export default function RootLayout({
         </Suspense>
         <ThemeProvider>
           <ScrollToTop />
+          <MobileDeviceNotice />
           {children}
         </ThemeProvider>
       </body>
