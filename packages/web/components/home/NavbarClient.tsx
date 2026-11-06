@@ -46,7 +46,12 @@ export default function NavbarClient({
     } catch { }
 
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20)
+      const scrollY =
+        window.scrollY ??
+        document.documentElement.scrollTop ??
+        document.body.scrollTop ??
+        0
+      setScrolled(scrollY > 20)
     }
 
     handleScroll()
@@ -57,10 +62,12 @@ export default function NavbarClient({
     }, 150)
 
     window.addEventListener('scroll', handleScroll, { passive: true })
+    document.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
       cancelAnimationFrame(rafId)
       clearTimeout(timer)
       window.removeEventListener('scroll', handleScroll)
+      document.removeEventListener('scroll', handleScroll)
     }
   }, [pathname])
   return (

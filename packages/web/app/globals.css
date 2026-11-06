@@ -57,17 +57,12 @@
 html {
   scroll-behavior: auto;
   overflow-anchor: none;
-  overflow-x: hidden;
-  max-width: 100vw;
 }
 
 body {
   background-color: var(--background);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  overflow-x: hidden;
-  max-width: 100vw;
-  overflow-y: auto;
 }
 
 @layer base {
