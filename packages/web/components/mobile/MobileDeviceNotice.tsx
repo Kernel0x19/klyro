@@ -18,7 +18,11 @@ import { APP_VERSION } from '@/lib/version'
 import { IC_LIBRARY } from '@/lib/icLibrary'
 import { useTheme } from '@/components/hooks/useTheme'
 
-export default function MobileDeviceNotice() {
+interface MobileDeviceNoticeProps {
+  children?: React.ReactNode
+}
+
+export default function MobileDeviceNotice({ children }: MobileDeviceNoticeProps) {
   const [isDismissed, setIsDismissed] = useState(false)
   const [copied, setCopied] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -32,20 +36,6 @@ export default function MobileDeviceNotice() {
       setIsDismissed(dismissed)
     }
   }, [])
-
-  // Lock body scroll on mobile while the notice is active to prevent desktop horizontal overflow
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const isMobileViewport = window.innerWidth < 1024
-    if (!isDismissed && isMobileViewport) {
-      const prevOverflow = document.body.style.overflow
-      document.body.style.overflow = 'hidden'
-      return () => {
-        document.body.style.overflow = prevOverflow
-      }
-    }
-    return undefined
-  }, [isDismissed])
 
   const handleDismiss = () => {
     setIsDismissed(true)
@@ -94,12 +84,16 @@ export default function MobileDeviceNotice() {
   return (
     <>
       {/* 
-        Responsive guard: 
-        Hidden completely on desktop/laptop displays (>= 1024px / lg).
-        Displayed on mobile & small viewports (< 1024px).
+        On Desktop (>= 1024px / lg): 
+        The mobile notice is hidden completely via `lg:hidden`.
+        Children are always visible via `lg:block`.
+
+        On Mobile (< 1024px):
+        - When !isDismissed: Mobile notice is rendered, and desktop children are hidden (preventing any desktop width from leaking into the mobile document).
+        - When isDismissed: Desktop preview is shown, with a floating pill to re-open the mobile notice.
       */}
       {!isDismissed ? (
-        <div className="fixed inset-0 z-[9999] lg:hidden w-full h-full overflow-y-auto overflow-x-hidden bg-bg text-text-primary select-none flex flex-col font-sans">
+        <div className="block lg:hidden w-full min-h-screen bg-bg text-text-primary select-none flex flex-col font-sans relative overflow-x-hidden">
           
           {/* Subtle Grid Background with Radial Vignette — Exact same as Homepage Hero */}
           <div
@@ -178,7 +172,7 @@ export default function MobileDeviceNotice() {
               </div>
 
               {/* Gradient Headline */}
-              <h1 className="text-4xl sm:text-6xl font-bold bg-linear-to-r from-[#8BA4FA] via-[#4F6EF7] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide leading-tight break-words">
+              <h1 className="text-3xl sm:text-5xl font-bold bg-linear-to-r from-[#8BA4FA] via-[#4F6EF7] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide leading-tight break-words">
                 Build. Wire. Simulate.
               </h1>
 
@@ -441,6 +435,15 @@ export default function MobileDeviceNotice() {
           </button>
         </aside>
       )}
+
+      {/* 
+        Desktop / Preview Content:
+        - On Desktop (>= 1024px / lg): ALWAYS visible (block).
+        - On Mobile (< 1024px): hidden when !isDismissed so desktop layout never forces horizontal scroll on mobile.
+      */}
+      <div className={isDismissed ? 'w-full' : 'w-full hidden lg:block'}>
+        {children}
+      </div>
     </>
   )
 }

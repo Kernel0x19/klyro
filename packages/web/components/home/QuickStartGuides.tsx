@@ -29,7 +29,7 @@ export default function QuickStartGuides() {
   return (
     <section
       id="quick-start-guides"
-      className="w-full px-6 py-30 flex flex-col items-center gap-10 relative select-none"
+      className="w-full px-4 sm:px-6 py-16 sm:py-30 flex flex-col items-center gap-10 relative select-none"
     >
       <div
         className="absolute inset-0 pointer-events-none"
@@ -45,13 +45,13 @@ export default function QuickStartGuides() {
             'radial-gradient(ellipse at center, black 40%, transparent 80%)',
         }}
       />
-      <h1 className="text-6xl font-bold pb-2 bg-linear-to-r from-[#8BA4FA] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide">
+      <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold pb-2 bg-linear-to-r from-[#8BA4FA] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide text-center break-words">
         Start building in seconds
       </h1>
-      <h1 className="text-label-gray text-lg font-bold tracking-wider">
+      <h1 className="text-label-gray text-base sm:text-lg font-bold tracking-wider text-center">
         No setup. No installation. Pick a module and go.
       </h1>
-      <div className="w-full flex items-center gap-6 px-30 py-10">
+      <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 px-4 sm:px-8 lg:px-30 py-6 sm:py-10 max-w-7xl">
         {cards.map((card) => (
           <div
             key={card.title}

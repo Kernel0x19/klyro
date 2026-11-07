@@ -3,12 +3,12 @@ import Image from 'next/image'
 import { openOrCreateProject } from '@/lib/supabase/projects'
 export default function HeroActions() {
   return (
-    <div className="flex gap-4 mt-2 select-none">
+    <div className="flex flex-col sm:flex-row gap-4 mt-2 select-none w-full sm:w-auto justify-center items-center">
       <form action={openOrCreateProject}>
         <input type="hidden" name="module" value="board" />
         <button
           type="submit"
-          className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
+          className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-base sm:text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group w-full sm:w-auto"
         >
           Launch Editor
           <Image
@@ -21,7 +21,7 @@ export default function HeroActions() {
         </button>
       </form>
       <button
-        className="text-white flex items-center justify-center px-4 py-3 bg-black border-3 border-[#4F6EF7] text-xl font-bold gap-2 transition-all duration-500 hover:rounded-xl cursor-pointer"
+        className="text-white flex items-center justify-center px-4 py-3 bg-black border-3 border-[#4F6EF7] text-base sm:text-xl font-bold gap-2 transition-all duration-500 hover:rounded-xl cursor-pointer w-full sm:w-auto"
         onClick={() =>
           window.open('https://github.com/Kernel0x19/klyro', '_blank')
         }

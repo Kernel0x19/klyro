@@ -138,8 +138,7 @@ export default function RootLayout({
         </Suspense>
         <ThemeProvider>
           <ScrollToTop />
-          <MobileDeviceNotice />
-          {children}
+          <MobileDeviceNotice>{children}</MobileDeviceNotice>
         </ThemeProvider>
       </body>
     </html>

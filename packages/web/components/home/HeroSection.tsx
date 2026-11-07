@@ -21,14 +21,14 @@ export default function HeroSection() {
       />
       <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-5xl text-center">
         <div className="px-4 py-1 bg-label w-fit cursor-pointer">
-          <h1 className="text-2xl font-bold tracking-widest text-white">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-widest text-white">
             Open Source · Free Forever
           </h1>
         </div>
-        <h1 className="text-8xl font-bold bg-linear-to-r from-[#8BA4FA] via-[#4F6EF7] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide">
+        <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold bg-linear-to-r from-[#8BA4FA] via-[#4F6EF7] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide break-words">
           Build. Wire. Simulate.
         </h1>
-        <h1 className="text-5xl font-bold leading-tight text-center">
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight text-center">
           The open-source lab bench for digital logic — right in your browser,
           no hardware required.
         </h1>
