@@ -35,15 +35,15 @@ export default function FeaturesSection() {
   return (
     <section
       id="features"
-      className="w-full px-6 py-30 flex flex-col items-center gap-10 select-none"
+      className="w-full px-4 sm:px-6 py-16 sm:py-30 flex flex-col items-center gap-10 select-none"
     >
-      <h1 className="text-6xl font-bold pb-2 bg-linear-to-r from-[#8BA4FA] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide">
+      <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold pb-2 bg-linear-to-r from-[#8BA4FA] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide text-center break-words">
         Everything you need to learn Digital Logic
       </h1>
-      <h1 className="text-label-gray text-lg font-bold tracking-wider">
+      <h1 className="text-label-gray text-base sm:text-lg font-bold tracking-wider text-center">
         One platform. Real tools. No textbook required.
       </h1>
-      <div className="grid grid-cols-2 gap-10 px-55">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 px-4 sm:px-8 lg:px-55 w-full">
         {features.map((feature) => (
           <div
             key={feature.title}

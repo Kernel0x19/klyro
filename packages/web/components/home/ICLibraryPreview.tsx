@@ -34,15 +34,15 @@ export default function ICLibraryPreview() {
   return (
     <section
       id="ic-library"
-      className="w-full px-6 py-30 flex flex-col items-center gap-10 relative select-none"
+      className="w-full px-4 sm:px-6 py-16 sm:py-30 flex flex-col items-center gap-10 relative select-none overflow-hidden"
     >
-      <h1 className="text-6xl font-bold pb-2 bg-linear-to-r from-[#8BA4FA] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide">
+      <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold pb-2 bg-linear-to-r from-[#8BA4FA] to-[#1E3AC2] bg-clip-text text-transparent tracking-wide text-center break-words">
         {ics.length}+ Real ICs Built In
       </h1>
-      <h1 className="text-label-gray text-lg font-bold tracking-wider">
+      <h1 className="text-label-gray text-base sm:text-lg font-bold tracking-wider text-center">
         From basic gates to counters, decoders and shift registers
       </h1>
-      <div className="w-full px-30 py-10 z-50">
+      <div className="w-full px-4 sm:px-8 lg:px-30 py-6 sm:py-10 z-50 overflow-hidden">
         <div
           className="relative overflow-hidden"
           style={{

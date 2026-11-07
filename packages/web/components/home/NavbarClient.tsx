@@ -78,8 +78,8 @@ export default function NavbarClient({
           scrolled
             ? {
               marginTop: '16px',
-              marginLeft: '40px',
-              marginRight: '40px',
+              marginLeft: 'clamp(8px, 4vw, 40px)',
+              marginRight: 'clamp(8px, 4vw, 40px)',
               borderRadius: '16px',
               border: '3px solid rgba(255,255,255,0.1)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
@@ -97,25 +97,25 @@ export default function NavbarClient({
           duration: canAnimate ? 0.4 : 0,
           ease: [0.25, 0.46, 0.45, 0.94],
         }}
-        className="w-full h-25 flex items-center justify-between p-4 mt-5 backdrop-blur-sm"
+        className="w-full h-20 sm:h-25 flex items-center justify-between p-2 sm:p-4 mt-5 backdrop-blur-sm"
       >
         <div
           onClick={scrollToTop}
-          className="flex items-center gap-2.5 p-3 cursor-pointer select-none"
+          className="flex items-center gap-2 sm:gap-2.5 p-1 sm:p-3 cursor-pointer select-none"
         >
           <Image
             src="/favicon.svg"
             alt="Klyro-Logo"
-            width={80}
-            height={80}
-            className="aspect-square"
+            width={60}
+            height={60}
+            className="w-10 h-10 sm:w-16 sm:h-16 aspect-square"
           />
           <div className="flex gap-1.5 items-baseline">
-            <h1 className="text-5xl font-extrabold">Klyro</h1>
-            <h1 className="text-sm font-extrabold">{APP_VERSION}</h1>
+            <h1 className="text-3xl sm:text-5xl font-extrabold">Klyro</h1>
+            <h1 className="text-xs sm:text-sm font-extrabold">{APP_VERSION}</h1>
           </div>
         </div>
-        <div className="flex items-center gap-4 p-3">
+        <div className="flex items-center gap-2 sm:gap-4 p-1 sm:p-3">
           <button
             className="text-white flex items-center justify-center px-4 py-3 bg-[#343a40] text-base font-bold gap-2 transition-all duration-500 hover:bg-[#1a1d27] hover:rounded-lg cursor-pointer"
             onClick={() =>
