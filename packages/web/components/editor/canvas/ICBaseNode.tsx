@@ -87,15 +87,15 @@ export default function ICBaseNode({ data }: NodeProps<ICBaseNodeType>) {
     >
       {}
       <div
-        className="flex flex-col justify-between items-end pr-1"
+        className="flex flex-col justify-between items-end pr-1 overflow-visible"
         style={{ height: `${bodyH - 8}px`, width: '30px' }}
       >
         {leftPins.map((pin) => (
           <div
             key={pin.number}
-            className="flex items-center justify-end h-4 w-full relative"
+            className="flex items-center justify-end h-4 w-full relative overflow-visible"
           >
-            <span className="text-[9px] text-zinc-100 font-black font-mono bg-black/50 px-0.5 rounded-sm border border-zinc-800 leading-tight">
+            <span className="text-[9px] text-zinc-100 font-black font-mono bg-black/70 px-1 py-0.5 rounded-xs border border-zinc-800 leading-none whitespace-nowrap z-10 shadow-xs">
               {pin.label}
             </span>
             <div
@@ -182,13 +182,13 @@ export default function ICBaseNode({ data }: NodeProps<ICBaseNodeType>) {
       </div>
       {}
       <div
-        className="flex flex-col justify-between items-start pl-1"
+        className="flex flex-col justify-between items-start pl-1 overflow-visible"
         style={{ height: `${bodyH - 8}px`, width: '30px' }}
       >
         {rightPins.map((pin) => (
           <div
             key={pin.number}
-            className="flex items-center justify-start h-4 w-full relative"
+            className="flex items-center justify-start h-4 w-full relative overflow-visible"
           >
             <div
               className="w-1.5 h-1 rounded-r-sm mr-0.5 border"
@@ -198,7 +198,7 @@ export default function ICBaseNode({ data }: NodeProps<ICBaseNodeType>) {
                 opacity: pin.function === 'nc' ? 0.3 : 1,
               }}
             />
-            <span className="text-[9px] text-zinc-100 font-black font-mono bg-black/50 px-0.5 rounded-sm border border-zinc-800 leading-tight">
+            <span className="text-[9px] text-zinc-100 font-black font-mono bg-black/70 px-1 py-0.5 rounded-xs border border-zinc-800 leading-none whitespace-nowrap z-10 shadow-xs">
               {pin.label}
             </span>
             <Handle

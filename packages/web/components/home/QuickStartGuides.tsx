@@ -51,11 +51,11 @@ export default function QuickStartGuides() {
       <h1 className="text-label-gray text-base sm:text-lg font-bold tracking-wider text-center">
         No setup. No installation. Pick a module and go.
       </h1>
-      <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 px-4 sm:px-8 lg:px-30 py-6 sm:py-10 max-w-7xl">
+      <div className="w-full flex flex-col md:flex-row items-stretch gap-6 px-4 sm:px-8 lg:px-30 py-6 sm:py-10">
         {cards.map((card) => (
           <div
             key={card.title}
-            className="group flex flex-col gap-4 p-6 rounded-xl bg-surface border-2 border-border-theme z-10 hover:border-label transition-colors duration-500"
+            className="flex-1 group flex flex-col justify-between gap-4 p-6 rounded-xl bg-surface border-2 border-border-theme z-10 hover:border-label transition-colors duration-500"
           >
             <card.Icon size={45} />
             <div className="flex flex-col gap-1">

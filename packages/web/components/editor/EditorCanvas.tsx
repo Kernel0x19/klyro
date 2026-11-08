@@ -29,7 +29,7 @@ import CanvasToast from './canvas/CanvasToast'
 import { useToastStore } from '@/stores/useToastStore'
 import { validatePinConnection } from '@/lib/pinValidator'
 import { RoutingContext, type BoundingBox } from '@/lib/routingContext'
-import { simulateBoard } from '@/lib/simulationEngine'
+import { simulateBoard, type PinSignals } from '@/lib/simulationEngine'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
 const NODE_TYPES = {
   hardwareOutputPanel: OutputSectionNode,
@@ -59,6 +59,9 @@ function Canvas() {
   const inputStates = useBoardStore((s) => s.inputStates)
   const clockStates = useBoardStore((s) => s.clockStates)
   const selectedFrequency = useBoardStore((s) => s.selectedFrequency)
+  const isClockRunning = useBoardStore((s) => s.isClockRunning)
+  const setFrequency = useBoardStore((s) => s.setFrequency)
+  const generatePulse = useBoardStore((s) => s.generatePulse)
   const icSlots = useBoardStore((s) => s.icSlots)
   const selectedSlotId = useBoardStore((s) => s.selectedSlotId)
   const togglePower = useBoardStore((s) => s.togglePower)
@@ -71,14 +74,26 @@ function Canvas() {
   const outputStates = useBoardStore((s) => s.outputStates)
   const setOutputStates = useBoardStore((s) => s.setOutputStates)
   const displayValues = useBoardStore((s) => s.displayValues)
+  const chipStates = useBoardStore((s) => s.chipStates)
+  const setChipStates = useBoardStore((s) => s.setChipStates)
   const recordWaveformSnapshot = useBoardStore((s) => s.recordWaveformSnapshot)
   const edges = useEditorEdgesStore((s) => s.edges)
   const setEdges = useEditorEdgesStore((s) => s.setEdges)
   const [, , onEdgesChange] = useEdgesState<Edge>([])
   const edgesRef = useRef(edges)
+  const prevPinSignalsRef = useRef<PinSignals>({})
   useEffect(() => {
     edgesRef.current = edges
   }, [edges])
+  useEffect(() => {
+    if (!isPowerOn || !isClockRunning) return
+    const freqNum = parseFloat(selectedFrequency) || 1
+    const halfPeriodMs = Math.max(40, Math.round(1000 / (freqNum * 2)))
+    const timer = setInterval(() => {
+      useBoardStore.getState().toggleClock(selectedFrequency)
+    }, halfPeriodMs)
+    return () => clearInterval(timer)
+  }, [isPowerOn, isClockRunning, selectedFrequency])
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null)
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -190,8 +205,19 @@ function Canvas() {
           inputStates,
           clockStates,
           selectedFrequency,
+          isClockRunning,
           onToggleInput: toggleInput,
           onToggleClock: toggleClock,
+          onSelectFrequency: (freq: string) => {
+            const currentFreq = useBoardStore.getState().selectedFrequency
+            const isRunning = useBoardStore.getState().isClockRunning
+            if (currentFreq === freq && isRunning) {
+              useBoardStore.getState().toggleClockRunning()
+            } else {
+              setFrequency(freq)
+            }
+          },
+          onGeneratePulse: generatePulse,
         },
       },
     ],
@@ -201,10 +227,13 @@ function Canvas() {
       inputStates,
       clockStates,
       selectedFrequency,
+      isClockRunning,
       icSlots,
       togglePower,
       toggleInput,
       toggleClock,
+      setFrequency,
+      generatePulse,
       selectSlot,
       assignIC,
       removeIC,
@@ -221,13 +250,26 @@ function Canvas() {
   const edgeTypes = useMemo(() => EDGE_TYPES, [])
   const lastWaveformKeyRef = useRef<string>('')
   useEffect(() => {
-    const { updatedEdges, outputStates: newOutputStates } = simulateBoard(
+    const {
+      updatedEdges,
+      outputStates: newOutputStates,
+      pinSignals: newPinSignals,
+      updatedChipStates,
+    } = simulateBoard(
       edgesRef.current,
       icSlots,
       inputStates,
       isPowerOn,
-      clockStates
+      clockStates,
+      chipStates,
+      prevPinSignalsRef.current
     )
+    prevPinSignalsRef.current = newPinSignals
+    const isStateChanged =
+      JSON.stringify(chipStates) !== JSON.stringify(updatedChipStates)
+    if (isStateChanged) {
+      setChipStates(updatedChipStates)
+    }
     const prev = edgesRef.current
     const isDifferent =
       prev.length !== updatedEdges.length ||

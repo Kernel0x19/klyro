@@ -6,6 +6,9 @@ export interface InputClockNodeData {
   onToggleInput?: (pin: string) => void
   onToggleClock?: (pin: string) => void
   selectedFrequency?: string
+  isClockRunning?: boolean
+  onSelectFrequency?: (freq: string) => void
+  onGeneratePulse?: () => void
   [key: string]: unknown
 }
 export type InputClockNodeType = Node<InputClockNodeData, 'inputClockPanel'>
@@ -16,6 +19,8 @@ export default function InputClockSectionNode({
 }: NodeProps<InputClockNodeType>) {
   const inputStates = data.inputStates || {}
   const clockStates = data.clockStates || {}
+  const selectedFreq = data.selectedFrequency || '1'
+  const isSelectedHigh = clockStates[selectedFreq] || false
   return (
     <div
       className="relative bg-[#0ca5d7] rounded-xl shadow-lg border border-[#0a8cb8] px-6 py-4 flex items-center select-none"
@@ -93,11 +98,23 @@ export default function InputClockSectionNode({
         <div className="flex items-center gap-4.5 relative">
           {CLOCK_PINS.map((clkName) => {
             const isClkHigh = clockStates[clkName] || false
+            const isSelected = selectedFreq === clkName
             return (
               <div
                 key={clkName}
-                className="flex flex-col items-center justify-between h-13.75 w-5.5 relative cursor-pointer"
-                onClick={() => data.onToggleClock?.(clkName)}
+                className={`flex flex-col items-center justify-between h-13.75 w-5.5 relative cursor-pointer rounded-xs transition-all ${
+                  isSelected
+                    ? 'ring-2 ring-amber-400/80 bg-[#096d8f]/30'
+                    : 'hover:bg-[#096d8f]/20'
+                }`}
+                onClick={() => {
+                  if (data.onSelectFrequency) {
+                    data.onSelectFrequency(clkName)
+                  } else {
+                    data.onToggleClock?.(clkName)
+                  }
+                }}
+                title={`Frequency: ${clkName} Hz (${isSelected ? 'Active / Selected' : 'Click to select'})`}
               >
                 <Handle
                   type="source"
@@ -135,14 +152,31 @@ export default function InputClockSectionNode({
           <div className="flex gap-3 text-[9px] font-black text-[#054358] font-mono">
             <span className="flex flex-col items-center gap-0.5">
               HIGH
-              <div className="w-2 h-2 rounded-full bg-zinc-900 border border-black" />
+              <div
+                className={`w-2 h-2 rounded-full border border-black transition-colors duration-100 ${
+                  isSelectedHigh
+                    ? 'bg-red-500 shadow-[0_0_6px_#ef4444]'
+                    : 'bg-zinc-900'
+                }`}
+              />
             </span>
             <span className="flex flex-col items-center gap-0.5">
               LOW
-              <div className="w-2 h-2 rounded-full bg-zinc-900 border border-black" />
+              <div
+                className={`w-2 h-2 rounded-full border border-black transition-colors duration-100 ${
+                  !isSelectedHigh
+                    ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]'
+                    : 'bg-zinc-900'
+                }`}
+              />
             </span>
           </div>
-          <button className="relative w-35 h-14 bg-linear-to-b from-zinc-800 to-zinc-950 rounded-lg border-2 border-zinc-900 shadow-md flex items-center justify-center gap-1.5 px-2 text-white active:scale-95 transition-transform overflow-hidden group">
+          <button
+            type="button"
+            onClick={() => data.onGeneratePulse?.()}
+            className="relative w-35 h-14 bg-linear-to-b from-zinc-800 to-zinc-950 rounded-lg border-2 border-zinc-900 hover:border-zinc-700 shadow-md flex items-center justify-center gap-1.5 px-2 text-white active:scale-95 transition-all overflow-hidden group cursor-pointer"
+            title="Send single rising-edge clock pulse"
+          >
             <svg
               className="w-5 h-5 text-red-500 filter drop-shadow-[0_0_2px_#ef4444]"
               fill="none"

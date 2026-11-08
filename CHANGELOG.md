@@ -7,41 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased] - v0.2.0 (In Progress)
+## [0.2.0] - 2026-11-08
 
-The `v0.2.0` milestone focuses on full simulation coverage for all 31 ICs in the library, introducing dedicated combinational evaluators, a sequential clock-edge engine, counter state machines, universal shift registers, and active clock pulses.
+### Added
+- **Full Simulation Coverage for All 31 TTL ICs**:
+  - **Combinational IC Evaluators**:
+    - **74LS83**: 4-bit binary full adder with fast internal carry lookahead/propagation.
+    - **74LS85**: 4-bit magnitude comparator ($A > B$, $A < B$, $A = B$) with cascading expansion inputs.
+    - **74LS138**: 3-to-8 line decoder / demultiplexer with 3 enable pins ($G_1$, $\overline{G}_{2A}$, $\overline{G}_{2B}$).
+    - **74LS139**: Dual 2-to-4 line decoder / demultiplexer with individual active-low enables.
+    - **74LS151**: 8-to-1 data selector / multiplexer with strobe and complementary ($Y$, $W$) outputs.
+    - **74LS153**: Dual 4-to-1 data selector / multiplexer with separate select and enable inputs.
+  - **Sequential Edge Detection Engine & Flip-Flops**:
+    - Transition edge detector tracking rising ($\uparrow$) and falling ($\downarrow$) clock transitions across simulation ticks.
+    - **74LS74**: Dual D-type positive-edge-triggered flip-flops with asynchronous preset ($\overline{PRE}$) and clear ($\overline{CLR}$).
+    - **74LS76**: Dual JK flip-flops with preset and clear (pulse-triggered master-slave architecture).
+  - **Counter State Machines**:
+    - **74LS90**: Asynchronous BCD decade counter (independent divide-by-2 and divide-by-5 sections, BCD reset and set-to-9).
+    - **74LS93**: 4-bit binary ripple counter (independent divide-by-2 and divide-by-8 sections with master reset).
+    - **74HC191 / 74LS191**: Synchronous 4-bit reversible up/down counters with asynchronous parallel load, count enable, and ripple clock / max-min outputs.
+  - **Universal Shift Register Modes**:
+    - **74HC194 / 74LS194**: 4-bit bidirectional universal shift registers with full mode support:
+      - SISO (Serial-In, Serial-Out)
+      - SIPO (Serial-In, Parallel-Out)
+      - PISO (Parallel-In, Serial-Out)
+      - PIPO (Parallel-In, Parallel-Out)
+      - Synchronous parallel load and asynchronous active-low master reset.
+- **Active Clock Oscillator & Pulse Generator**:
+  - Interactive multi-frequency clock generator (0.5 Hz, 1 Hz, 5 Hz, 10 Hz) driving periodic clock pulses to sequential ICs.
+  - Dedicated `GENERATE PULSE` button triggering a clean single rising-edge pulse for step-by-step sequential circuit debugging.
+- **Topbar Circuit Reset Button**:
+  - Added a one-click circuit reset button (`RotateCcw`) in the editor top bar next to Save, resetting all inputs, outputs, IC states, and simulation signals back to initial defaults.
 
-### Target: All 31 ICs Simulate Correctly
-
-#### Combinational IC Evaluators
-- **74LS83**: 4-bit binary full adder with fast internal carry lookahead/propagation.
-- **74LS85**: 4-bit magnitude comparator ($A > B$, $A < B$, $A = B$) with cascading inputs.
-- **74LS138**: 3-to-8 line decoder / demultiplexer with 3 enable pins ($G_1$, $\overline{G}_{2A}$, $\overline{G}_{2B}$).
-- **74LS139**: Dual 2-to-4 line decoder / demultiplexer with individual active-low enables.
-- **74LS151**: 8-to-1 data selector / multiplexer with strobe and complementary ($Y$, $W$) outputs.
-- **74LS153**: Dual 4-to-1 data selector / multiplexer with separate select and enable inputs.
-
-#### Sequential IC Engine
-- Clock edge transition detector (rising $\uparrow$ and falling $\downarrow$ edge detection).
-- **74LS74**: Dual D-type positive-edge-triggered flip-flops with asynchronous preset ($\overline{PRE}$) and clear ($\overline{CLR}$).
-- **74LS76**: Dual JK flip-flops with preset and clear (master-slave architecture).
-
-#### Counter State Machines
-- **74LS90**: Asynchronous BCD decade counter (independent divide-by-2 and divide-by-5 sections).
-- **74LS93**: 4-bit binary counter (independent divide-by-2 and divide-by-8 sections).
-- **74HC191 / 74LS191**: Synchronous 4-bit reversible up/down counters with mode and enable controls.
-
-#### Universal Shift Register Modes
-- **74HC194 / 74LS194**: 4-bit bidirectional universal shift registers with full mode support:
-  - SISO (Serial-In, Serial-Out)
-  - SIPO (Serial-In, Parallel-Out)
-  - PISO (Parallel-In, Serial-Out)
-  - PIPO (Parallel-In, Parallel-Out)
-  - Parallel load and asynchronous master reset.
-
-#### Active Clock Driver
-- Functional clock generator: frequency selector (0.5 Hz, 1 Hz, 5 Hz, 10 Hz) driving periodic clock pulses to sequential ICs.
-- `GENERATE PULSE` button triggering a clean single rising-edge pulse for single-step debugging.
+### Fixed
+- **Sequential Multi-Pass Clock Edge Protection**:
+  - Guarded clock edge transitions with `isClockTriggered` using a tick-scoped edge set in `simulateBoard`, preventing multi-pass relaxation loops from repeatedly clocking sequential state machines (e.g. 74LS93 ripple toggle loops or 74HC194 rapid shift-overflows).
+- **74LS74 Inverted Pin Label Wrapping**:
+  - Fixed active-low pin labels (`1/CLR`, `1/PRE`, `1/Q`, `2/CLR`, `2/PRE`, `2/Q`) breaking across multiple lines by enforcing `whitespace-nowrap`, `leading-none`, and `overflow-visible` on IC pin badges.
+- **Handle Hover Scaling Polish**:
+  - Removed disruptive purple hover scaling and drop-shadow expansions from input, output, and IC pin handles, keeping handles cleanly rendered at fixed pin coordinates.
 
 ---
 

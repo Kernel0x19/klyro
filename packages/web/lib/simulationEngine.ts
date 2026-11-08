@@ -1,6 +1,26 @@
 import { IC_LIBRARY, type ICEntry } from './icLibrary'
 import type { Edge } from '@xyflow/react'
 import type { ICSlot } from '@/stores/useBoardStore'
+import {
+  evaluate74LS83,
+  evaluate74LS85,
+  evaluate74LS138,
+  evaluate74LS139,
+  evaluate74LS151,
+  evaluate74LS153,
+  type ICEvaluatorContext,
+} from './icEvaluators/combinational'
+import {
+  evaluate74LS74,
+  evaluate74LS76,
+  type SequentialEvaluatorContext,
+} from './icEvaluators/sequential'
+import {
+  evaluate74LS90,
+  evaluate74LS93,
+  evaluate74x191,
+} from './icEvaluators/counters'
+import { evaluate74x194 } from './icEvaluators/shiftRegisters'
 export type SignalState = 'HIGH' | 'LOW' | 'X' | 'unconnected'
 export interface PinSignals {
   [nodeId: string]: {
@@ -63,11 +83,14 @@ export function simulateBoard(
   icSlots: ICSlot[],
   inputStates: Record<string, boolean>,
   isPowerOn: boolean,
-  clockStates: Record<string, boolean> = {}
+  clockStates: Record<string, boolean> = {},
+  chipStates: Record<string, any> = {},
+  prevPinSignals: PinSignals = {}
 ): {
   updatedEdges: Edge[]
   outputStates: Record<string, boolean>
   pinSignals: PinSignals
+  updatedChipStates: Record<string, any>
 } {
   if (!isPowerOn) {
     return {
@@ -77,15 +100,21 @@ export function simulateBoard(
       })),
       outputStates: {},
       pinSignals: {},
+      updatedChipStates: {},
     }
   }
   const pinSignals: PinSignals = {}
+  const updatedChipStates: Record<string, any> = { ...chipStates }
+  const triggeredClockEdges = new Set<string>()
   const setSignal = (nodeId: string, pinId: string, state: SignalState) => {
     if (!pinSignals[nodeId]) pinSignals[nodeId] = {}
     pinSignals[nodeId][pinId] = state
   }
   const getSignal = (nodeId: string, pinId: string): SignalState => {
     return pinSignals[nodeId]?.[pinId] ?? 'unconnected'
+  }
+  const getPrevSignal = (nodeId: string, pinId: string): SignalState => {
+    return prevPinSignals[nodeId]?.[pinId] ?? 'unconnected'
   }
   setSignal('main-output-panel', 'pin-VCC', 'HIGH')
   setSignal('main-input-clock-panel', 'input-gnd', 'LOW')
@@ -152,6 +181,100 @@ export function simulateBoard(
       const nodeId = `ic-chip-${i + 1}`
       const ic = findIC(slot.icDefinition.partNumber)
       if (!ic) continue
+
+      const ctx: ICEvaluatorContext = {
+        getPinSignal: (pinNumber: number) => getSignal(nodeId, `pin-${pinNumber}`),
+        setPinSignal: (pinNumber: number, state: SignalState) => {
+          const prev = getSignal(nodeId, `pin-${pinNumber}`)
+          if (prev !== state) {
+            setSignal(nodeId, `pin-${pinNumber}`, state)
+            changed = true
+          }
+        },
+      }
+
+      const part = slot.icDefinition.partNumber
+      if (part === '74LS83') {
+        evaluate74LS83(ctx)
+        continue
+      }
+      if (part === '74LS85') {
+        evaluate74LS85(ctx)
+        continue
+      }
+      if (part === '74LS138') {
+        evaluate74LS138(ctx)
+        continue
+      }
+      if (part === '74LS139') {
+        evaluate74LS139(ctx)
+        continue
+      }
+      if (part === '74LS151') {
+        evaluate74LS151(ctx)
+        continue
+      }
+      if (part === '74LS153') {
+        evaluate74LS153(ctx)
+        continue
+      }
+
+      const seqCtx: SequentialEvaluatorContext = {
+        getPinSignal: (pinNumber: number) => getSignal(nodeId, `pin-${pinNumber}`),
+        getPrevPinSignal: (pinNumber: number) => getPrevSignal(nodeId, `pin-${pinNumber}`),
+        setPinSignal: (pinNumber: number, state: SignalState) => {
+          const prev = getSignal(nodeId, `pin-${pinNumber}`)
+          if (prev !== state) {
+            setSignal(nodeId, `pin-${pinNumber}`, state)
+            changed = true
+          }
+        },
+        getChipState: () => updatedChipStates[nodeId] ?? {},
+        setChipState: (state) => {
+          updatedChipStates[nodeId] = state
+        },
+        isClockTriggered: (pinNumber: number, edge: 'rising' | 'falling') => {
+          const key = `${nodeId}:${pinNumber}`
+          if (triggeredClockEdges.has(key)) return false
+          const prev = getPrevSignal(nodeId, `pin-${pinNumber}`)
+          const curr = getSignal(nodeId, `pin-${pinNumber}`)
+          const hasEdge =
+            edge === 'rising'
+              ? (prev === 'LOW' || prev === 'unconnected') && curr === 'HIGH'
+              : prev === 'HIGH' && curr === 'LOW'
+          if (hasEdge) {
+            triggeredClockEdges.add(key)
+            return true
+          }
+          return false
+        },
+      }
+
+      if (part === '74LS74') {
+        evaluate74LS74(seqCtx)
+        continue
+      }
+      if (part === '74LS76') {
+        evaluate74LS76(seqCtx)
+        continue
+      }
+      if (part === '74LS90') {
+        evaluate74LS90(seqCtx)
+        continue
+      }
+      if (part === '74LS93') {
+        evaluate74LS93(seqCtx)
+        continue
+      }
+      if (part === '74HC191' || part === '74LS191') {
+        evaluate74x191(seqCtx)
+        continue
+      }
+      if (part === '74HC194' || part === '74LS194') {
+        evaluate74x194(seqCtx)
+        continue
+      }
+
       const gateType = getGateType(slot.icDefinition.partNumber)
       const gateGroups: Record<
         string,
@@ -227,5 +350,5 @@ export function simulateBoard(
       data: { ...edge.data, signalState: signal },
     }
   })
-  return { updatedEdges, outputStates, pinSignals }
+  return { updatedEdges, outputStates, pinSignals, updatedChipStates }
 }
