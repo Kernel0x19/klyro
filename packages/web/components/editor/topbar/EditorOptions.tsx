@@ -2,6 +2,7 @@
 import { useState, useRef } from 'react'
 import {
   Play,
+  RotateCcw,
   FolderDown,
   Save,
   Settings,
@@ -39,7 +40,7 @@ export default function EditorActions({
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const settingsTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const profileTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const { icSlots, inputStates, isPowerOn } = useBoardStore()
+  const { icSlots, inputStates, isPowerOn, resetBoard } = useBoardStore()
   const { edges } = useEditorEdgesStore()
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>(
     'idle'
@@ -118,6 +119,14 @@ export default function EditorActions({
         className="cursor-pointer hover:text-label transition-colors duration-500"
         onClick={handleSave}
       />
+      <button
+        type="button"
+        onClick={resetBoard}
+        title="Reset Board (clears circuit wires, ICs, inputs, and outputs)"
+        className="cursor-pointer hover:text-red-400 text-neutral-400 dark:text-neutral-300 transition-colors duration-200 active:scale-90 flex items-center justify-center"
+      >
+        <RotateCcw size={20} />
+      </button>
       <div className="w-0.5 h-10 bg-neutral-600 hover:text-label transition-colors duration-500" />
       <div className="relative">
         <Settings
