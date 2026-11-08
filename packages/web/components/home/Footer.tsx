@@ -131,7 +131,7 @@ export default function Footer() {
               href="/license"
               className="text-xs text-text-secondary hover:text-text-primary transition-colors"
             >
-              MIT License
+              AGPL-3.0 License
             </Link>
             <Link
               href="/privacy"

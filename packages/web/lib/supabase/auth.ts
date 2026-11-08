@@ -99,10 +99,14 @@ export async function requestEmailChange(newEmail: string) {
 
 export async function signInWithGitHub() {
   const supabase = await createServerSupabaseClient()
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    'https://klyro.live'
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      redirectTo: `${siteUrl}/auth/callback?next=/editor`,
     },
   })
 
