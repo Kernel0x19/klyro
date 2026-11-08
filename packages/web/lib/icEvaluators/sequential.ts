@@ -6,6 +6,7 @@ export interface SequentialEvaluatorContext {
   setPinSignal: (pinNumber: number, state: SignalState) => void
   getChipState: () => Record<string, any>
   setChipState: (state: Record<string, any>) => void
+  isClockTriggered: (pinNumber: number, edge: 'rising' | 'falling') => boolean
 }
 
 function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
@@ -44,8 +45,7 @@ export function evaluate74LS74(ctx: SequentialEvaluatorContext): void {
     clrSig: ctx.getPinSignal(1),
     preSig: ctx.getPinSignal(4),
     dSig: ctx.getPinSignal(2),
-    currClkSig: ctx.getPinSignal(3),
-    prevClkSig: ctx.getPrevPinSignal(3),
+    isRisingEdge: ctx.isClockTriggered(3, 'rising'),
     storedQ: q1,
   })
   ctx.setPinSignal(5, res1.q)
@@ -57,8 +57,7 @@ export function evaluate74LS74(ctx: SequentialEvaluatorContext): void {
     clrSig: ctx.getPinSignal(13),
     preSig: ctx.getPinSignal(10),
     dSig: ctx.getPinSignal(12),
-    currClkSig: ctx.getPinSignal(11),
-    prevClkSig: ctx.getPrevPinSignal(11),
+    isRisingEdge: ctx.isClockTriggered(11, 'rising'),
     storedQ: q2,
   })
   ctx.setPinSignal(9, res2.q)
@@ -72,15 +71,13 @@ function evaluate74LS74Unit({
   clrSig,
   preSig,
   dSig,
-  currClkSig,
-  prevClkSig,
+  isRisingEdge,
   storedQ,
 }: {
   clrSig: SignalState
   preSig: SignalState
   dSig: SignalState
-  currClkSig: SignalState
-  prevClkSig: SignalState
+  isRisingEdge: boolean
   storedQ: boolean
 }): { q: SignalState; qBar: SignalState; nextStoredQ: boolean } {
   // In TTL logic, unconnected inputs float HIGH (active-low PRE and CLR remain inactive)
@@ -99,7 +96,6 @@ function evaluate74LS74Unit({
   }
 
   // Synchronous positive-edge triggered
-  const isRisingEdge = prevClkSig !== 'HIGH' && currClkSig === 'HIGH'
   let currentQ = storedQ
   if (isRisingEdge) {
     const d = toBool(dSig, false) ?? false
@@ -145,8 +141,7 @@ export function evaluate74LS76(ctx: SequentialEvaluatorContext): void {
     preSig: ctx.getPinSignal(2),
     jSig: ctx.getPinSignal(4),
     kSig: ctx.getPinSignal(16),
-    currClkSig: ctx.getPinSignal(1),
-    prevClkSig: ctx.getPrevPinSignal(1),
+    isFallingEdge: ctx.isClockTriggered(1, 'falling'),
     storedQ: q1,
   })
   ctx.setPinSignal(15, res1.q)
@@ -159,8 +154,7 @@ export function evaluate74LS76(ctx: SequentialEvaluatorContext): void {
     preSig: ctx.getPinSignal(7),
     jSig: ctx.getPinSignal(9),
     kSig: ctx.getPinSignal(10),
-    currClkSig: ctx.getPinSignal(6),
-    prevClkSig: ctx.getPrevPinSignal(6),
+    isFallingEdge: ctx.isClockTriggered(6, 'falling'),
     storedQ: q2,
   })
   ctx.setPinSignal(11, res2.q)
@@ -175,16 +169,14 @@ function evaluate74LS76Unit({
   preSig,
   jSig,
   kSig,
-  currClkSig,
-  prevClkSig,
+  isFallingEdge,
   storedQ,
 }: {
   clrSig: SignalState
   preSig: SignalState
   jSig: SignalState
   kSig: SignalState
-  currClkSig: SignalState
-  prevClkSig: SignalState
+  isFallingEdge: boolean
   storedQ: boolean
 }): { q: SignalState; qBar: SignalState; nextStoredQ: boolean } {
   const clr = toBool(clrSig, true) ?? true
@@ -201,7 +193,6 @@ function evaluate74LS76Unit({
   }
 
   // Negative edge-triggered (falling edge: HIGH -> LOW)
-  const isFallingEdge = prevClkSig === 'HIGH' && currClkSig !== 'HIGH'
   let currentQ = storedQ
   if (isFallingEdge) {
     const j = toBool(jSig, false) ?? false

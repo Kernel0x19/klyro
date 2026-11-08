@@ -105,6 +105,7 @@ export function simulateBoard(
   }
   const pinSignals: PinSignals = {}
   const updatedChipStates: Record<string, any> = { ...chipStates }
+  const triggeredClockEdges = new Set<string>()
   const setSignal = (nodeId: string, pinId: string, state: SignalState) => {
     if (!pinSignals[nodeId]) pinSignals[nodeId] = {}
     pinSignals[nodeId][pinId] = state
@@ -231,6 +232,21 @@ export function simulateBoard(
         getChipState: () => updatedChipStates[nodeId] ?? {},
         setChipState: (state) => {
           updatedChipStates[nodeId] = state
+        },
+        isClockTriggered: (pinNumber: number, edge: 'rising' | 'falling') => {
+          const key = `${nodeId}:${pinNumber}`
+          if (triggeredClockEdges.has(key)) return false
+          const prev = getPrevSignal(nodeId, `pin-${pinNumber}`)
+          const curr = getSignal(nodeId, `pin-${pinNumber}`)
+          const hasEdge =
+            edge === 'rising'
+              ? (prev === 'LOW' || prev === 'unconnected') && curr === 'HIGH'
+              : prev === 'HIGH' && curr === 'LOW'
+          if (hasEdge) {
+            triggeredClockEdges.add(key)
+            return true
+          }
+          return false
         },
       }
 

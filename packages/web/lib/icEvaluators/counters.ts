@@ -44,17 +44,13 @@ export function evaluate74LS90(ctx: SequentialEvaluatorContext): void {
     div5 = 0   // QB=0, QC=0, QD=0 -> 0000 (BCD 0)
   } else {
     // Divide-by-2 section: falling edge on CKA (Pin 14)
-    const prevCka = ctx.getPrevPinSignal(14)
-    const currCka = ctx.getPinSignal(14)
-    const isCkaFalling = prevCka === 'HIGH' && currCka !== 'HIGH'
+    const isCkaFalling = ctx.isClockTriggered(14, 'falling')
     if (isCkaFalling) {
       qa = !qa
     }
 
     // Divide-by-5 section: falling edge on CKB (Pin 1)
-    const prevCkb = ctx.getPrevPinSignal(1)
-    const currCkb = ctx.getPinSignal(1)
-    const isCkbFalling = prevCkb === 'HIGH' && currCkb !== 'HIGH'
+    const isCkbFalling = ctx.isClockTriggered(1, 'falling')
     if (isCkbFalling) {
       div5 = (div5 + 1) % 5
     }
@@ -105,17 +101,13 @@ export function evaluate74LS93(ctx: SequentialEvaluatorContext): void {
     div8 = 0
   } else {
     // Divide-by-2: falling edge on CKA (Pin 14)
-    const prevCka = ctx.getPrevPinSignal(14)
-    const currCka = ctx.getPinSignal(14)
-    const isCkaFalling = prevCka === 'HIGH' && currCka !== 'HIGH'
+    const isCkaFalling = ctx.isClockTriggered(14, 'falling')
     if (isCkaFalling) {
       qa = !qa
     }
 
     // Divide-by-8: falling edge on CKB (Pin 1)
-    const prevCkb = ctx.getPrevPinSignal(1)
-    const currCkb = ctx.getPinSignal(1)
-    const isCkbFalling = prevCkb === 'HIGH' && currCkb !== 'HIGH'
+    const isCkbFalling = ctx.isClockTriggered(1, 'falling')
     if (isCkbFalling) {
       div8 = (div8 + 1) & 7
     }
@@ -171,7 +163,7 @@ export function evaluate74x191(ctx: SequentialEvaluatorContext): void {
     count = (a ? 1 : 0) | ((b ? 1 : 0) << 1) | ((c ? 1 : 0) << 2) | ((d ? 1 : 0) << 3)
   } else {
     // Synchronous clocking on rising edge
-    const isRisingEdge = prevClk !== 'HIGH' && currClk === 'HIGH'
+    const isRisingEdge = ctx.isClockTriggered(15, 'rising')
     if (isRisingEdge && !cten) {
       if (downUp) {
         // Count DOWN

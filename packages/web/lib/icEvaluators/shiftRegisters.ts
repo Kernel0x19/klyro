@@ -46,9 +46,7 @@ export function evaluate74x194(ctx: SequentialEvaluatorContext): void {
     qd = false
   } else {
     // Synchronous clocking on rising edge
-    const prevClk = ctx.getPrevPinSignal(11)
-    const currClk = ctx.getPinSignal(11)
-    const isRisingEdge = prevClk !== 'HIGH' && currClk === 'HIGH'
+    const isRisingEdge = ctx.isClockTriggered(11, 'rising')
 
     if (isRisingEdge) {
       const s0 = toBool(ctx.getPinSignal(9), false) ?? false
