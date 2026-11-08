@@ -20,6 +20,7 @@ import {
   evaluate74LS93,
   evaluate74x191,
 } from './icEvaluators/counters'
+import { evaluate74x194 } from './icEvaluators/shiftRegisters'
 export type SignalState = 'HIGH' | 'LOW' | 'X' | 'unconnected'
 export interface PinSignals {
   [nodeId: string]: {
@@ -251,6 +252,10 @@ export function simulateBoard(
       }
       if (part === '74HC191' || part === '74LS191') {
         evaluate74x191(seqCtx)
+        continue
+      }
+      if (part === '74HC194' || part === '74LS194') {
+        evaluate74x194(seqCtx)
         continue
       }
 
