@@ -15,6 +15,11 @@ import {
   evaluate74LS76,
   type SequentialEvaluatorContext,
 } from './icEvaluators/sequential'
+import {
+  evaluate74LS90,
+  evaluate74LS93,
+  evaluate74x191,
+} from './icEvaluators/counters'
 export type SignalState = 'HIGH' | 'LOW' | 'X' | 'unconnected'
 export interface PinSignals {
   [nodeId: string]: {
@@ -234,6 +239,18 @@ export function simulateBoard(
       }
       if (part === '74LS76') {
         evaluate74LS76(seqCtx)
+        continue
+      }
+      if (part === '74LS90') {
+        evaluate74LS90(seqCtx)
+        continue
+      }
+      if (part === '74LS93') {
+        evaluate74LS93(seqCtx)
+        continue
+      }
+      if (part === '74HC191' || part === '74LS191') {
+        evaluate74x191(seqCtx)
         continue
       }
 
