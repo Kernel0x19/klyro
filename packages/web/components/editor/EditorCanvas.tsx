@@ -59,6 +59,9 @@ function Canvas() {
   const inputStates = useBoardStore((s) => s.inputStates)
   const clockStates = useBoardStore((s) => s.clockStates)
   const selectedFrequency = useBoardStore((s) => s.selectedFrequency)
+  const isClockRunning = useBoardStore((s) => s.isClockRunning)
+  const setFrequency = useBoardStore((s) => s.setFrequency)
+  const generatePulse = useBoardStore((s) => s.generatePulse)
   const icSlots = useBoardStore((s) => s.icSlots)
   const selectedSlotId = useBoardStore((s) => s.selectedSlotId)
   const togglePower = useBoardStore((s) => s.togglePower)
@@ -82,6 +85,15 @@ function Canvas() {
   useEffect(() => {
     edgesRef.current = edges
   }, [edges])
+  useEffect(() => {
+    if (!isPowerOn || !isClockRunning) return
+    const freqNum = parseFloat(selectedFrequency) || 1
+    const halfPeriodMs = Math.max(40, Math.round(1000 / (freqNum * 2)))
+    const timer = setInterval(() => {
+      useBoardStore.getState().toggleClock(selectedFrequency)
+    }, halfPeriodMs)
+    return () => clearInterval(timer)
+  }, [isPowerOn, isClockRunning, selectedFrequency])
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null)
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -193,8 +205,19 @@ function Canvas() {
           inputStates,
           clockStates,
           selectedFrequency,
+          isClockRunning,
           onToggleInput: toggleInput,
           onToggleClock: toggleClock,
+          onSelectFrequency: (freq: string) => {
+            const currentFreq = useBoardStore.getState().selectedFrequency
+            const isRunning = useBoardStore.getState().isClockRunning
+            if (currentFreq === freq && isRunning) {
+              useBoardStore.getState().toggleClockRunning()
+            } else {
+              setFrequency(freq)
+            }
+          },
+          onGeneratePulse: generatePulse,
         },
       },
     ],
@@ -204,10 +227,13 @@ function Canvas() {
       inputStates,
       clockStates,
       selectedFrequency,
+      isClockRunning,
       icSlots,
       togglePower,
       toggleInput,
       toggleClock,
+      setFrequency,
+      generatePulse,
       selectSlot,
       assignIC,
       removeIC,

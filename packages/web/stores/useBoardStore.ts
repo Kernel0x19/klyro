@@ -22,6 +22,10 @@ interface BoardState {
   inputStates: Record<string, boolean>
   clockStates: Record<string, boolean>
   selectedFrequency: string
+  isClockRunning: boolean
+  toggleClockRunning: () => void
+  setClockRunning: (running: boolean) => void
+  generatePulse: () => void
   icSlots: ICSlot[]
   selectedSlotId: string | null
   outputStates: Record<string, boolean>
@@ -66,6 +70,22 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   inputStates: {},
   clockStates: {},
   selectedFrequency: '1',
+  isClockRunning: false,
+  toggleClockRunning: () => set((s) => ({ isClockRunning: !s.isClockRunning })),
+  setClockRunning: (running) => set({ isClockRunning: running }),
+  generatePulse: () => {
+    const s = get()
+    if (!s.isPowerOn) return
+    const freq = s.selectedFrequency || '1'
+    set((state) => ({
+      clockStates: { ...state.clockStates, [freq]: true },
+    }))
+    setTimeout(() => {
+      set((state) => ({
+        clockStates: { ...state.clockStates, [freq]: false },
+      }))
+    }, 120)
+  },
   icSlots: createDefaultSlots(),
   selectedSlotId: null,
   outputStates: {},
@@ -75,6 +95,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   togglePower: () =>
     set((s) => ({
       isPowerOn: !s.isPowerOn,
+      isClockRunning: !s.isPowerOn ? s.isClockRunning : false,
       chipStates: !s.isPowerOn ? s.chipStates : {},
     })),
   toggleInput: (pin) =>
@@ -91,7 +112,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         [pin]: !s.clockStates[pin],
       },
     })),
-  setFrequency: (freq) => set({ selectedFrequency: freq }),
+  setFrequency: (freq) => set({ selectedFrequency: freq, isClockRunning: true }),
   selectSlot: (slotId) =>
     set((s) => ({
       selectedSlotId: slotId,
@@ -131,6 +152,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       inputStates: {},
       clockStates: {},
       selectedFrequency: '1',
+      isClockRunning: false,
       icSlots: createDefaultSlots(),
       selectedSlotId: null,
       outputStates: {},
