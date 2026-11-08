@@ -1,6 +1,5 @@
 'use client'
-import { useEffect, startTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import NProgress from 'nprogress'
 export function useNavigationProgress() {
   useEffect(() => {

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { useEditorEdgesStore } from './useEditorEdgesStore'
+import type { ChipState } from '@/lib/simulationEngine'
 export interface ICDefinitionSlot {
   partNumber: string
   name: string
@@ -30,8 +31,8 @@ interface BoardState {
   selectedSlotId: string | null
   outputStates: Record<string, boolean>
   displayValues: [string, string]
-  chipStates: Record<string, any>
-  setChipStates: (states: Record<string, any>) => void
+  chipStates: Record<string, ChipState>
+  setChipStates: (states: Record<string, ChipState>) => void
   togglePower: () => void
   toggleInput: (pin: string) => void
   toggleClock: (pin: string) => void

@@ -1,5 +1,5 @@
 import type { Connection } from '@xyflow/react'
-import { IC_LIBRARY, type ICPin } from './icLibrary'
+import { IC_LIBRARY } from './icLibrary'
 export interface PinInfo {
   nodeId: string
   handleId: string

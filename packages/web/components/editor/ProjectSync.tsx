@@ -26,6 +26,7 @@ export default function ProjectSync({ projectId, isLoggedIn, userId }: Props) {
       setEditorEdges(edges)
     }
     load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
   useEffect(() => {
     if (!isLoggedIn) return

@@ -31,10 +31,10 @@ function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
  */
 export function evaluate74x194(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
-  let qa = state.qa ?? false
-  let qb = state.qb ?? false
-  let qc = state.qc ?? false
-  let qd = state.qd ?? false
+  let qa = state.qa === true
+  let qb = state.qb === true
+  let qc = state.qc === true
+  let qd = state.qd === true
 
   const clr = toBool(ctx.getPinSignal(1), true) ?? true // Active LOW
 

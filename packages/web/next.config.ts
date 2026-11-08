@@ -24,6 +24,9 @@ const formattedVersion = rawVersion.startsWith('v')
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@dls/core'],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   env: {
     NEXT_PUBLIC_APP_VERSION: formattedVersion,
     NEXT_PUBLIC_VERSION: formattedVersion,

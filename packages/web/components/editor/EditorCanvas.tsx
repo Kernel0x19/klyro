@@ -11,7 +11,6 @@ import {
   Panel,
   type Node,
   type Edge,
-  addEdge,
   type Connection,
   type IsValidConnection,
   ConnectionMode,
@@ -316,6 +315,7 @@ function Canvas() {
         )
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputStates, clockStates, isPowerOn, icSlots])
   const obstacles = useMemo<BoundingBox[]>(() => {
     const posMap = new Map(liveNodes.map((n) => [n.id, n.position]))

@@ -643,7 +643,6 @@ export function waypointsToPathWithBridges(
         crossings.sort((a, b) => b - a)
       }
 
-      let currentX = x1
       const bridgeRadius = 4
 
       for (const cx of crossings) {
@@ -655,7 +654,6 @@ export function waypointsToPathWithBridges(
         // When moving right-to-left (dir < 0), sweep-flag 1 produces upward arc.
         const sweep = dir > 0 ? 0 : 1
         d += ` A ${bridgeRadius} ${bridgeRadius} 0 0 ${sweep} ${exitX} ${y}`
-        currentX = exitX
       }
 
       if (!next || radius <= 0) {

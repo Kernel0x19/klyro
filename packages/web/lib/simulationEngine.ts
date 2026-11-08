@@ -78,19 +78,21 @@ function getGateType(partNumber: string): string {
 function findIC(partNumber: string): ICEntry | undefined {
   return IC_LIBRARY.flatMap((c) => c.ics).find((ic) => ic.part === partNumber)
 }
+export type ChipState = Record<string, boolean | number | string | undefined>
+
 export function simulateBoard(
   edges: Edge[],
   icSlots: ICSlot[],
   inputStates: Record<string, boolean>,
   isPowerOn: boolean,
   clockStates: Record<string, boolean> = {},
-  chipStates: Record<string, any> = {},
+  chipStates: Record<string, ChipState> = {},
   prevPinSignals: PinSignals = {}
 ): {
   updatedEdges: Edge[]
   outputStates: Record<string, boolean>
   pinSignals: PinSignals
-  updatedChipStates: Record<string, any>
+  updatedChipStates: Record<string, ChipState>
 } {
   if (!isPowerOn) {
     return {
@@ -104,7 +106,7 @@ export function simulateBoard(
     }
   }
   const pinSignals: PinSignals = {}
-  const updatedChipStates: Record<string, any> = { ...chipStates }
+  const updatedChipStates: Record<string, ChipState> = { ...chipStates }
   const triggeredClockEdges = new Set<string>()
   const setSignal = (nodeId: string, pinId: string, state: SignalState) => {
     if (!pinSignals[nodeId]) pinSignals[nodeId] = {}

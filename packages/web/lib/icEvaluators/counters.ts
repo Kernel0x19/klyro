@@ -25,8 +25,8 @@ function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
  */
 export function evaluate74LS90(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
-  let qa = state.qa ?? false
-  let div5 = state.div5 ?? 0 // 0..4
+  let qa = state.qa === true
+  let div5 = typeof state.div5 === 'number' ? state.div5 : 0 // 0..4
 
   const r0_1 = toBool(ctx.getPinSignal(2), false) ?? false
   const r0_2 = toBool(ctx.getPinSignal(3), false) ?? false
@@ -89,8 +89,8 @@ export function evaluate74LS90(ctx: SequentialEvaluatorContext): void {
  */
 export function evaluate74LS93(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
-  let qa = state.qa ?? false
-  let div8 = state.div8 ?? 0 // 0..7
+  let qa = state.qa === true
+  let div8 = typeof state.div8 === 'number' ? state.div8 : 0 // 0..7
 
   const r0_1 = toBool(ctx.getPinSignal(2), false) ?? false
   const r0_2 = toBool(ctx.getPinSignal(3), false) ?? false
@@ -146,13 +146,12 @@ export function evaluate74LS93(ctx: SequentialEvaluatorContext): void {
  */
 export function evaluate74x191(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
-  let count = state.count ?? 0 // 0..15
+  let count = typeof state.count === 'number' ? state.count : 0 // 0..15
 
   const load = toBool(ctx.getPinSignal(9), true) ?? true // Active LOW
   const cten = toBool(ctx.getPinSignal(7), true) ?? true // Active LOW
   const downUp = toBool(ctx.getPinSignal(6), false) ?? false // LOW = Up, HIGH = Down
   const currClk = ctx.getPinSignal(15)
-  const prevClk = ctx.getPrevPinSignal(15)
 
   if (!load) {
     // Asynchronous parallel load

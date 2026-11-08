@@ -1,7 +1,6 @@
 'use client'
 import { useBoardStore } from '@/stores/useBoardStore'
 import PropertiesPanelClient from './properties-panel/PropertiesPanelClient'
-import { IC_LIBRARY } from '@/lib/icLibrary'
 export default function PropertiesPanel() {
   const { selectedSlotId, icSlots, removeIC, clearSelection } = useBoardStore()
   const selectedSlot = icSlots.find((s) => s.slotId === selectedSlotId)

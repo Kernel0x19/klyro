@@ -1,11 +1,11 @@
-import type { SignalState } from '../simulationEngine'
+import type { SignalState, ChipState } from '../simulationEngine'
 
 export interface SequentialEvaluatorContext {
   getPinSignal: (pinNumber: number) => SignalState
   getPrevPinSignal: (pinNumber: number) => SignalState
   setPinSignal: (pinNumber: number, state: SignalState) => void
-  getChipState: () => Record<string, any>
-  setChipState: (state: Record<string, any>) => void
+  getChipState: () => ChipState
+  setChipState: (state: ChipState) => void
   isClockTriggered: (pinNumber: number, edge: 'rising' | 'falling') => boolean
 }
 
@@ -37,8 +37,8 @@ function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
  */
 export function evaluate74LS74(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
-  let q1 = state.q1 ?? false
-  let q2 = state.q2 ?? false
+  let q1 = state.q1 === true
+  let q2 = state.q2 === true
 
   // Evaluate Unit 1
   const res1 = evaluate74LS74Unit({
@@ -132,8 +132,8 @@ function evaluate74LS74Unit({
  */
 export function evaluate74LS76(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
-  let q1 = state.q1 ?? false
-  let q2 = state.q2 ?? false
+  let q1 = state.q1 === true
+  let q2 = state.q2 === true
 
   // Evaluate Unit 1
   const res1 = evaluate74LS76Unit({
