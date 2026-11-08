@@ -1,6 +1,15 @@
 import { IC_LIBRARY, type ICEntry } from './icLibrary'
 import type { Edge } from '@xyflow/react'
 import type { ICSlot } from '@/stores/useBoardStore'
+import {
+  evaluate74LS83,
+  evaluate74LS85,
+  evaluate74LS138,
+  evaluate74LS139,
+  evaluate74LS151,
+  evaluate74LS153,
+  type ICEvaluatorContext,
+} from './icEvaluators/combinational'
 export type SignalState = 'HIGH' | 'LOW' | 'X' | 'unconnected'
 export interface PinSignals {
   [nodeId: string]: {
@@ -152,6 +161,44 @@ export function simulateBoard(
       const nodeId = `ic-chip-${i + 1}`
       const ic = findIC(slot.icDefinition.partNumber)
       if (!ic) continue
+
+      const ctx: ICEvaluatorContext = {
+        getPinSignal: (pinNumber: number) => getSignal(nodeId, `pin-${pinNumber}`),
+        setPinSignal: (pinNumber: number, state: SignalState) => {
+          const prev = getSignal(nodeId, `pin-${pinNumber}`)
+          if (prev !== state) {
+            setSignal(nodeId, `pin-${pinNumber}`, state)
+            changed = true
+          }
+        },
+      }
+
+      const part = slot.icDefinition.partNumber
+      if (part === '74LS83') {
+        evaluate74LS83(ctx)
+        continue
+      }
+      if (part === '74LS85') {
+        evaluate74LS85(ctx)
+        continue
+      }
+      if (part === '74LS138') {
+        evaluate74LS138(ctx)
+        continue
+      }
+      if (part === '74LS139') {
+        evaluate74LS139(ctx)
+        continue
+      }
+      if (part === '74LS151') {
+        evaluate74LS151(ctx)
+        continue
+      }
+      if (part === '74LS153') {
+        evaluate74LS153(ctx)
+        continue
+      }
+
       const gateType = getGateType(slot.icDefinition.partNumber)
       const gateGroups: Record<
         string,
