@@ -10,7 +10,7 @@ An interactive Digital Logic & Computer Systems simulator designed for students,
 [![Next.js](https://img.shields.io/badge/Next.js-15.3-black?style=flat&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Turborepo](https://img.shields.io/badge/Monorepo-Turborepo-red?style=flat&logo=turborepo)](https://turbo.build/)
-[![Status](https://img.shields.io/badge/Status-v0.1.5%20(Latest)%20%7C%20v0.2.0%20(In%20Progress)-brightgreen)](#status)
+[![Status](https://img.shields.io/badge/Status-v0.2.0%20(Latest)-brightgreen)](#status)
 
 </div>
 
@@ -18,8 +18,8 @@ An interactive Digital Logic & Computer Systems simulator designed for students,
 
 ## 🚀 Status
 
-- ✅ **`v0.1.5` (Latest Stable)** — Web release featuring clean bounded orthogonal wire routing with crossover bridge hops, 12-color net palettes, focus dimming, multi-pass simulation convergence, 3-zone circuit board, 31-component TTL library, real-time simulation for all 17 basic gate ICs, 2-digit 7-segment hex display, multi-track waveform viewer, dedicated editor tool switcher (Select, Wire, Pan, Delete), Supabase cloud persistence, and isolated project workspaces.
-- 🚧 **`v0.2.0` (In Progress)** — Active development focusing on full simulation coverage for all 31 ICs: custom combinational evaluators (adders, comparators, decoders, multiplexers), sequential clock-edge engine (flip-flops), counter state machines, universal shift registers (SISO, SIPO, PISO, PIPO), and active clock pulsing.
+- ✅ **`v0.2.0` (Latest Stable)** — Complete digital logic simulation for all 31 ICs in the TTL library: dedicated combinational evaluators (adders, comparators, decoders, multiplexers), sequential clock-edge engine (flip-flops), counter state machines (74LS90, 74LS93, 74HC191/74LS191), universal shift registers (SISO, SIPO, PISO, PIPO), multi-frequency active clock oscillator (0.5–10 Hz), single-shot pulse generator, and topbar circuit reset.
+- ✅ **`v0.1.5`** — Manhattan orthogonal wire routing with crossover bridge hops, 12-color net palettes, focus dimming, multi-pass simulation convergence, 3-zone circuit board, 2-digit 7-segment hex display, multi-track waveform viewer, dedicated editor tool switcher (Select, Wire, Pan, Delete), and Supabase cloud persistence.
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and patch histories.
 
@@ -79,30 +79,30 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and patch histories.
 
 ---
 
-## 🛠️ v0.2.0 Roadmap (In Active Development)
+## ⚡ Simulation Engine & IC Coverage (v0.2.0)
 
-**Primary Target**: All 31 ICs simulate correctly with complete combinational, sequential, and clocking behavior.
+**Full Coverage**: All 31 ICs simulate with complete combinational, sequential, and clocking behavior.
 
 ### 🧩 Custom Evaluators for Combinational ICs
-- [ ] **74LS83**: 4-bit binary adder with carry
-- [ ] **74LS85**: Magnitude comparator logic ($A > B$, $A < B$, $A = B$) with cascading inputs
-- [ ] **74LS138**: 3-to-8 decoder with enable pins ($G_1$, $\overline{G}_{2A}$, $\overline{G}_{2B}$)
-- [ ] **74LS139**: Dual 2-to-4 demultiplexer with individual active-low enables
-- [ ] **74LS151**: 8-to-1 MUX with select logic, strobe, and complementary outputs
-- [ ] **74LS153**: Dual 4-to-1 MUX with independent enable inputs
+- [x] **74LS83**: 4-bit binary adder with fast internal lookahead carry
+- [x] **74LS85**: 4-bit magnitude comparator ($A > B$, $A < B$, $A = B$) with cascading inputs
+- [x] **74LS138**: 3-to-8 decoder with enable pins ($G_1$, $\overline{G}_{2A}$, $\overline{G}_{2B}$)
+- [x] **74LS139**: Dual 2-to-4 demultiplexer with individual active-low enables
+- [x] **74LS151**: 8-to-1 MUX with select logic, strobe, and complementary outputs
+- [x] **74LS153**: Dual 4-to-1 MUX with independent enable inputs
 
 ### ⏱️ Sequential IC Engine
-- [ ] Dynamic clock edge detection (rising $\uparrow$ and falling $\downarrow$ transitions)
-- [ ] **74LS74**: Dual D flip-flop with preset ($\overline{PRE}$) and clear ($\overline{CLR}$)
-- [ ] **74LS76**: Dual JK flip-flop master-slave architecture with preset and clear
+- [x] Dynamic clock edge detection (rising $\uparrow$ and falling $\downarrow$ transitions)
+- [x] **74LS74**: Dual D flip-flop with preset ($\overline{PRE}$) and clear ($\overline{CLR}$)
+- [x] **74LS76**: Dual JK flip-flop master-slave architecture with preset and clear
 
 ### 🔢 Counter State Machines
-- [ ] **74LS90**: BCD decade counter (mod-2 and mod-5 sections)
-- [ ] **74LS93**: 4-bit binary counter (mod-2 and mod-8 sections)
-- [ ] **74HC191 / 74LS191**: Synchronous up/down counter with mode and enable controls
+- [x] **74LS90**: BCD decade counter (mod-2 and mod-5 sections)
+- [x] **74LS93**: 4-bit binary counter (mod-2 and mod-8 sections)
+- [x] **74HC191 / 74LS191**: Synchronous up/down counter with mode and enable controls
 
 ### 🔄 Shift Register Modes
-- [ ] **74HC194 / 74LS194**: 4-bit bidirectional universal shift register supporting all operational modes:
+- [x] **74HC194 / 74LS194**: 4-bit bidirectional universal shift register supporting all operational modes:
   - SISO (Serial-In, Serial-Out)
   - SIPO (Serial-In, Parallel-Out)
   - PISO (Parallel-In, Serial-Out)
@@ -110,8 +110,8 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and patch histories.
   - Parallel load and asynchronous master reset
 
 ### ⚡ Active Clock Driving Sequential ICs
-- [ ] Interactive frequency selector (0.5 Hz, 1 Hz, 5 Hz, 10 Hz) pulsing the clock periodically
-- [ ] `GENERATE PULSE` button delivering a single rising edge for step-by-step debugging
+- [x] Interactive frequency selector (0.5 Hz, 1 Hz, 5 Hz, 10 Hz) pulsing the clock periodically
+- [x] `GENERATE PULSE` button delivering a single rising edge for step-by-step debugging
 
 ---
 
