@@ -26,6 +26,8 @@ interface BoardState {
   selectedSlotId: string | null
   outputStates: Record<string, boolean>
   displayValues: [string, string]
+  chipStates: Record<string, any>
+  setChipStates: (states: Record<string, any>) => void
   togglePower: () => void
   toggleInput: (pin: string) => void
   toggleClock: (pin: string) => void
@@ -68,7 +70,13 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   selectedSlotId: null,
   outputStates: {},
   displayValues: ['0', '0'],
-  togglePower: () => set((s) => ({ isPowerOn: !s.isPowerOn })),
+  chipStates: {},
+  setChipStates: (states) => set({ chipStates: states }),
+  togglePower: () =>
+    set((s) => ({
+      isPowerOn: !s.isPowerOn,
+      chipStates: !s.isPowerOn ? s.chipStates : {},
+    })),
   toggleInput: (pin) =>
     set((s) => ({
       inputStates: {
@@ -127,6 +135,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       selectedSlotId: null,
       outputStates: {},
       displayValues: ['0', '0'],
+      chipStates: {},
       waveformHistory: {},
     })
   },

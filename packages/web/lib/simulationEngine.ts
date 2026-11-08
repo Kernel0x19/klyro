@@ -10,6 +10,11 @@ import {
   evaluate74LS153,
   type ICEvaluatorContext,
 } from './icEvaluators/combinational'
+import {
+  evaluate74LS74,
+  evaluate74LS76,
+  type SequentialEvaluatorContext,
+} from './icEvaluators/sequential'
 export type SignalState = 'HIGH' | 'LOW' | 'X' | 'unconnected'
 export interface PinSignals {
   [nodeId: string]: {
@@ -72,11 +77,14 @@ export function simulateBoard(
   icSlots: ICSlot[],
   inputStates: Record<string, boolean>,
   isPowerOn: boolean,
-  clockStates: Record<string, boolean> = {}
+  clockStates: Record<string, boolean> = {},
+  chipStates: Record<string, any> = {},
+  prevPinSignals: PinSignals = {}
 ): {
   updatedEdges: Edge[]
   outputStates: Record<string, boolean>
   pinSignals: PinSignals
+  updatedChipStates: Record<string, any>
 } {
   if (!isPowerOn) {
     return {
@@ -86,15 +94,20 @@ export function simulateBoard(
       })),
       outputStates: {},
       pinSignals: {},
+      updatedChipStates: {},
     }
   }
   const pinSignals: PinSignals = {}
+  const updatedChipStates: Record<string, any> = { ...chipStates }
   const setSignal = (nodeId: string, pinId: string, state: SignalState) => {
     if (!pinSignals[nodeId]) pinSignals[nodeId] = {}
     pinSignals[nodeId][pinId] = state
   }
   const getSignal = (nodeId: string, pinId: string): SignalState => {
     return pinSignals[nodeId]?.[pinId] ?? 'unconnected'
+  }
+  const getPrevSignal = (nodeId: string, pinId: string): SignalState => {
+    return prevPinSignals[nodeId]?.[pinId] ?? 'unconnected'
   }
   setSignal('main-output-panel', 'pin-VCC', 'HIGH')
   setSignal('main-input-clock-panel', 'input-gnd', 'LOW')
@@ -199,6 +212,31 @@ export function simulateBoard(
         continue
       }
 
+      const seqCtx: SequentialEvaluatorContext = {
+        getPinSignal: (pinNumber: number) => getSignal(nodeId, `pin-${pinNumber}`),
+        getPrevPinSignal: (pinNumber: number) => getPrevSignal(nodeId, `pin-${pinNumber}`),
+        setPinSignal: (pinNumber: number, state: SignalState) => {
+          const prev = getSignal(nodeId, `pin-${pinNumber}`)
+          if (prev !== state) {
+            setSignal(nodeId, `pin-${pinNumber}`, state)
+            changed = true
+          }
+        },
+        getChipState: () => updatedChipStates[nodeId] ?? {},
+        setChipState: (state) => {
+          updatedChipStates[nodeId] = state
+        },
+      }
+
+      if (part === '74LS74') {
+        evaluate74LS74(seqCtx)
+        continue
+      }
+      if (part === '74LS76') {
+        evaluate74LS76(seqCtx)
+        continue
+      }
+
       const gateType = getGateType(slot.icDefinition.partNumber)
       const gateGroups: Record<
         string,
@@ -274,5 +312,5 @@ export function simulateBoard(
       data: { ...edge.data, signalState: signal },
     }
   })
-  return { updatedEdges, outputStates, pinSignals }
+  return { updatedEdges, outputStates, pinSignals, updatedChipStates }
 }

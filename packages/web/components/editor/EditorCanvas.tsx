@@ -29,7 +29,7 @@ import CanvasToast from './canvas/CanvasToast'
 import { useToastStore } from '@/stores/useToastStore'
 import { validatePinConnection } from '@/lib/pinValidator'
 import { RoutingContext, type BoundingBox } from '@/lib/routingContext'
-import { simulateBoard } from '@/lib/simulationEngine'
+import { simulateBoard, type PinSignals } from '@/lib/simulationEngine'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
 const NODE_TYPES = {
   hardwareOutputPanel: OutputSectionNode,
@@ -71,11 +71,14 @@ function Canvas() {
   const outputStates = useBoardStore((s) => s.outputStates)
   const setOutputStates = useBoardStore((s) => s.setOutputStates)
   const displayValues = useBoardStore((s) => s.displayValues)
+  const chipStates = useBoardStore((s) => s.chipStates)
+  const setChipStates = useBoardStore((s) => s.setChipStates)
   const recordWaveformSnapshot = useBoardStore((s) => s.recordWaveformSnapshot)
   const edges = useEditorEdgesStore((s) => s.edges)
   const setEdges = useEditorEdgesStore((s) => s.setEdges)
   const [, , onEdgesChange] = useEdgesState<Edge>([])
   const edgesRef = useRef(edges)
+  const prevPinSignalsRef = useRef<PinSignals>({})
   useEffect(() => {
     edgesRef.current = edges
   }, [edges])
@@ -221,13 +224,26 @@ function Canvas() {
   const edgeTypes = useMemo(() => EDGE_TYPES, [])
   const lastWaveformKeyRef = useRef<string>('')
   useEffect(() => {
-    const { updatedEdges, outputStates: newOutputStates } = simulateBoard(
+    const {
+      updatedEdges,
+      outputStates: newOutputStates,
+      pinSignals: newPinSignals,
+      updatedChipStates,
+    } = simulateBoard(
       edgesRef.current,
       icSlots,
       inputStates,
       isPowerOn,
-      clockStates
+      clockStates,
+      chipStates,
+      prevPinSignalsRef.current
     )
+    prevPinSignalsRef.current = newPinSignals
+    const isStateChanged =
+      JSON.stringify(chipStates) !== JSON.stringify(updatedChipStates)
+    if (isStateChanged) {
+      setChipStates(updatedChipStates)
+    }
     const prev = edgesRef.current
     const isDifferent =
       prev.length !== updatedEdges.length ||
