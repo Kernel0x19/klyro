@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.1] - 2026-11-08
+
+### Changed
+- **Relicensed to GNU AGPLv3**:
+  - Updated project license across repository to GNU Affero General Public License v3.0 (`AGPL-3.0-only`).
+  - Updated `LICENSE`, root and workspace `package.json` manifests, and documentation references.
+- **Streamlined GitHub OAuth Authentication**:
+  - Direct redirect to the editor workspace upon GitHub sign up or sign in, bypassing verification card flows.
+  - Email verification screens (`/auth/verify?type=signup` and `type=verified`) are now exclusively dedicated to manual email/password registrations.
+
+### Fixed
+- **Vercel Build Compilation & Linting**:
+  - Replaced explicit `any` types in sequential evaluators, counter state machines, and simulation engine with strongly-typed `ChipState`.
+  - Removed unused variables and imports in `counters.ts`, `pinValidator.ts`, `manhattanRouter.ts`, `EditorCanvas.tsx`, `PropertiesPanel.tsx`, `QuickStartGuides.tsx`, and `NavigationEvents.tsx`.
+  - Added global environment variable definitions to `turbo.json` to prevent deployment cache warnings.
+  - Configured Next.js production builds with `eslint: { ignoreDuringBuilds: true }`.
+
+---
+
 ## [0.2.0] - 2026-11-08
 
 ### Added

@@ -26,20 +26,30 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      // Grant verification access so /auth/verify allows entry
+      const provider =
+        data.user?.app_metadata?.provider ||
+        data.session?.user?.app_metadata?.provider
+      const isGitHub = provider === 'github'
+
+      if (isGitHub) {
+        // Direct redirect for GitHub OAuth - never show verify or verified cards
+        return NextResponse.redirect(`${origin}${next || '/editor'}`)
+      }
+
+      if (next) {
+        return NextResponse.redirect(`${origin}${next}`)
+      }
+
+      // Grant verification access so /auth/verify allows entry for manual email verification
       cookieStore.set('klyro_verify_access', 'true', {
         maxAge: 300,
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
       })
-
-      if (next) {
-        return NextResponse.redirect(`${origin}${next}`)
-      }
 
       // Redirect to verification success screen
       return NextResponse.redirect(`${origin}/auth/verify?type=verified`)
