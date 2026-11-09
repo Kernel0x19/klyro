@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { useEditorEdgesStore } from './useEditorEdgesStore'
-import type { ChipState } from '@/lib/simulationEngine'
+import type { ChipState, PinSignals } from '@/lib/simulationEngine'
 export interface ICDefinitionSlot {
   partNumber: string
   name: string
@@ -33,6 +33,8 @@ interface BoardState {
   displayValues: [string, string]
   chipStates: Record<string, ChipState>
   setChipStates: (states: Record<string, ChipState>) => void
+  pinSignals: PinSignals
+  setPinSignals: (signals: PinSignals) => void
   togglePower: () => void
   toggleInput: (pin: string) => void
   toggleClock: (pin: string) => void
@@ -93,6 +95,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   displayValues: ['0', '0'],
   chipStates: {},
   setChipStates: (states) => set({ chipStates: states }),
+  pinSignals: {},
+  setPinSignals: (signals) => set({ pinSignals: signals }),
   togglePower: () =>
     set((s) => ({
       isPowerOn: !s.isPowerOn,
@@ -159,6 +163,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       outputStates: {},
       displayValues: ['0', '0'],
       chipStates: {},
+      pinSignals: {},
       waveformHistory: {},
     })
   },

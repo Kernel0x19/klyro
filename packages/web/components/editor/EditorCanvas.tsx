@@ -75,6 +75,7 @@ function Canvas() {
   const displayValues = useBoardStore((s) => s.displayValues)
   const chipStates = useBoardStore((s) => s.chipStates)
   const setChipStates = useBoardStore((s) => s.setChipStates)
+  const setPinSignals = useBoardStore((s) => s.setPinSignals)
   const recordWaveformSnapshot = useBoardStore((s) => s.recordWaveformSnapshot)
   const edges = useEditorEdgesStore((s) => s.edges)
   const setEdges = useEditorEdgesStore((s) => s.setEdges)
@@ -264,6 +265,7 @@ function Canvas() {
       prevPinSignalsRef.current
     )
     prevPinSignalsRef.current = newPinSignals
+    setPinSignals(newPinSignals)
     const isStateChanged =
       JSON.stringify(chipStates) !== JSON.stringify(updatedChipStates)
     if (isStateChanged) {

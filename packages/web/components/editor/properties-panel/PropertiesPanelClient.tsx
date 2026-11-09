@@ -5,7 +5,6 @@ import {
   ChevronRight,
   ExternalLink,
   Trash2,
-  Copy,
   Cpu,
 } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
@@ -34,8 +33,9 @@ const stateColors: Record<string, string> = {
   LOW: '#ef4444',
   X: '#f59e0b',
   Z: '#a855f7',
+  unconnected: '#71717a',
 }
-type PinState = 'HIGH' | 'LOW' | 'X' | 'Z'
+type PinState = 'HIGH' | 'LOW' | 'X' | 'Z' | 'unconnected'
 interface Pin {
   number: number
   label: string
@@ -48,18 +48,18 @@ interface SelectedIC {
   package: string
   family: string
   delay: number
-  datasheetUrl?: string
+  vcc: number
+  gnd: number
+  datasheetUrl?: string | undefined
   pins: Pin[]
 }
 interface Props {
   selected?: SelectedIC | null
   onRemove?: () => void
-  onDuplicate?: () => void
 }
 export default function PropertiesPanelClient({
   selected,
   onRemove,
-  onDuplicate,
 }: Props) {
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -195,7 +195,7 @@ export default function PropertiesPanelClient({
                   </span>
                 </div>
                 <div
-                  className="flex items-center justify-between px-2.5 py-1.5 rounded-md"
+                  className="flex items-center justify-between px-2.5 py-1.5 rounded-md mb-2"
                   style={{ background: t.surfaceElevated }}
                 >
                   <span
@@ -210,6 +210,42 @@ export default function PropertiesPanelClient({
                   >
                     {selected.delay} ns
                   </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div
+                    className="flex items-center justify-between px-2.5 py-1.5 rounded-md"
+                    style={{ background: t.surfaceElevated }}
+                  >
+                    <span
+                      className="text-[11px]"
+                      style={{ color: t.textSecondary }}
+                    >
+                      VCC Pin
+                    </span>
+                    <span
+                      className="text-[11px] font-bold"
+                      style={{ color: '#22c55e' }}
+                    >
+                      Pin {selected.vcc}
+                    </span>
+                  </div>
+                  <div
+                    className="flex items-center justify-between px-2.5 py-1.5 rounded-md"
+                    style={{ background: t.surfaceElevated }}
+                  >
+                    <span
+                      className="text-[11px]"
+                      style={{ color: t.textSecondary }}
+                    >
+                      GND Pin
+                    </span>
+                    <span
+                      className="text-[11px] font-bold"
+                      style={{ color: t.textSecondary }}
+                    >
+                      Pin {selected.gnd}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div
@@ -236,52 +272,59 @@ export default function PropertiesPanelClient({
                   <span>State</span>
                 </div>
                 <div
-                  className="rounded-b-md overflow-hidden"
+                  className="rounded-b-md overflow-hidden max-h-[260px] overflow-y-auto"
                   style={{ border: `1px solid ${t.border}`, borderTop: 'none' }}
                 >
-                  {selected.pins.map((pin, i) => (
-                    <div
-                      key={pin.number}
-                      className="grid items-center px-1.5 py-1"
-                      style={{
-                        gridTemplateColumns: '24px 36px 1fr 44px',
-                        background:
-                          i % 2 === 0 ? 'transparent' : t.surfaceElevated,
-                        borderTop: i > 0 ? `1px solid ${t.border}` : 'none',
-                      }}
-                    >
-                      <span
-                        className="text-[10px]"
-                        style={{ color: t.textSecondary }}
+                  {selected.pins.map((pin, i) => {
+                    const isNC = pin.state === 'unconnected'
+                    const displayState = isNC ? 'NC' : pin.state
+                    const stateColor = stateColors[pin.state] || stateColors.unconnected
+
+                    return (
+                      <div
+                        key={pin.number}
+                        className="grid items-center px-1.5 py-1"
+                        style={{
+                          gridTemplateColumns: '24px 36px 1fr 44px',
+                          background:
+                            i % 2 === 0 ? 'transparent' : t.surfaceElevated,
+                          borderTop: i > 0 ? `1px solid ${t.border}` : 'none',
+                        }}
                       >
-                        {pin.number}
-                      </span>
-                      <span
-                        className="text-[10px] font-bold"
-                        style={{ color: t.textPrimary }}
-                      >
-                        {pin.label}
-                      </span>
-                      <span
-                        className="text-[10px]"
-                        style={{ color: t.textSecondary }}
-                      >
-                        {pin.function}
-                      </span>
-                      <div className="flex items-center gap-1">
                         <span
-                          className="w-1.5 h-1.5 rounded-full shrink-0"
-                          style={{ background: stateColors[pin.state] }}
-                        />
+                          className="text-[10px]"
+                          style={{ color: t.textSecondary }}
+                        >
+                          {pin.number}
+                        </span>
                         <span
                           className="text-[10px] font-bold"
-                          style={{ color: stateColors[pin.state] }}
+                          style={{ color: t.textPrimary }}
                         >
-                          {pin.state}
+                          {pin.label}
                         </span>
+                        <span
+                          className="text-[10px] truncate pr-1"
+                          style={{ color: t.textSecondary }}
+                          title={pin.function}
+                        >
+                          {pin.function}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ background: stateColor }}
+                          />
+                          <span
+                            className="text-[10px] font-bold"
+                            style={{ color: stateColor }}
+                          >
+                            {displayState}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
               <div className="px-3 py-3 flex flex-col gap-1.5">
@@ -293,47 +336,29 @@ export default function PropertiesPanelClient({
                 </p>
                 {selected.datasheetUrl && (
                   <button
-                    onClick={() => window.open(selected.datasheetUrl, '_blank')}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[12px] font-medium cursor-pointer border-none transition-all duration-150"
+                    onClick={() =>
+                      window.open(selected.datasheetUrl, '_blank', 'noopener,noreferrer')
+                    }
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-[12px] font-medium cursor-pointer border-none transition-all duration-150"
                     style={{
-                      background: t.surfaceElevated,
-                      color: t.textPrimary,
+                      background: 'rgba(79,110,247,0.12)',
+                      color: '#4F6EF7',
+                      border: '1px solid rgba(79,110,247,0.25)',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.color = '#4F6EF7'
-                      e.currentTarget.style.background = 'rgba(79,110,247,0.1)'
+                      e.currentTarget.style.background = 'rgba(79,110,247,0.2)'
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = t.textPrimary
-                      e.currentTarget.style.background = t.surfaceElevated
+                      e.currentTarget.style.background = 'rgba(79,110,247,0.12)'
                     }}
                   >
                     <ExternalLink size={13} />
-                    View Datasheet
+                    Check Datasheet
                   </button>
                 )}
                 <button
-                  onClick={onDuplicate}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[12px] font-medium cursor-pointer border-none transition-all duration-150"
-                  style={{
-                    background: t.surfaceElevated,
-                    color: t.textPrimary,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#4F6EF7'
-                    e.currentTarget.style.background = 'rgba(79,110,247,0.1)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = t.textPrimary
-                    e.currentTarget.style.background = t.surfaceElevated
-                  }}
-                >
-                  <Copy size={13} />
-                  Duplicate
-                </button>
-                <button
                   onClick={onRemove}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[12px] font-medium cursor-pointer border-none transition-all duration-150"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-[12px] font-medium cursor-pointer border-none transition-all duration-150"
                   style={{
                     background: t.surfaceElevated,
                     color: t.textSecondary,

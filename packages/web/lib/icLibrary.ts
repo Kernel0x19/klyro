@@ -17,12 +17,64 @@ export interface ICEntry {
   vcc: number
   gnd: number
   advanced: boolean
+  datasheetUrl?: string
   pins: ICPin[]
 }
 
 export interface ICCategory {
   category: string
   ics: ICEntry[]
+}
+
+export const DATASHEET_URLS: Record<string, string> = {
+  // Basic Gates
+  '74LS00': 'https://www.ti.com/lit/ds/symlink/sn74ls00.pdf',
+  '74LS02': 'https://www.ti.com/lit/ds/symlink/sn74ls02.pdf',
+  '74LS03': 'https://www.ti.com/lit/ds/symlink/sn74ls03.pdf',
+  '74LS04': 'https://www.ti.com/lit/ds/symlink/sn74ls04.pdf',
+  '74LS05': 'https://www.ti.com/lit/ds/symlink/sn74ls05.pdf',
+  '74LS08': 'https://www.ti.com/lit/ds/symlink/sn74ls08.pdf',
+  '74LS10': 'https://www.ti.com/lit/ds/symlink/sn74ls10.pdf',
+  '74LS11': 'https://www.ti.com/lit/ds/symlink/sn74ls11.pdf',
+  '74LS14': 'https://www.ti.com/lit/ds/symlink/sn74ls14.pdf',
+  '74LS20': 'https://www.ti.com/lit/ds/symlink/sn74ls20.pdf',
+  '74LS21': 'https://www.ti.com/lit/ds/symlink/sn74ls21.pdf',
+  '74LS27': 'https://www.ti.com/lit/ds/symlink/sn74ls27.pdf',
+  '74LS30': 'https://www.ti.com/lit/ds/symlink/sn74ls30.pdf',
+  '74LS32': 'https://www.ti.com/lit/ds/symlink/sn74ls32.pdf',
+  '74LS38': 'https://www.ti.com/lit/ds/symlink/sn74ls38.pdf',
+  '74LS86': 'https://www.ti.com/lit/ds/symlink/sn74ls86a.pdf',
+  '74LS132': 'https://www.ti.com/lit/ds/symlink/sn74ls132.pdf',
+
+  // Flip-Flops
+  '74LS74': 'https://www.ti.com/lit/ds/symlink/sn74ls74a.pdf',
+  '74LS76': 'https://www.ti.com/lit/ds/symlink/sdls121.pdf',
+
+  // Counters
+  '74LS90': 'https://www.ti.com/lit/ds/symlink/sn74ls90.pdf',
+  '74LS93': 'https://www.ti.com/lit/ds/symlink/sn74ls93.pdf',
+  '74HC191': 'https://www.ti.com/lit/ds/symlink/sn74hc191.pdf',
+  '74LS191': 'https://www.ti.com/lit/ds/symlink/sn74ls191.pdf',
+
+  // Registers
+  '74HC194': 'https://www.ti.com/lit/ds/symlink/cd74hc194.pdf',
+  '74LS194': 'https://www.ti.com/lit/ds/symlink/sn74ls194a.pdf',
+
+  // Combinational
+  '74LS83': 'https://www.ti.com/lit/ds/symlink/sdls119.pdf',
+  '74LS85': 'https://www.ti.com/lit/ds/symlink/sn74ls85.pdf',
+  '74LS138': 'https://www.ti.com/lit/ds/symlink/sn74ls138.pdf',
+  '74LS139': 'https://www.ti.com/lit/ds/symlink/sn74ls139a.pdf',
+  '74LS151': 'https://www.ti.com/lit/ds/symlink/sn74ls151.pdf',
+  '74LS153': 'https://www.ti.com/lit/ds/symlink/sn74ls153.pdf',
+}
+
+export function getICDefinition(partNumber: string): ICEntry | undefined {
+  for (const cat of IC_LIBRARY) {
+    const found = cat.ics.find((ic) => ic.part === partNumber)
+    if (found) return found
+  }
+  return undefined
 }
 
 // ─── Library ──────────────────────────────────────────────────────────────────
