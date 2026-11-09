@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.2] - 2026-11-09
+
+### Added
+- **Dynamic Pin State Inspector**:
+  - Properties panel now shows live simulation state (`HIGH`, `LOW`, `X`, `NC`) for each IC pin with color-coded indicator dots.
+  - Pin states update in real-time as the simulation runs.
+- **VCC & GND Pin Information**:
+  - Component details section now displays VCC and GND pin numbers for the selected IC.
+- **Check Datasheet Button**:
+  - Replaced the non-functional Duplicate button with a prominent "Check Datasheet" button linking directly to the verified Texas Instruments PDF datasheet in a new secure tab.
+
+### Fixed
+- **Verified All 31 Datasheet URLs**:
+  - Corrected broken/redirected TI datasheet links for `74LS76` → `sdls121.pdf`, `74HC194` → `cd74hc194.pdf`, and `74LS83` → `sdls119.pdf`.
+- **First-Load Navbar Glitch**:
+  - Fixed glitchy detach animation on initial page load or hard reload by anchoring the navbar wrapper and deferring animation until after mount.
+
+---
+
 ## [0.2.1] - 2026-11-08
 
 ### Changed
