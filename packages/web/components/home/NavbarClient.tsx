@@ -45,35 +45,48 @@ export default function NavbarClient({
       sessionStorage.removeItem('klyro_scrolled')
     } catch { }
 
+    const getScrollY = () =>
+      window.scrollY ??
+      document.documentElement.scrollTop ??
+      document.body.scrollTop ??
+      0
+
+    const initialY = getScrollY()
+    const isAlreadyScrolled = initialY > 20
+
+    if (isAlreadyScrolled) {
+      setScrolled(true)
+      // When reloaded midway through the page, avoid the mount animation
+      const timer = setTimeout(() => {
+        setCanAnimate(true)
+      }, 50)
+      return () => clearTimeout(timer)
+    } else {
+      // When at the top of the page, enable animation immediately
+      setCanAnimate(true)
+    }
+
     const handleScroll = () => {
-      const scrollY =
-        window.scrollY ??
-        document.documentElement.scrollTop ??
-        document.body.scrollTop ??
-        0
+      const scrollY = getScrollY()
       setScrolled(scrollY > 20)
     }
 
-    handleScroll()
-    const rafId = requestAnimationFrame(handleScroll)
-
-    const timer = setTimeout(() => {
-      setCanAnimate(true)
-    }, 150)
-
     window.addEventListener('scroll', handleScroll, { passive: true })
-    document.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
-      cancelAnimationFrame(rafId)
-      clearTimeout(timer)
       window.removeEventListener('scroll', handleScroll)
-      document.removeEventListener('scroll', handleScroll)
     }
   }, [pathname])
   return (
-    <div className="sticky top-5 z-50 flex justify-center select-none">
+    <div className="sticky top-0 z-50 flex justify-center select-none w-full">
       <motion.nav
-        initial={false}
+        initial={{
+          marginTop: '0px',
+          marginLeft: '0px',
+          marginRight: '0px',
+          borderRadius: '0px',
+          border: '0px solid rgba(255,255,255,0)',
+          boxShadow: '0 0px 0px rgba(0,0,0,0)',
+        }}
         animate={
           scrolled
             ? {
@@ -97,7 +110,7 @@ export default function NavbarClient({
           duration: canAnimate ? 0.4 : 0,
           ease: [0.25, 0.46, 0.45, 0.94],
         }}
-        className="w-full h-20 sm:h-25 flex items-center justify-between p-2 sm:p-4 mt-5 backdrop-blur-sm"
+        className="w-full h-20 sm:h-25 flex items-center justify-between p-2 sm:p-4 backdrop-blur-sm"
       >
         <div
           onClick={scrollToTop}

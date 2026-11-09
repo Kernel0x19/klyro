@@ -10,7 +10,7 @@ An interactive Digital Logic & Computer Systems simulator designed for students,
 [![Next.js](https://img.shields.io/badge/Next.js-15.3-black?style=flat&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Turborepo](https://img.shields.io/badge/Monorepo-Turborepo-red?style=flat&logo=turborepo)](https://turbo.build/)
-[![Status](https://img.shields.io/badge/Status-v0.2.1%20(Latest)-brightgreen)](#status)
+[![Status](https://img.shields.io/badge/Status-v0.2.2%20(Latest)-brightgreen)](#status)
 
 </div>
 
@@ -18,7 +18,8 @@ An interactive Digital Logic & Computer Systems simulator designed for students,
 
 ## 🚀 Status
 
-- ✅ **`v0.2.1` (Latest Stable)** — License updated to GNU Affero General Public License v3.0 (AGPLv3), streamlined GitHub OAuth authentication (bypassing verification cards directly into workspace), and production build fixes.
+- ✅ **`v0.2.2` (Latest Stable)** — Live dynamic pin state inspector (HIGH/LOW/X/NC) in the properties panel, VCC & GND pin info display, verified all 31 TI datasheet links, replaced Duplicate with Check Datasheet button, and fixed first-load navbar glitch.
+- ✅ **`v0.2.1`** — License updated to GNU Affero General Public License v3.0 (AGPLv3), streamlined GitHub OAuth authentication (bypassing verification cards directly into workspace), and production build fixes.
 - ✅ **`v0.2.0`** — Complete digital logic simulation for all 31 ICs in the TTL library: dedicated combinational evaluators (adders, comparators, decoders, multiplexers), sequential clock-edge engine (flip-flops), counter state machines (74LS90, 74LS93, 74HC191/74LS191), universal shift registers (SISO, SIPO, PISO, PIPO), multi-frequency active clock oscillator (0.5–10 Hz), single-shot pulse generator, and topbar circuit reset.
 - ✅ **`v0.1.5`** — Manhattan orthogonal wire routing with crossover bridge hops, 12-color net palettes, focus dimming, multi-pass simulation convergence, 3-zone circuit board, 2-digit 7-segment hex display, multi-track waveform viewer, dedicated editor tool switcher (Select, Wire, Pan, Delete), and Supabase cloud persistence.
 
