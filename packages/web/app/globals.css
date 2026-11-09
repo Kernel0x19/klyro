@@ -18,11 +18,8 @@
 }
 
 :root {
-  transition:
-    background-color 0.4s ease,
-    color 0.4s ease;
   --background: #000000;
-  --surface: #1a1d27;
+  --surface: #1a1a1a;
   --surface-elevated: #343a40;
   --border: #2e3148;
   --text-primary: #e8eaf0;
@@ -40,7 +37,7 @@
 [data-theme='light'] {
   --background: #ffffff;
   --surface: #f5f6fa;
-  --surface-elevated: #343a40;
+  --surface-elevated: #e8eaef;
   --border: #d9dce6;
   --text-primary: #14161c;
   --text-secondary: #5a5f73;
@@ -65,21 +62,7 @@ body {
   font-family: var(--font-sans);
 }
 
-@layer base {
-  * {
-    transition:
-      background-color 0.4s ease,
-      border-color 0.4s ease,
-      color 0.4s ease,
-      fill 0.4s ease,
-      stroke 0.4s ease,
-      opacity 0.4s ease;
-  }
-
-  html {
-    transition: background-color 0.4s ease;
-  }
-}
+/* Marquee animation */
 
 @keyframes marquee {
   from {
@@ -143,6 +126,45 @@ body {
   color: #4f6ef7 !important;
 }
 
+.canvas-container {
+  background-color: var(--background);
+}
+
+.canvas-container .react-flow__background {
+  background-color: var(--background) !important;
+}
+
+.canvas-container .canvas-controls {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+[data-theme='dark'] .canvas-container {
+  background-color: #000000;
+}
+
+[data-theme='dark'] .canvas-container .react-flow__background {
+  background-color: #000000 !important;
+}
+
+[data-theme='dark'] .canvas-container .canvas-controls {
+  background: #1a1a1a;
+  border: 1px solid #2e3148;
+}
+
+[data-theme='light'] .canvas-container {
+  background-color: #ffffff;
+}
+
+[data-theme='light'] .canvas-container .react-flow__background {
+  background-color: #ffffff !important;
+}
+
+[data-theme='light'] .canvas-container .canvas-controls {
+  background: #f5f6fa;
+  border: 1px solid #d9dce6;
+}
+
 .canvas-light {
   background: #ffffff;
 }
@@ -165,7 +187,7 @@ body {
 }
 
 .canvas-dark .canvas-controls {
-  background: #1a1d27;
+  background: #1a1a1a;
   border: 1px solid #2e3148;
 }
 

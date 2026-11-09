@@ -96,7 +96,11 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   chipStates: {},
   setChipStates: (states) => set({ chipStates: states }),
   pinSignals: {},
-  setPinSignals: (signals) => set({ pinSignals: signals }),
+  setPinSignals: (signals) =>
+    set((s) => {
+      if (JSON.stringify(s.pinSignals) === JSON.stringify(signals)) return s
+      return { pinSignals: signals }
+    }),
   togglePower: () =>
     set((s) => ({
       isPowerOn: !s.isPowerOn,

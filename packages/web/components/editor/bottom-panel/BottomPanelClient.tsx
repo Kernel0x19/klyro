@@ -1,29 +1,16 @@
 'use client'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { ChevronDown, ChevronUp, X } from 'lucide-react'
-import { useTheme } from '@/components/hooks/useTheme'
 import WaveformViewer from './WaveformViewer'
 import { useBoardStore } from '@/stores/useBoardStore'
-const tokens = {
-  dark: {
-    background: '#000000',
-    surface: '#1a1a1a',
-    surfaceElevated: '#343a40',
-    border: '#2e3148',
-    textPrimary: '#e8eaf0',
-    textSecondary: '#8b8fa8',
-  },
-  light: {
-    background: '#ffffff',
-    surface: '#f5f6fa',
-    surfaceElevated: '#e8eaef',
-    border: '#d9dce6',
-    textPrimary: '#14161c',
-    textSecondary: '#5a5f73',
-  },
+const t = {
+  background: 'var(--background)',
+  surface: 'var(--surface)',
+  surfaceElevated: 'var(--surface-elevated)',
+  border: 'var(--border)',
+  textPrimary: 'var(--text-primary)',
+  textSecondary: 'var(--text-secondary)',
 }
-const COLOR_TRANSITION =
-  'background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease'
 type Tab = 'waveform' | 'console' | 'netlist'
 interface ConsoleEntry {
   type: 'info' | 'error' | 'warn'
@@ -46,17 +33,12 @@ export default function BottomPanelClient({
   consoleLogs = [],
   netlist = null,
 }: Props) {
-  const { theme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const [collapsed, setCollapsed] = useState(true)
   const [panelHeight, setPanelHeight] = useState(240)
   const [isDragging, setIsDragging] = useState(false)
   const [activeTab, setActiveTab] = useState<Tab>('waveform')
   const { clearWaveform } = useBoardStore()
   const containerRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
@@ -84,20 +66,11 @@ export default function BottomPanelClient({
     },
     [panelHeight]
   )
-  const t = tokens[theme]
   const tabs: { id: Tab; label: string }[] = [
     { id: 'waveform', label: 'Waveform' },
     { id: 'console', label: 'Console' },
     { id: 'netlist', label: 'Netlist' },
   ]
-  if (!mounted) {
-    return (
-      <div
-        className="w-full shrink-0 invisible"
-        style={{ height: collapsed ? '32px' : `${panelHeight}px` }}
-      />
-    )
-  }
   return (
     <div
       ref={containerRef}
@@ -110,7 +83,7 @@ export default function BottomPanelClient({
         borderTop: `2px solid ${t.border}`,
         transition: isDragging
           ? 'none'
-          : `height 250ms cubic-bezier(0.4,0,0.2,1), ${COLOR_TRANSITION}`,
+          : 'height 250ms cubic-bezier(0.4,0,0.2,1)',
       }}
     >
       {}
@@ -127,7 +100,6 @@ export default function BottomPanelClient({
         style={{
           height: '32px',
           borderBottom: collapsed ? 'none' : `1px solid ${t.border}`,
-          transition: COLOR_TRANSITION,
         }}
       >
         {}

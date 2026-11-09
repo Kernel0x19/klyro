@@ -7,27 +7,14 @@ import {
   Trash2,
   Cpu,
 } from 'lucide-react'
-import { useTheme } from '@/components/hooks/useTheme'
-const tokens = {
-  dark: {
-    background: '#000000',
-    surface: '#1a1a1a',
-    surfaceElevated: '#343a40',
-    border: '#2e3148',
-    textPrimary: '#e8eaf0',
-    textSecondary: '#8b8fa8',
-  },
-  light: {
-    background: '#ffffff',
-    surface: '#f5f6fa',
-    surfaceElevated: '#e8eaef',
-    border: '#d9dce6',
-    textPrimary: '#14161c',
-    textSecondary: '#5a5f73',
-  },
+const t = {
+  background: 'var(--background)',
+  surface: 'var(--surface)',
+  surfaceElevated: 'var(--surface-elevated)',
+  border: 'var(--border)',
+  textPrimary: 'var(--text-primary)',
+  textSecondary: 'var(--text-secondary)',
 }
-const COLOR_TRANSITION =
-  'background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease'
 const stateColors: Record<string, string> = {
   HIGH: '#22c55e',
   LOW: '#ef4444',
@@ -61,21 +48,7 @@ export default function PropertiesPanelClient({
   selected,
   onRemove,
 }: Props) {
-  const { theme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const [collapsed, setCollapsed] = useState(true)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-  const t = tokens[theme]
-  if (!mounted) {
-    return (
-      <aside
-        className="h-full shrink-0 invisible"
-        style={{ width: collapsed ? '3rem' : '16rem' }}
-      />
-    )
-  }
   return (
     <aside
       className="h-full flex flex-col shrink-0 overflow-hidden"
@@ -83,7 +56,7 @@ export default function PropertiesPanelClient({
         width: collapsed ? '3rem' : '16rem',
         background: t.surface,
         border: `2px solid ${t.border}`,
-        transition: `width 250ms cubic-bezier(0.4,0,0.2,1), ${COLOR_TRANSITION}`,
+        transition: 'width 250ms cubic-bezier(0.4,0,0.2,1)',
       }}
     >
       <div
@@ -91,7 +64,6 @@ export default function PropertiesPanelClient({
         style={{
           borderBottom: `1px solid ${t.border}`,
           justifyContent: collapsed ? 'center' : 'space-between',
-          transition: COLOR_TRANSITION,
         }}
       >
         {!collapsed && (

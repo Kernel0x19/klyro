@@ -1,14 +1,13 @@
 'use client'
-import { motion } from 'motion/react'
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
+import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/components/hooks/useTheme'
 import Image from 'next/image'
 import Link from 'next/link'
 import { APP_VERSION } from '@/lib/version'
-const useIsomorphicLayoutEffect =
-  typeof window !== 'undefined' ? useLayoutEffect : useEffect
+
 interface NavbarClientProps {
   starCount?: number | undefined
   isAuth?: boolean | undefined
@@ -28,47 +27,34 @@ export default function NavbarClient({
   const router = useRouter()
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
-  const [canAnimate, setCanAnimate] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
+
   useEffect(() => {
     setMounted(true)
   }, [])
+
   const scrollToTop = () => {
     if (pathname !== '/') {
       router.push('/')
     }
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-  useIsomorphicLayoutEffect(() => {
-    try {
-      sessionStorage.removeItem('klyro_scrolled')
-    } catch { }
 
+  useEffect(() => {
     const getScrollY = () =>
       window.scrollY ??
       document.documentElement.scrollTop ??
       document.body.scrollTop ??
       0
 
-    const initialY = getScrollY()
-    const isAlreadyScrolled = initialY > 20
-
-    if (isAlreadyScrolled) {
-      setScrolled(true)
-      // When reloaded midway through the page, avoid the mount animation
-      const timer = setTimeout(() => {
-        setCanAnimate(true)
-      }, 50)
-      return () => clearTimeout(timer)
-    } else {
-      // When at the top of the page, enable animation immediately
-      setCanAnimate(true)
-    }
+    // Synchronously set the initial state without any animation
+    const initialScrolled = getScrollY() > 20
+    setScrolled(initialScrolled)
 
     const handleScroll = () => {
-      const scrollY = getScrollY()
-      setScrolled(scrollY > 20)
+      setScrolled(getScrollY() > 20)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -76,23 +62,19 @@ export default function NavbarClient({
       window.removeEventListener('scroll', handleScroll)
     }
   }, [pathname])
+
+  const animDuration = prefersReducedMotion ? 0 : 0.4
+
   return (
-    <div className="sticky top-0 z-50 flex justify-center select-none w-full">
+    <div className="sticky top-0 z-50 flex justify-center select-none w-full px-2 sm:px-6 lg:px-10">
       <motion.nav
-        initial={{
-          marginTop: '0px',
-          marginLeft: '0px',
-          marginRight: '0px',
-          borderRadius: '0px',
-          border: '0px solid rgba(255,255,255,0)',
-          boxShadow: '0 0px 0px rgba(0,0,0,0)',
-        }}
+        initial={false}
         animate={
           scrolled
             ? {
               marginTop: '16px',
-              marginLeft: 'clamp(8px, 4vw, 40px)',
-              marginRight: 'clamp(8px, 4vw, 40px)',
+              marginLeft: '0px',
+              marginRight: '0px',
               borderRadius: '16px',
               border: '3px solid rgba(255,255,255,0.1)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
@@ -107,7 +89,7 @@ export default function NavbarClient({
             }
         }
         transition={{
-          duration: canAnimate ? 0.4 : 0,
+          duration: animDuration,
           ease: [0.25, 0.46, 0.45, 0.94],
         }}
         className="w-full h-20 sm:h-25 flex items-center justify-between p-2 sm:p-4 backdrop-blur-sm"

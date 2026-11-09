@@ -17,7 +17,6 @@ import {
   useNodes,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import { useTheme } from '@/components/hooks/useTheme'
 import OutputSectionNode from './canvas/OutputSectionNode'
 import ICBaseNode from './canvas/ICBaseNode'
 import InputClockSectionNode from './canvas/InputClockSectionNode'
@@ -50,8 +49,6 @@ const isValidConnection: IsValidConnection = (connection) => {
 const CANVAS_X_ALIGN = 50
 function Canvas() {
   const liveNodes = useNodes()
-  const { theme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const activeTool = useBoardStore((s) => s.activeTool)
   const setActiveTool = useBoardStore((s) => s.setActiveTool)
   const isPowerOn = useBoardStore((s) => s.isPowerOn)
@@ -382,11 +379,6 @@ function Canvas() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedEdge, edges, setEdges, clearSelection, setActiveTool])
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-  const themeClass =
-    mounted && theme === 'dark' ? 'canvas-dark' : 'canvas-light'
   const onConnect = useCallback(
     (connection: Connection) => {
       const result = validatePinConnection(connection, icSlots)
@@ -436,7 +428,7 @@ function Canvas() {
     <RoutingContext.Provider value={obstacles}>
       <div
         style={{ width: '100%', height: '100%' }}
-        className={`relative ${themeClass} ${toolCursorClass} tool-${activeTool}`}
+        className={`relative canvas-container ${toolCursorClass} tool-${activeTool}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       >
@@ -504,7 +496,12 @@ function Canvas() {
           proOptions={{ hideAttribution: false }}
           style={{ width: '100%', height: '100%' }}
         >
-          <Background variant={BackgroundVariant.Dots} gap={20} size={1.2} />
+          <Background
+            variant={BackgroundVariant.Dots}
+            gap={20}
+            size={1.2}
+            color="var(--grid-line)"
+          />
           <Controls
             position="bottom-right"
             showInteractive={false}
