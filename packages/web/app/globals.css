@@ -31,6 +31,7 @@
   --signal-unknown: #f59e0b;
   --signal-highz: #a855f7;
   --wire-default: #4b5563;
+  --grid-line: #3a3f5c;
   --grid-line: rgba(255, 255, 255, 0.1);
 }
 
@@ -48,6 +49,7 @@
   --signal-unknown: #d97706;
   --signal-highz: #9333ea;
   --wire-default: #9ca3af;
+  --grid-line: #c4c8d8;
   --grid-line: rgba(0, 0, 0, 0.18);
 }
 

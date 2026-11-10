@@ -506,7 +506,7 @@ function Canvas() {
             <Background
               variant={BackgroundVariant.Dots}
               gap={20}
-              size={1.2}
+              size={1.8}
               color="var(--grid-line)"
             />
           )}
