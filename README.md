@@ -10,7 +10,7 @@ An interactive Digital Logic & Computer Systems simulator designed for students,
 [![Next.js](https://img.shields.io/badge/Next.js-15.3-black?style=flat&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Turborepo](https://img.shields.io/badge/Monorepo-Turborepo-red?style=flat&logo=turborepo)](https://turbo.build/)
-[![Status](https://img.shields.io/badge/Status-v0.3.0%20(Latest)-brightgreen)](#status)
+[![Status](https://img.shields.io/badge/Status-v0.3.1%20(Latest)-brightgreen)](#status)
 
 </div>
 
@@ -18,9 +18,9 @@ An interactive Digital Logic & Computer Systems simulator designed for students,
 
 ## 🚀 Status
 
-- ✅ **`v0.3.0` (Latest Stable)** — K-Map Visualiser module: 2/3/4-variable Karnaugh maps, Quine-McCluskey minimal SOP & POS solver, Petrick's method for multi-cover selection, prime implicant group overlays with color-coding, truth table ↔ K-Map cell sync, and expression output panel with copy buttons.
+- ✅ **`v0.3.1` (Latest Stable)** — 5-variable K-Map (dual 4×4 grids), K-Map state persistence to Supabase (3s auto-save), SOP → K-Map reverse sync, QM step-by-step working panel, and variable name input fix.
+- ✅ **`v0.3.0`** — K-Map Visualiser module: 2/3/4-variable Karnaugh maps, Quine-McCluskey minimal SOP & POS solver, Petrick's method, prime implicant group overlays, truth table ↔ K-Map cell sync, and expression output panel.
 - ✅ **`v0.2.4`** — Undo/redo (Ctrl+Z/Y) via `zundo` temporal middleware, PNG export via `html-to-image`, 30s auto-save, keyboard shortcuts modal (12 shortcuts), show-grid toggle, power button in topbar, and dirty state indicator.
-- ✅ **`v0.2.3`** — Account security & settings overhaul (current password verification, PostgreSQL RPC account deletion, session revocation), 60-second anti-spam cooldown rate limiting, passwordless OTP/magic-link sign-in, inline 6-to-8 digit OTP verification, and cross-browser password reset support.
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and patch histories.
 

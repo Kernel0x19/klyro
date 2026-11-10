@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.1] - 2026-11-10
+
+### Added
+- **5-variable K-Map**: Two side-by-side 4×4 grids (E=0 / E=1). Groups spanning both halves render correctly with wrap-aware SVG overlays in each half.
+- **K-Map state persistence**: K-Map cell values, variable count, and variable names are auto-saved to Supabase (bundled inside the existing `board_state` JSONB column) with a 3-second debounce. State loads automatically when switching to the K-Map tab.
+- **Expression → K-Map reverse sync**: "Load SOP" input in the controls bar — type any SOP expression (e.g. `A'B + BC'`) and press Enter/→ to auto-fill matching K-Map cells.
+- **Step-by-step QM working panel**: Collapsible panel below the expression output showing each Quine-McCluskey merge round, with merged terms struck-through, prime implicants color-coded as essential/non-essential, and the final minimal SOP.
+- **Variable name input fix**: Name inputs now use local draft state — type freely, commit on blur or Enter, Escape to revert. Previously the store's fallback snapped the input back immediately.
+
+### Changed
+- `KMapControls`: 5-variable button added (`2 | 3 | 4 | 5` selector). Name inputs refactored to `VarNameInput` sub-component with draft state.
+- `KMapModule`: Now accepts optional `projectId` + `userId` props to mount `KMapPersistenceSync`.
+- `circuitService.ts`: Added `saveKMapState` / `loadKMapState` functions (merge-patch into existing `board_state` blob).
+- `boardStateSerializer.ts`: `SavedBoardState` extended with optional `kmap?: SavedKMapState` field (backwards compatible).
+- `kMapLayout.ts`: Added `getMintermAt5`, `getGridPosition5`, `getGroupRects5` for 5-variable support.
+- `types.ts`: Added `SavedKMapState` serialisable snapshot type. `GroupRect` extended with optional `half` for 5-var.
+
+---
+
 ## [0.3.0] - 2026-11-10
 
 ### Added
