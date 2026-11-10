@@ -65,7 +65,7 @@ export default function EditorActions({
   const profileTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const { icSlots, inputStates, isPowerOn, resetBoard, togglePower, isDirty, setDirty, snapToGrid, toggleSnapToGrid } =
+  const { icSlots, inputStates, isPowerOn, resetBoard, togglePower, isDirty, setDirty, showGrid, toggleShowGrid } =
     useBoardStore()
   const { edges } = useEditorEdgesStore()
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
@@ -268,17 +268,17 @@ export default function EditorActions({
                 </button>
               </div>
 
-              {/* Snap to Grid */}
+              {/* Show Grid */}
               <div className="px-4 py-2.5 flex items-center justify-between border-b border-neutral-200 dark:border-neutral-700/60">
                 <span className="flex items-center gap-2 text-sm font-medium text-neutral-800 dark:text-white">
                   <Grid3X3 size={13} />
-                  Snap to Grid
+                  Show Grid
                 </span>
                 <button
-                  onClick={toggleSnapToGrid}
-                  className={`w-10 h-5 rounded-full transition-colors duration-200 relative cursor-pointer ${snapToGrid ? 'bg-[#4F6EF7]' : 'bg-neutral-300 dark:bg-neutral-700'}`}
+                  onClick={toggleShowGrid}
+                  className={`w-10 h-5 rounded-full transition-colors duration-200 relative cursor-pointer ${showGrid ? 'bg-[#4F6EF7]' : 'bg-neutral-300 dark:bg-neutral-700'}`}
                 >
-                  <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${snapToGrid ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${showGrid ? 'translate-x-5' : 'translate-x-0.5'}`} />
                 </button>
               </div>
 
