@@ -276,9 +276,11 @@ export default function EditorActions({
                 </span>
                 <button
                   onClick={toggleShowGrid}
-                  className={`w-10 h-5 rounded-full transition-colors duration-200 relative cursor-pointer ${showGrid ? 'bg-[#4F6EF7]' : 'bg-neutral-300 dark:bg-neutral-700'}`}
+                  role="switch"
+                  aria-checked={showGrid}
+                  className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${showGrid ? 'bg-[#4F6EF7]' : 'bg-neutral-300 dark:bg-neutral-700'}`}
                 >
-                  <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${showGrid ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  <span className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow ring-0 transition-transform duration-200 ${showGrid ? 'translate-x-4' : 'translate-x-0'}`} />
                 </button>
               </div>
 
