@@ -1,10 +1,10 @@
 'use client'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { ExternalLink, Trash2, Clock, Cpu, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
-import { deleteProject } from '@/lib/supabase/projects'
+import { deleteProject, openOrCreateProject } from '@/lib/supabase/projects'
 import Image from 'next/image'
-import { openOrCreateProject } from '@/lib/supabase/projects'
+import NProgress from 'nprogress'
 const moduleStyles: Record<string, { badge: string; icon: string }> = {
   logic: {
     badge: 'bg-[#26215C22] text-[#AFA9EC] border border-[#534AB755]',
@@ -39,6 +39,16 @@ export function CircuitHistory({ circuits = [], onDelete }: CirHis) {
   const [pendingDelete, setPendingDelete] = useState<Circuit | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [localCircuits, setLocalCircuits] = useState<Circuit[]>(circuits)
+  const [isPending, startTransition] = useTransition()
+
+  function handleLaunchEditor() {
+    NProgress.start()
+    const formData = new FormData()
+    formData.set('module', 'board')
+    startTransition(async () => {
+      await openOrCreateProject(formData)
+    })
+  }
   async function confirmDelete() {
     if (!pendingDelete) return
     setDeleting(true)
@@ -68,21 +78,21 @@ export function CircuitHistory({ circuits = [], onDelete }: CirHis) {
           <div className="flex flex-col items-center justify-center py-10 gap-2 text-neutral-400 dark:text-neutral-600">
             <Cpu className="w-7 h-7" />
             <span className="text-sm">No circuits yet</span>
-            <form action={openOrCreateProject}>
-              <button
-                type="submit"
-                className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
-              >
-                Launch Editor
-                <Image
-                  src="/diagonal-arrow.svg"
-                  alt="Arrow"
-                  width={16}
-                  height={16}
-                  className="aspect-square"
-                />
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={handleLaunchEditor}
+              disabled={isPending}
+              className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group disabled:opacity-70 disabled:cursor-wait"
+            >
+              {isPending ? 'Launching...' : 'Launch Editor'}
+              <Image
+                src="/diagonal-arrow.svg"
+                alt="Arrow"
+                width={16}
+                height={16}
+                className="aspect-square"
+              />
+            </button>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
