@@ -29,6 +29,7 @@ import { validatePinConnection } from '@/lib/pinValidator'
 import { RoutingContext, type BoundingBox } from '@/lib/routingContext'
 import { simulateBoard, type PinSignals } from '@/lib/simulationEngine'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
+import { useUndoRedo } from '@/components/hooks/useUndoRedo'
 const NODE_TYPES = {
   hardwareOutputPanel: OutputSectionNode,
   icBaseNode: ICBaseNode,
@@ -51,6 +52,7 @@ function Canvas() {
   const liveNodes = useNodes()
   const activeTool = useBoardStore((s) => s.activeTool)
   const setActiveTool = useBoardStore((s) => s.setActiveTool)
+  const snapToGrid = useBoardStore((s) => s.snapToGrid)
   const isPowerOn = useBoardStore((s) => s.isPowerOn)
   const inputStates = useBoardStore((s) => s.inputStates)
   const clockStates = useBoardStore((s) => s.clockStates)
@@ -82,6 +84,10 @@ function Canvas() {
   useEffect(() => {
     edgesRef.current = edges
   }, [edges])
+
+  // ── Undo / Redo (Ctrl+Z / Ctrl+Y) ───────────────────────────────────────
+  useUndoRedo()
+
   useEffect(() => {
     if (!isPowerOn || !isClockRunning) return
     const freqNum = parseFloat(selectedFrequency) || 1
@@ -478,7 +484,7 @@ function Canvas() {
           minZoom={0.1}
           maxZoom={4}
           defaultViewport={{ x: 50, y: 20, zoom: 0.8 }}
-          snapToGrid
+          snapToGrid={snapToGrid}
           snapGrid={[20, 20]}
           fitView={true}
           fitViewOptions={{

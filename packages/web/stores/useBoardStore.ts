@@ -19,6 +19,10 @@ export interface ICSlot {
 interface BoardState {
   activeTool: EditorTool
   setActiveTool: (tool: EditorTool) => void
+  snapToGrid: boolean
+  toggleSnapToGrid: () => void
+  isDirty: boolean
+  setDirty: (dirty: boolean) => void
   isPowerOn: boolean
   inputStates: Record<string, boolean>
   clockStates: Record<string, boolean>
@@ -69,6 +73,10 @@ const createDefaultSlots = (): ICSlot[] =>
 export const useBoardStore = create<BoardState>((set, get) => ({
   activeTool: 'select',
   setActiveTool: (tool) => set({ activeTool: tool }),
+  snapToGrid: true,
+  toggleSnapToGrid: () => set((s) => ({ snapToGrid: !s.snapToGrid })),
+  isDirty: false,
+  setDirty: (dirty) => set({ isDirty: dirty }),
   isPowerOn: true,
   inputStates: {},
   clockStates: {},
@@ -132,12 +140,14 @@ export const useBoardStore = create<BoardState>((set, get) => ({
     })),
   assignIC: (slotId, ic) =>
     set((s) => ({
+      isDirty: true,
       icSlots: s.icSlots.map((slot) =>
         slot.slotId === slotId ? { ...slot, icDefinition: ic } : slot
       ),
     })),
   removeIC: (slotId) =>
     set((s) => ({
+      isDirty: true,
       icSlots: s.icSlots.map((slot) =>
         slot.slotId === slotId
           ? { ...slot, icDefinition: null, isSelected: false }
@@ -169,6 +179,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       chipStates: {},
       pinSignals: {},
       waveformHistory: {},
+      isDirty: false,
     })
   },
   setOutputStates: (states) =>
@@ -273,5 +284,6 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       icSlots: state.icSlots,
       inputStates: state.inputStates,
       isPowerOn: state.isPowerOn,
+      isDirty: false,
     }),
 }))
