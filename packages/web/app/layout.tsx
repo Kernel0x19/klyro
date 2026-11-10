@@ -4,7 +4,6 @@ import './globals.css'
 import { ThemeProvider } from '@/components/hooks/useTheme'
 import { Suspense } from 'react'
 import { NavigationProgress } from '@/components/ui/NavigationProgress'
-import ProgressStarter from '@/components/ui/ProgressStarter'
 import ScrollToTop from '@/components/ScrollToTop'
 import MobileDeviceNotice from '@/components/mobile/MobileDeviceNotice'
 
@@ -134,7 +133,6 @@ export default function RootLayout({
       <body className={`${spaceGrotesk.variable} ${inter.variable}`}>
         <Suspense fallback={null}>
           <NavigationProgress />
-          <ProgressStarter />
         </Suspense>
         <ThemeProvider>
           <ScrollToTop />

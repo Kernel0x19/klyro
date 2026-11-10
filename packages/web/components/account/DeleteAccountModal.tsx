@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { AlertTriangle, Loader2, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import NProgress from 'nprogress'
 
 interface DeleteAccountModalProps {
   isOpen: boolean
@@ -29,6 +30,7 @@ export default function DeleteAccountModal({
   async function handleDelete() {
     if (!isConfirmed || isDeleting) return
     setIsDeleting(true)
+    NProgress.start()
     setErrorMessage(null)
 
     try {
@@ -42,6 +44,7 @@ export default function DeleteAccountModal({
       if (!response.ok || data.error) {
         setErrorMessage(data.error || 'Failed to delete account.')
         setIsDeleting(false)
+        NProgress.done()
         return
       }
 
@@ -51,13 +54,14 @@ export default function DeleteAccountModal({
       console.error('Delete account error:', err)
       setErrorMessage('A network error occurred. Please try again.')
       setIsDeleting(false)
+      NProgress.done()
     }
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 select-none">
       <div className="w-full max-w-md bg-white dark:bg-[#141414] border border-red-500/30 rounded-2xl p-6 shadow-2xl flex flex-col gap-5">
-        
+
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">

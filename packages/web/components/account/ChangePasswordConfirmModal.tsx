@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { CheckCircle2, Home, User } from 'lucide-react'
 
 interface ChangePasswordConfirmModalProps {
@@ -10,8 +10,6 @@ interface ChangePasswordConfirmModalProps {
 export default function ChangePasswordConfirmModal({
   isOpen,
 }: ChangePasswordConfirmModalProps) {
-  const router = useRouter()
-
   if (!isOpen) return null
 
   return (
@@ -35,20 +33,20 @@ export default function ChangePasswordConfirmModal({
 
         {/* Redirect Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 w-full pt-2">
-          <button
-            onClick={() => router.push('/account')}
+          <Link
+            href="/account"
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#4F6EF7] hover:bg-[#3D5CE8] transition-colors cursor-pointer shadow-sm"
           >
             <User className="w-4 h-4" />
             Go to Account
-          </button>
-          <button
-            onClick={() => router.push('/')}
+          </Link>
+          <Link
+            href="/"
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-neutral-800 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 transition-colors cursor-pointer"
           >
             <Home className="w-4 h-4" />
             Return to Home
-          </button>
+          </Link>
         </div>
 
       </div>

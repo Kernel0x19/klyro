@@ -20,6 +20,7 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { useCooldown } from '@/components/hooks/useCooldown'
 import type { EmailOtpType } from '@supabase/supabase-js'
+import NProgress from 'nprogress'
 
 export type VerificationType =
   | 'signup'
@@ -236,6 +237,7 @@ export default function VerifyCard({ type, email, message }: VerifyCardProps) {
     if (!email || trimmed.length < 6 || trimmed.length > 8) return
 
     setOtpLoading(true)
+    NProgress.start()
     setOtpError(null)
 
     const otpType: EmailOtpType =
@@ -253,9 +255,9 @@ export default function VerifyCard({ type, email, message }: VerifyCardProps) {
       type: otpType,
     })
 
-    setOtpLoading(false)
-
     if (error) {
+      NProgress.done()
+      setOtpLoading(false)
       setOtpError(error.message)
     } else {
       if (type === 'recovery') {
@@ -273,6 +275,7 @@ export default function VerifyCard({ type, email, message }: VerifyCardProps) {
     if (!email || resendCooldown.isCoolingDown || resendLoading) return
 
     setResendLoading(true)
+    NProgress.start()
     setResendSuccess(null)
     setOtpError(null)
 
@@ -306,6 +309,7 @@ export default function VerifyCard({ type, email, message }: VerifyCardProps) {
       const msg = err instanceof Error ? err.message : 'Failed to resend verification email'
       setOtpError(msg)
     } finally {
+      NProgress.done()
       setResendLoading(false)
     }
   }

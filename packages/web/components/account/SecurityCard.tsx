@@ -100,6 +100,7 @@ export default function SecurityCard({ user }: SecurityCardProps) {
     }
 
     setEmailLoading(true)
+    NProgress.start()
 
     // Trigger Supabase email change flow with explicit redirect to completed template (first link sends other-email pending message)
     const siteUrl = typeof window !== 'undefined' ? window.location.origin : ''
@@ -135,14 +136,17 @@ export default function SecurityCard({ user }: SecurityCardProps) {
       return
     }
 
+    setPasswordLoading(true)
+    NProgress.start()
+
     // Step A: Require and verify current password for password accounts
     if (!isGitHub) {
       if (!currentPassword) {
+        NProgress.done()
+        setPasswordLoading(false)
         setPasswordError('Please enter your current password.')
         return
       }
-
-      setPasswordLoading(true)
 
       // Test current password authentication
       const { error: verifyError } = await supabase.auth.signInWithPassword({
@@ -156,8 +160,6 @@ export default function SecurityCard({ user }: SecurityCardProps) {
         setPasswordError('Current password is incorrect. Please verify and try again.')
         return
       }
-    } else {
-      setPasswordLoading(true)
     }
 
     // Step B: Dispatch password change verification email directing to /account/change-password
@@ -197,11 +199,13 @@ export default function SecurityCard({ user }: SecurityCardProps) {
   // 3. Handle Sign Out of Other Sessions
   async function handleSignOutOthers() {
     setSessionsLoading(true)
+    NProgress.start()
     setSessionsSuccess(null)
 
     try {
       const { error } = await supabase.auth.signOut({ scope: 'others' })
       setSessionsLoading(false)
+      NProgress.done()
 
       if (error) {
         console.error('Error signing out other sessions:', error)
@@ -211,6 +215,7 @@ export default function SecurityCard({ user }: SecurityCardProps) {
       }
     } catch (err) {
       setSessionsLoading(false)
+      NProgress.done()
       console.error(err)
     }
   }

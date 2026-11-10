@@ -16,6 +16,7 @@ import {
 import { signIn, signInWithGitHub } from '@/lib/supabase/auth'
 import { createClient } from '@/lib/supabase/client'
 import { useCooldown } from '@/components/hooks/useCooldown'
+import NProgress from 'nprogress'
 
 interface LoginFormProps {
   verified?: boolean | undefined
@@ -59,6 +60,7 @@ export default function LoginForm({ verified, urlError }: LoginFormProps) {
   async function handlePasswordSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
+    NProgress.start()
     setError(null)
 
     const formData = new FormData()
@@ -67,6 +69,7 @@ export default function LoginForm({ verified, urlError }: LoginFormProps) {
 
     const result = await signIn(formData)
     if (result?.error) {
+      NProgress.done()
       setError(result.error)
       setLoading(false)
       // Input values (email and password) remain fully preserved in state
@@ -88,6 +91,7 @@ export default function LoginForm({ verified, urlError }: LoginFormProps) {
     }
 
     setOtpLoading(true)
+    NProgress.start()
     setError(null)
     setOtpSuccess(null)
 
@@ -99,6 +103,7 @@ export default function LoginForm({ verified, urlError }: LoginFormProps) {
       },
     })
 
+    NProgress.done()
     setOtpLoading(false)
 
     if (otpSendError) {
@@ -127,6 +132,7 @@ export default function LoginForm({ verified, urlError }: LoginFormProps) {
     }
 
     setLoading(true)
+    NProgress.start()
     setError(null)
 
     const { error: verifyError } = await supabase.auth.verifyOtp({
@@ -136,6 +142,7 @@ export default function LoginForm({ verified, urlError }: LoginFormProps) {
     })
 
     if (verifyError) {
+      NProgress.done()
       setError(verifyError.message)
       setLoading(false)
     } else {
@@ -369,7 +376,10 @@ export default function LoginForm({ verified, urlError }: LoginFormProps) {
 
       <button
         type="button"
-        onClick={() => signInWithGitHub()}
+        onClick={() => {
+          NProgress.start()
+          signInWithGitHub()
+        }}
         className="w-full py-2.5 flex items-center justify-center gap-2.5 bg-white dark:bg-[#111111] text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700/60 hover:border-neutral-400 dark:hover:border-neutral-500 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer"
       >
         <Image
