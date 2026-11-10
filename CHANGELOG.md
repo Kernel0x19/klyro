@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - 2026-11-10
+
+### Added
+- **K-Map Visualiser module** (accessible via "K-Map Visualiser" tab in the topbar):
+  - Support for 2-variable (2×2), 3-variable (2×4), and 4-variable (4×4) Karnaugh maps.
+  - **Truth table ↔ K-Map cell sync**: clicking either cycles the cell through 0 → 1 → X → 0.
+  - **Quine-McCluskey algorithm** for minimal SOP (Sum of Products) computation.
+  - **Petrick's method** for optimal prime implicant cover selection when multiple covers exist.
+  - **Minimal POS** (Product of Sums) derived from maxterm cover using QM + Petrick.
+  - **Group overlays**: colored SVG rounded rectangles drawn over the K-Map grid, with wrap-around support for edge groups (e.g. corners minterms 0,2,8,10).
+  - **Expression output panel**: color-coded SOP & POS strings, copy buttons, expandable prime implicant details (all PIs + essential PIs).
+  - Variable name inputs — rename A/B/C/D and expressions update live.
+  - Reset button to clear all cell values.
+  - Gray-code headers on rows and columns (e.g. 3-var cols: 00 01 11 10).
+  - Module switching: "K-Map Visualiser" tab renders the module; "Board" tab returns to the circuit editor untouched.
+
+### Implementation Notes
+- Algorithm layer: `lib/kmap/` — `types.ts`, `quineMcCluskey.ts`, `petrick.ts`, `expressionBuilder.ts`, `kMapLayout.ts`, `groupFinder.ts`.
+- UI: `components/kmap/` — `KMapModule`, `KMapControls`, `KMapGrid`, `KMapCell`, `GroupOverlay`, `TruthTableEditor`, `ExpressionOutput`.
+- State: `stores/useKMapStore.ts` — session-only Zustand store (no Supabase persistence in this release).
+- Editor page updated to read `searchParams.module` and conditionally render K-Map vs Board.
+- `ModuleSelection.tsx` updated to preserve `projectId` in URL when switching tabs.
+
+### Deferred to future patches
+- 5-variable K-Map → v0.3.1
+- K-Map state persistence to Supabase → v0.3.1
+- Expression → Circuit Sync ("Build Circuit" button) → v0.3.2
+
+---
+
 ## [0.2.4] - 2026-11-10
 
 ### Added

@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 const Modules = ['Board', 'K-Map Visualiser', 'FSM', 'PLD', 'HDL', 'Learn']
 function toParam(module: string) {
   return module.toLowerCase().replace(/\s+/g, '-')
@@ -11,14 +11,18 @@ function fromParam(param: string) {
 export default function ModuleSelection() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const [active, setActive] = useState('Board')
   useEffect(() => {
     const selectedModule = searchParams.get('module')
     if (selectedModule) setActive(fromParam(selectedModule))
+    else setActive('Board')
   }, [searchParams])
   function handleSelect(module: string) {
     setActive(module)
-    router.push(`/editor?module=${toParam(module)}`, { scroll: false })
+    const param = toParam(module)
+    const target = param === 'board' ? pathname : `${pathname}?module=${param}`
+    router.push(target, { scroll: false })
   }
   return (
     <div className="h-full flex items-center justify-center gap-10 py-4">
