@@ -1,5 +1,7 @@
 import type { Edge } from '@xyflow/react'
 import type { ICSlot } from '@/stores/useBoardStore'
+import type { SavedKMapState } from '@/lib/kmap/types'
+
 export interface SavedBoardState {
   version: string
   icSlots: {
@@ -15,6 +17,8 @@ export interface SavedBoardState {
   }[]
   inputStates: Record<string, boolean>
   isPowerOn: boolean
+  /** K-Map state bundled alongside the board — optional for backwards compat */
+  kmap?: SavedKMapState
 }
 export function serializeBoardState(
   icSlots: ICSlot[],

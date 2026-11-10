@@ -3,6 +3,7 @@ import { useKMapStore } from '@/stores/useKMapStore'
 import { getGrayOrder, getMintermAt } from '@/lib/kmap/kMapLayout'
 import KMapCell from './KMapCell'
 import GroupOverlay from './GroupOverlay'
+import KMapGrid5 from './KMapGrid5'
 
 // Header dimensions — must match GroupOverlay constants
 const HEADER_W = 56
@@ -38,6 +39,9 @@ function getConfig(variables: 2 | 3 | 4, varNames: string[]): GridConfig {
 
 export default function KMapGrid() {
   const { variables, variableNames, cellValues, groups, toggleCell } = useKMapStore()
+
+  // 5-variable uses a separate two-map layout
+  if (variables === 5) return <KMapGrid5 />
 
   const { rowBits, colBits, rowLabel, colLabel } = getConfig(variables, variableNames)
   const rowGray = getGrayOrder(rowBits)
