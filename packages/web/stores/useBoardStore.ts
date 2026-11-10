@@ -19,8 +19,8 @@ export interface ICSlot {
 interface BoardState {
   activeTool: EditorTool
   setActiveTool: (tool: EditorTool) => void
-  snapToGrid: boolean
-  toggleSnapToGrid: () => void
+  showGrid: boolean
+  toggleShowGrid: () => void
   isDirty: boolean
   setDirty: (dirty: boolean) => void
   isPowerOn: boolean
@@ -73,8 +73,8 @@ const createDefaultSlots = (): ICSlot[] =>
 export const useBoardStore = create<BoardState>((set, get) => ({
   activeTool: 'select',
   setActiveTool: (tool) => set({ activeTool: tool }),
-  snapToGrid: true,
-  toggleSnapToGrid: () => set((s) => ({ snapToGrid: !s.snapToGrid })),
+  showGrid: true,
+  toggleShowGrid: () => set((s) => ({ showGrid: !s.showGrid })),
   isDirty: false,
   setDirty: (dirty) => set({ isDirty: dirty }),
   isPowerOn: true,

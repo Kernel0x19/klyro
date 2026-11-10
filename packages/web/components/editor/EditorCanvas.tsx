@@ -52,7 +52,7 @@ function Canvas() {
   const liveNodes = useNodes()
   const activeTool = useBoardStore((s) => s.activeTool)
   const setActiveTool = useBoardStore((s) => s.setActiveTool)
-  const snapToGrid = useBoardStore((s) => s.snapToGrid)
+  const showGrid = useBoardStore((s) => s.showGrid)
   const isPowerOn = useBoardStore((s) => s.isPowerOn)
   const inputStates = useBoardStore((s) => s.inputStates)
   const clockStates = useBoardStore((s) => s.clockStates)
@@ -484,7 +484,7 @@ function Canvas() {
           minZoom={0.1}
           maxZoom={4}
           defaultViewport={{ x: 50, y: 20, zoom: 0.8 }}
-          snapToGrid={snapToGrid}
+          snapToGrid={false}
           snapGrid={[20, 20]}
           fitView={true}
           fitViewOptions={{
@@ -502,12 +502,14 @@ function Canvas() {
           proOptions={{ hideAttribution: false }}
           style={{ width: '100%', height: '100%' }}
         >
-          <Background
-            variant={BackgroundVariant.Dots}
-            gap={20}
-            size={1.2}
-            color="var(--grid-line)"
-          />
+          {showGrid && (
+            <Background
+              variant={BackgroundVariant.Dots}
+              gap={20}
+              size={1.2}
+              color="var(--grid-line)"
+            />
+          )}
           <Controls
             position="bottom-right"
             showInteractive={false}
