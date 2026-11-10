@@ -5,10 +5,10 @@ import KMapCell from './KMapCell'
 import GroupOverlay from './GroupOverlay'
 
 // Header dimensions — must match GroupOverlay constants
-const HEADER_W = 48
-const HEADER_H = 32
-const CELL_W = 56
-const CELL_H = 56
+const HEADER_W = 56
+const HEADER_H = 40
+const CELL_W = 68
+const CELL_H = 68
 
 interface GridConfig {
   rowBits: number
@@ -53,17 +53,17 @@ export default function KMapGrid() {
           <tr>
             {/* Top-left corner label */}
             <th
-              className="text-[10px] font-mono font-semibold text-neutral-500 border border-neutral-700 bg-surface relative"
+              className="text-[13px] font-mono font-bold text-text-primary border border-neutral-700 bg-surface relative"
               style={{ width: HEADER_W, height: HEADER_H }}
             >
-              <span className="absolute bottom-1 left-1">{rowLabel}</span>
-              <span className="absolute top-1 right-1">{colLabel}</span>
+              <span className="absolute bottom-1 left-1.5">{rowLabel}</span>
+              <span className="absolute top-1 right-1.5">{colLabel}</span>
               {/* Diagonal line */}
               <svg
                 className="absolute inset-0 w-full h-full pointer-events-none"
                 preserveAspectRatio="none"
               >
-                <line x1="0" y1="0" x2="100%" y2="100%" stroke="#404040" strokeWidth="1" />
+                <line x1="0" y1="0" x2="100%" y2="100%" stroke="currentColor" strokeWidth="1" className="text-neutral-400 dark:text-neutral-600" />
               </svg>
             </th>
 
@@ -74,7 +74,7 @@ export default function KMapGrid() {
                 className="border border-neutral-700 bg-surface text-center"
                 style={{ width: CELL_W, height: HEADER_H }}
               >
-                <span className="text-[11px] font-mono font-bold text-neutral-400">
+                <span className="text-[13px] font-mono font-bold text-text-primary">
                   {cg.toString(2).padStart(colBits, '0')}
                 </span>
               </th>
@@ -90,7 +90,7 @@ export default function KMapGrid() {
                 className="border border-neutral-700 bg-surface text-center"
                 style={{ width: HEADER_W, height: CELL_H }}
               >
-                <span className="text-[11px] font-mono font-bold text-neutral-400">
+                <span className="text-[13px] font-mono font-bold text-text-primary">
                   {rg.toString(2).padStart(rowBits, '0')}
                 </span>
               </th>
