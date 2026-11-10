@@ -49,7 +49,7 @@ export default async function EditorPage({ params, searchParams }: Props) {
         userId={user?.id}
       />
       {isKMap ? (
-        <KMapModule />
+        <KMapModule projectId={projectId} {...(user?.id ? { userId: user.id } : {})} />
       ) : (
         <div className="flex flex-1 overflow-hidden gap-1">
           <Sidebar />

@@ -3,10 +3,22 @@ import KMapControls from './KMapControls'
 import TruthTableEditor from './TruthTableEditor'
 import KMapGrid from './KMapGrid'
 import ExpressionOutput from './ExpressionOutput'
+import QMStepsPanel from './QMStepsPanel'
+import KMapPersistenceSync from './KMapPersistenceSync'
 
-export default function KMapModule() {
+interface KMapModuleProps {
+  projectId?: string
+  userId?: string | undefined
+}
+
+export default function KMapModule({ projectId, userId }: KMapModuleProps) {
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
+      {/* Persistence sync — only when logged in */}
+      {projectId && userId && (
+        <KMapPersistenceSync projectId={projectId} userId={userId} />
+      )}
+
       {/* Controls bar */}
       <KMapControls />
 
@@ -24,9 +36,11 @@ export default function KMapModule() {
 
           {/* Expression output panel */}
           <ExpressionOutput />
+
+          {/* QM step-by-step working panel */}
+          <QMStepsPanel />
         </div>
       </div>
     </div>
   )
 }
-

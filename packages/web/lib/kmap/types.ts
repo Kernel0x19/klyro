@@ -22,5 +22,15 @@ export interface GroupRect {
   rowEnd: number
   colStart: number
   colEnd: number
+  /** For 5-var maps: which half-map does this rect belong to (0 = E=0, 1 = E=1) */
+  half?: 0 | 1
+}
+
+/** Serialisable K-Map snapshot — stored in Supabase alongside board_state */
+export interface SavedKMapState {
+  version: '1.0'
+  variables: 2 | 3 | 4 | 5
+  variableNames: string[]
+  cellValues: (0 | 1 | 'X')[]
 }
 
