@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useCooldown } from '@/components/hooks/useCooldown'
+import NProgress from 'nprogress'
 
 export default function ForgotPasswordForm() {
   const supabase = createClient()
@@ -28,6 +29,7 @@ export default function ForgotPasswordForm() {
     }
 
     setLoading(true)
+    NProgress.start()
     setError(null)
     setSuccess(null)
 
@@ -36,6 +38,7 @@ export default function ForgotPasswordForm() {
       redirectTo: `${siteUrl}/account/change-password`,
     })
 
+    NProgress.done()
     setLoading(false)
 
     if (resetError) {
@@ -113,8 +116,8 @@ export default function ForgotPasswordForm() {
         {loading
           ? 'Sending instructions...'
           : cooldown.isCoolingDown
-          ? `Resend in ${cooldown.secondsLeft}s`
-          : 'Send Reset Link'}
+            ? `Resend in ${cooldown.secondsLeft}s`
+            : 'Send Reset Link'}
       </button>
 
       <Link

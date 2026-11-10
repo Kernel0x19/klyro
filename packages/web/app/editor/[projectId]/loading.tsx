@@ -1,4 +1,16 @@
+'use client'
+
+import { useEffect } from 'react'
+import NProgress from 'nprogress'
+
 export default function EditorLoading() {
+  useEffect(() => {
+    NProgress.start()
+    return () => {
+      NProgress.done()
+    }
+  }, [])
+
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center gap-4 bg-(--background)">
       <div className="relative w-12 h-12">

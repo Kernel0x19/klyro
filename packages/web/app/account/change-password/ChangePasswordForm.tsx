@@ -144,6 +144,7 @@ export default function ChangePasswordForm({ userEmail }: ChangePasswordFormProp
     }
 
     setLoading(true)
+    NProgress.start()
 
     try {
       const { error: updateError } = await supabase.auth.updateUser({

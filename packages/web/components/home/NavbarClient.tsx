@@ -153,13 +153,8 @@ export default function NavbarClient({
             )}
           </button>
           {isAuth ? (
-            <button
-              suppressHydrationWarning
-              onClick={() =>
-                router.push(
-                  authType === 'login' ? '/auth/signup' : '/auth/login'
-                )
-              }
+            <Link
+              href={authType === 'login' ? '/auth/signup' : '/auth/login'}
               className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-base font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
             >
               {authType === 'login' ? 'Sign Up' : 'Login'}
@@ -170,7 +165,7 @@ export default function NavbarClient({
                 height={16}
                 className="aspect-square"
               />
-            </button>
+            </Link>
           ) : isLoggedIn ? (
             <Link href="/account">
               {avatarUrl ? (
@@ -191,8 +186,8 @@ export default function NavbarClient({
               )}
             </Link>
           ) : (
-            <button
-              onClick={() => router.push('/auth/login')}
+            <Link
+              href="/auth/login"
               className="text-white flex items-center justify-center px-4 py-3 bg-get-started text-base font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-xl cursor-pointer group"
             >
               Get Started
@@ -203,7 +198,7 @@ export default function NavbarClient({
                 height={16}
                 className="aspect-square"
               />
-            </button>
+            </Link>
           )}
         </div>
       </motion.nav>

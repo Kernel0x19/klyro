@@ -84,6 +84,7 @@ export default function MainSection({ user, profile, circuits }: Props) {
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault()
     setSavingProfile(true)
+    NProgress.start()
     setProfileSuccess(null)
     setProfileError(null)
 
@@ -288,7 +289,10 @@ export default function MainSection({ user, profile, circuits }: Props) {
           <div className="p-6">
             <CircuitHistory
               circuits={formattedCircuits}
-              onOpen={(projectId) => router.push(`/editor/${projectId}`)}
+              onOpen={(projectId) => {
+                NProgress.start()
+                router.push(`/editor/${projectId}`)
+              }}
             />
           </div>
         </div>

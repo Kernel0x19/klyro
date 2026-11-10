@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react'
 import { X, Upload, Link as LinkIcon, Loader2, Camera, AlertCircle, CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
+import NProgress from 'nprogress'
 interface Props {
   isOpen: boolean
   onClose: () => void
@@ -52,6 +53,7 @@ export default function AvatarUploadModal({
   const handleSave = async () => {
     setError(null)
     setUploading(true)
+    NProgress.start()
     try {
       if (tab === 'upload') {
         if (!selectedFile) {
@@ -97,6 +99,7 @@ export default function AvatarUploadModal({
       setError(err instanceof Error ? err.message : 'An error occurred while saving avatar.')
     } finally {
       setUploading(false)
+      NProgress.done()
     }
   }
   const activePreview =

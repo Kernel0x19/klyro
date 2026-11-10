@@ -1,32 +1,9 @@
 'use client'
-import { useEffect } from 'react'
-import NProgress from 'nprogress'
-import { usePathname } from 'next/navigation'
+
+/**
+ * ProgressStarter is deprecated and merged into NavigationProgress.
+ * Retained for backwards compatibility.
+ */
 export default function ProgressStarter() {
-  const pathname = usePathname()
-  useEffect(() => {
-    NProgress.done()
-  }, [pathname])
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const anchor = (e.target as HTMLElement).closest('a')
-      if (!anchor) return
-      const href = anchor.getAttribute('href')
-      if (!href || href.startsWith('#') || href.startsWith('http')) return
-      NProgress.start()
-    }
-    const handleSubmit = (e: SubmitEvent) => {
-      if (e.defaultPrevented) return
-      const form = e.target as HTMLFormElement | null
-      if (!form || form.getAttribute('method') === 'dialog') return
-      NProgress.start()
-    }
-    document.addEventListener('click', handleClick)
-    document.addEventListener('submit', handleSubmit)
-    return () => {
-      document.removeEventListener('click', handleClick)
-      document.removeEventListener('submit', handleSubmit)
-    }
-  }, [])
   return null
 }
