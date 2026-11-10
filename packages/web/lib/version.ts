@@ -3,7 +3,7 @@ const rawVersion =
   process.env.NEXT_PUBLIC_APP_VERSION ||
   process.env.VERSION ||
   process.env.APP_VERSION ||
-  'v0.2.4'
+  'v0.3.0'
 
 export const APP_VERSION = rawVersion.startsWith('v')
   ? rawVersion
