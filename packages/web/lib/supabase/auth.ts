@@ -1,8 +1,26 @@
 'use server'
 
 import { createServerSupabaseClient } from './server'
+import { createAdminClient } from './admin'
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
+
+async function getBaseUrl(): Promise<string> {
+  try {
+    const headerList = await headers()
+    const host = headerList.get('host')
+    const proto = headerList.get('x-forwarded-proto') || 'http'
+    if (host) {
+      return `${proto}://${host}`
+    }
+  } catch {}
+
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    'http://localhost:3000'
+  )
+}
 
 /**
  * Grants temporary access to the /auth/verify page for legitimate system redirects.
@@ -18,13 +36,36 @@ export async function grantVerificationAccess() {
 }
 
 export async function signUp(formData: FormData) {
-  const email = formData.get('email') as string
+  const email = (formData.get('email') as string)?.trim()
   const password = formData.get('password') as string
-  const fullName = formData.get('fullName') as string
+  const fullName = (formData.get('fullName') as string)?.trim()
 
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://klyro.live'
+  if (!email || !password) {
+    return { error: 'Email and password are required.' }
+  }
+
+  // 1. Proactively check if user already exists via Admin API
+  const admin = createAdminClient()
+  if (admin) {
+    try {
+      const { data: userList } = await admin.auth.admin.listUsers()
+      const existingUser = userList?.users?.find(
+        (u) => u.email?.toLowerCase() === email.toLowerCase()
+      )
+      if (existingUser) {
+        return {
+          error:
+            'An account with this email address already exists. Please log in instead.',
+        }
+      }
+    } catch (err) {
+      console.error('Error verifying existing user:', err)
+    }
+  }
+
+  const siteUrl = await getBaseUrl()
   const supabase = await createServerSupabaseClient()
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -36,6 +77,14 @@ export async function signUp(formData: FormData) {
   })
 
   if (error) return { error: error.message }
+
+  // 2. Check Supabase identities: if user already exists, Supabase returns empty identities array
+  if (data?.user && (!data.user.identities || data.user.identities.length === 0)) {
+    return {
+      error:
+        'An account with this email address already exists. Please log in instead.',
+    }
+  }
 
   await grantVerificationAccess()
   redirect(`/auth/verify?type=signup&email=${encodeURIComponent(email)}`)
@@ -56,11 +105,12 @@ export async function signIn(formData: FormData) {
 export async function sendMagicLink(formData: FormData) {
   const email = formData.get('email') as string
   const supabase = await createServerSupabaseClient()
+  const siteUrl = await getBaseUrl()
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://klyro.dev'}/auth/callback`,
+      emailRedirectTo: `${siteUrl}/auth/callback`,
     },
   })
 
@@ -73,9 +123,10 @@ export async function sendMagicLink(formData: FormData) {
 export async function requestPasswordReset(formData: FormData) {
   const email = formData.get('email') as string
   const supabase = await createServerSupabaseClient()
+  const siteUrl = await getBaseUrl()
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://klyro.dev'}/auth/callback?next=/account/reset-password`,
+    redirectTo: `${siteUrl}/auth/callback?next=/account/reset-password`,
   })
 
   if (error) return { error: error.message }
@@ -99,10 +150,7 @@ export async function requestEmailChange(newEmail: string) {
 
 export async function signInWithGitHub() {
   const supabase = await createServerSupabaseClient()
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    'https://klyro.live'
+  const siteUrl = await getBaseUrl()
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
     options: {

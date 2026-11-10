@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.3] - 2026-11-10
+
+### Added
+- **Account Security & Settings Overhaul**:
+  - **Password Change Verification Flow**: Requires current password validation before dispatching a secure reset link. Added client-side recovery hash extraction (`#access_token=...`) with `flowType: 'implicit'` to ensure password reset links work seamlessly across different browser profiles.
+  - **Confirmation Modal & Redirects**: Added `ChangePasswordConfirmModal` with checkmark animation and navigation shortcuts to Account Settings and Home.
+  - **Account Deletion with Database Cleanup**: Integrated PostgreSQL RPC `delete_user()` function with `SECURITY DEFINER` privileges, permanently deleting auth records, active sessions, and user circuit data.
+  - **Active Session Revocation**: Added ability to revoke public/unrecognized sessions across other devices with one click.
+- **Anti-Spam Rate Limiting & Cooldown Engine**:
+  - Added reusable `useCooldown` hook with `localStorage` persistence (`klyro_cooldown_${key}`) that prevents email spamming across page reloads.
+  - 60-second cooldown limits applied to email change requests, password reset links, verification resends, and OTP dispatches.
+  - Real-time countdowns and rate limit guidance displayed across all security forms.
+- **Passwordless Sign-In & OTP Verification**:
+  - Added "Sign in with OTP or Verification Link" option beneath GitHub login on the Login page.
+  - Inline OTP verification form across all verification pages (`signup`, `magiclink`, `recovery`, `email_change`).
+  - Supports both 6-digit and 8-digit OTP codes with clean empty dash placeholders (`— — — — — — — —`).
+- **Dedicated Forgot Password Route**:
+  - Created `/auth/forgot-password` with 60-second cooldown protection and webmail inbox shortcuts.
+
+### Fixed
+- **Form State Preservation**:
+  - Prevented input wipeouts on login and signup attempts when errors occur.
+  - Added password show/hide visibility toggles (`Eye`/`EyeOff`) to login, signup, and account security forms.
+- **Verify Card Redesign**:
+  - Replaced oversized numbered steps with compact, modern, minimalist cards and dedicated contextual status templates.
+- **Home Page Hash & Parameter Interception**:
+  - Automatically intercepts Supabase email change and auth hash fragments landing on the home page, redirecting users to appropriate verified status templates instead of displaying long URLs.
+
+---
+
 ## [0.2.2] - 2026-11-09
 
 ### Added

@@ -23,7 +23,7 @@ export default function Topbar({
   const pid = projectId ?? ''
   const uid = userId ?? ''
   return (
-    <nav className="w-full h-25 flex items-center justify-between pl-5 pr-12 shrink-0">
+    <nav className="w-full h-25 flex items-center justify-between pl-5 pr-12 shrink-0 bg-bg text-text-primary">
       <div className="h-full flex items-center justify-center gap-4 py-4">
         <Link
           href={'/'}

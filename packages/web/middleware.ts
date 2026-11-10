@@ -60,7 +60,11 @@ export async function middleware(request: NextRequest) {
   }
   if (!user && request.nextUrl.pathname.startsWith('/editor')) {
   }
-  if (!user && request.nextUrl.pathname.startsWith('/account')) {
+  const isPasswordRecoveryRoute =
+    request.nextUrl.pathname.startsWith('/account/change-password') ||
+    request.nextUrl.pathname.startsWith('/account/reset-password')
+
+  if (!user && request.nextUrl.pathname.startsWith('/account') && !isPasswordRecoveryRoute) {
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
   return supabaseResponse

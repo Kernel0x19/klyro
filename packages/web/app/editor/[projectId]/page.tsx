@@ -28,7 +28,7 @@ export default async function EditorPage({ params }: Props) {
     if (circuit) projectName = circuit.name
   }
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden bg-bg text-text-primary">
       <ProjectSync
         projectId={projectId}
         isLoggedIn={!!user}
@@ -44,7 +44,7 @@ export default async function EditorPage({ params }: Props) {
       />
       <div className="flex flex-1 overflow-hidden gap-1">
         <Sidebar />
-        <div className="flex-1 flex flex-col overflow-hidden border-l-2 border-t-2 border-r-2 border-[#d9dce6] dark:border-[#2e3148]">
+        <div className="flex-1 flex flex-col overflow-hidden border-l-2 border-t-2 border-r-2 border-border-theme">
           <main className="flex-1 overflow-hidden">
             <EditorCanvas />
           </main>

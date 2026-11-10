@@ -15,7 +15,12 @@ export default function ProgressStarter() {
       if (!href || href.startsWith('#') || href.startsWith('http')) return
       NProgress.start()
     }
-    const handleSubmit = () => NProgress.start()
+    const handleSubmit = (e: SubmitEvent) => {
+      if (e.defaultPrevented) return
+      const form = e.target as HTMLFormElement | null
+      if (!form || form.getAttribute('method') === 'dialog') return
+      NProgress.start()
+    }
     document.addEventListener('click', handleClick)
     document.addEventListener('submit', handleSubmit)
     return () => {

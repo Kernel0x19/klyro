@@ -13,16 +13,22 @@ interface ThemeContextValue {
 }
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'dark'
-    return (localStorage.getItem('klyro-theme') as Theme) || 'dark'
-  })
+  const [theme, setTheme] = useState<Theme>('dark')
+
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('klyro-theme', theme)
-  }, [theme])
-  const toggleTheme = () =>
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+    const saved = localStorage.getItem('klyro-theme') as Theme | null
+    if (saved === 'light' || saved === 'dark') {
+      setTheme(saved)
+    }
+  }, [])
+
+  const toggleTheme = () => {
+    const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark'
+    document.documentElement.setAttribute('data-theme', nextTheme)
+    localStorage.setItem('klyro-theme', nextTheme)
+    setTheme(nextTheme)
+  }
+
   return createElement(
     ThemeContext.Provider,
     { value: { theme, toggleTheme } },

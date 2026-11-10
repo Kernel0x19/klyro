@@ -5,9 +5,10 @@ import getGitHubStars from '../hooks/githubStarCount'
 interface VerifyPageProps {
   type: VerificationType
   email?: string | undefined
+  message?: string | undefined
 }
 
-export default async function VerifyPage({ type, email }: VerifyPageProps) {
+export default async function VerifyPage({ type, email, message }: VerifyPageProps) {
   const starCount = await getGitHubStars()
 
   return (
@@ -28,7 +29,7 @@ export default async function VerifyPage({ type, email }: VerifyPageProps) {
               'radial-gradient(ellipse at center, black 40%, transparent 80%)',
           }}
         />
-        <VerifyCard type={type} email={email} />
+        <VerifyCard type={type} email={email} message={message} />
       </section>
     </>
   )
