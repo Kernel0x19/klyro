@@ -1,15 +1,4 @@
-'use client'
-
-import { useEffect } from 'react'
-import NProgress from 'nprogress'
-
 export default function AccountLoading() {
-  useEffect(() => {
-    NProgress.start()
-    return () => {
-      NProgress.done()
-    }
-  }, [])
 
   return (
     <div className="w-full min-h-[calc(100vh-6rem)] flex flex-col items-center justify-center gap-4 bg-(--background)">

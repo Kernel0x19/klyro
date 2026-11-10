@@ -1,23 +1,10 @@
 'use client'
-import { useEffect } from 'react'
-import NProgress from 'nprogress'
+
+/**
+ * NavigationEvents - deprecated.
+ * Navigation progress is now handled globally by NavigationProgress (history patch).
+ * This file is kept to avoid breaking imports; it exports a no-op hook.
+ */
 export function useNavigationProgress() {
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      const anchor = target.closest('a')
-      if (!anchor) return
-      const href = anchor.getAttribute('href')
-      if (
-        !href ||
-        href.startsWith('#') ||
-        href.startsWith('http') ||
-        href.startsWith('mailto')
-      )
-        return
-      NProgress.start()
-    }
-    document.addEventListener('click', handleClick)
-    return () => document.removeEventListener('click', handleClick)
-  }, [])
+  // no-op
 }

@@ -5,100 +5,96 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import NProgress from 'nprogress'
 
 NProgress.configure({
-  minimum: 0.25,
-  easing: 'ease-out',
-  speed: 250,
+  minimum: 0.08,
+  easing: 'ease',
+  speed: 300,
   showSpinner: false,
   trickleSpeed: 200,
+  trickle: true,
 })
 
+/**
+ * Patches history.pushState / replaceState so that every navigation
+ * (router.push, <Link>, window.location.assign, redirects) triggers NProgress.
+ *
+ * Uses pathname + searchParams change to complete the bar — meaning the bar
+ * always finishes exactly when the new page has mounted, never prematurely.
+ */
 export function NavigationProgress() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const safetyTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const patched = useRef(false)
+  const safetyTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // 1. When route/searchParams changes, complete the progress bar
+  // ── Patch history once on mount ──────────────────────────────────────────
   useEffect(() => {
-    if (safetyTimeoutRef.current) {
-      clearTimeout(safetyTimeoutRef.current)
-      safetyTimeoutRef.current = null
-    }
-    NProgress.done()
-  }, [pathname, searchParams])
+    if (patched.current) return
+    patched.current = true
 
-  // 2. Global click and popstate listeners for seamless navigation progress
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      // Ignore if event was prevented or modified
-      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
-        return
-      }
-
-      const anchor = (e.target as HTMLElement).closest('a')
-      if (!anchor) return
-
-      const rawHref = anchor.getAttribute('href')
-      if (!rawHref) return
-
-      // Ignore anchor fragments, external links, protocols, or downloads
-      if (
-        rawHref.startsWith('#') ||
-        rawHref.startsWith('mailto:') ||
-        rawHref.startsWith('tel:') ||
-        anchor.target === '_blank' ||
-        anchor.hasAttribute('download')
-      ) {
-        return
-      }
-
-      // Check URL destination
+    function startProgress(nextUrl: string) {
       try {
-        const targetUrl = new URL(anchor.href, window.location.href)
-        const currentUrl = new URL(window.location.href)
+        const current = new URL(window.location.href)
+        const next = new URL(nextUrl, window.location.href)
 
-        // Only handle same-origin navigation
-        if (targetUrl.origin !== currentUrl.origin) {
-          return
-        }
-
-        // Ignore clicks to the exact same page path and query
+        // Only trigger for same-origin navigations that change the path or search
+        if (next.origin !== current.origin) return
         if (
-          targetUrl.pathname === currentUrl.pathname &&
-          targetUrl.search === currentUrl.search
+          next.pathname === current.pathname &&
+          next.search === current.search
         ) {
           return
         }
-
-        // Start progress bar
-        NProgress.start()
-
-        // Safety fallback: if navigation is cancelled or takes unusually long, auto-done after 8s
-        if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current)
-        safetyTimeoutRef.current = setTimeout(() => {
-          NProgress.done()
-        }, 8000)
       } catch {
-        // invalid URL, ignore
+        // If URL parsing fails, proceed anyway
       }
-    }
 
-    const handlePopState = () => {
+      if (safetyTimer.current) clearTimeout(safetyTimer.current)
       NProgress.start()
-      if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current)
-      safetyTimeoutRef.current = setTimeout(() => {
+
+      // Safety: auto-complete after 10s if the route never resolves
+      safetyTimer.current = setTimeout(() => {
         NProgress.done()
-      }, 8000)
+      }, 10_000)
     }
 
-    document.addEventListener('click', handleClick, { capture: true })
+    // Patch pushState (all router.push / <Link> navigations go through this)
+    const origPush = history.pushState.bind(history)
+    history.pushState = function (state, title, url) {
+      if (url) startProgress(String(url))
+      return origPush(state, title, url)
+    }
+
+    // Patch replaceState (redirects & router.replace)
+    const origReplace = history.replaceState.bind(history)
+    history.replaceState = function (state, title, url) {
+      if (url) startProgress(String(url))
+      return origReplace(state, title, url)
+    }
+
+    // Browser back / forward buttons
+    const handlePopState = () => {
+      if (safetyTimer.current) clearTimeout(safetyTimer.current)
+      NProgress.start()
+      safetyTimer.current = setTimeout(() => NProgress.done(), 10_000)
+    }
     window.addEventListener('popstate', handlePopState)
 
     return () => {
-      document.removeEventListener('click', handleClick, { capture: true })
       window.removeEventListener('popstate', handlePopState)
-      if (safetyTimeoutRef.current) clearTimeout(safetyTimeoutRef.current)
+      history.pushState = origPush
+      history.replaceState = origReplace
+      if (safetyTimer.current) clearTimeout(safetyTimer.current)
     }
   }, [])
+
+  // ── Complete the bar when the new route actually mounts ──────────────────
+  useEffect(() => {
+    if (safetyTimer.current) {
+      clearTimeout(safetyTimer.current)
+      safetyTimer.current = null
+    }
+    NProgress.done()
+  }, [pathname, searchParams])
 
   return null
 }
