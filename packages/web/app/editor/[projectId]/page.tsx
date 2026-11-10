@@ -6,11 +6,17 @@ import EditorCanvas from '@/components/editor/EditorCanvas'
 import GuestRedirect from '@/components/editor/GuestRedirect'
 import PropertiesPanel from '@/components/editor/PropertiesPanel'
 import BottomPanel from '@/components/editor/BottomPanel'
+import KMapModule from '@/components/kmap/KMapModule'
+
 interface Props {
   params: Promise<{ projectId: string }>
+  searchParams: Promise<{ module?: string }>
 }
-export default async function EditorPage({ params }: Props) {
+export default async function EditorPage({ params, searchParams }: Props) {
   const { projectId } = await params
+  const { module: activeModule } = await searchParams
+  const isKMap = activeModule === 'k-map-visualiser'
+
   const supabase = await createServerSupabaseClient()
   const {
     data: { user },
@@ -42,16 +48,20 @@ export default async function EditorPage({ params }: Props) {
         projectId={projectId}
         userId={user?.id}
       />
-      <div className="flex flex-1 overflow-hidden gap-1">
-        <Sidebar />
-        <div className="flex-1 flex flex-col overflow-hidden border-l-2 border-t-2 border-r-2 border-border-theme">
-          <main className="flex-1 overflow-hidden">
-            <EditorCanvas />
-          </main>
-          <BottomPanel />
+      {isKMap ? (
+        <KMapModule />
+      ) : (
+        <div className="flex flex-1 overflow-hidden gap-1">
+          <Sidebar />
+          <div className="flex-1 flex flex-col overflow-hidden border-l-2 border-t-2 border-r-2 border-border-theme">
+            <main className="flex-1 overflow-hidden">
+              <EditorCanvas />
+            </main>
+            <BottomPanel />
+          </div>
+          <PropertiesPanel />
         </div>
-        <PropertiesPanel />
-      </div>
+      )}
     </div>
   )
 }
