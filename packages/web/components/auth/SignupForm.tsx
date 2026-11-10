@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Eye, EyeOff } from 'lucide-react'
 import { signUp, signInWithGitHub } from '@/lib/supabase/auth'
 
 export default function SignupForm() {
@@ -10,6 +11,8 @@ export default function SignupForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const [touched, setTouched] = useState({
     fullName: false,
@@ -178,22 +181,36 @@ export default function SignupForm() {
           <label className="font-bold text-neutral-700 dark:text-neutral-300">
             Password
           </label>
-          <input
-            name="password"
-            type="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value)
-              if (error) setError(null)
-            }}
-            onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
-            placeholder="••••••••"
-            className={`px-4 py-2.5 bg-white dark:bg-[#111111] text-neutral-900 dark:text-white border ${
-              passwordError
-                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                : 'border-neutral-300 dark:border-neutral-700/60 focus:border-[#4F6EF7] focus:ring-2 focus:ring-[#4F6EF7]/20'
-            } rounded-lg outline-none transition-all duration-200 placeholder:text-neutral-400 dark:placeholder:text-neutral-600`}
-          />
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                if (error) setError(null)
+              }}
+              onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
+              placeholder="••••••••"
+              className={`w-full px-4 py-2.5 pr-11 bg-white dark:bg-[#111111] text-neutral-900 dark:text-white border ${
+                passwordError
+                  ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                  : 'border-neutral-300 dark:border-neutral-700/60 focus:border-[#4F6EF7] focus:ring-2 focus:ring-[#4F6EF7]/20'
+              } rounded-lg outline-none transition-all duration-200 placeholder:text-neutral-400 dark:placeholder:text-neutral-600`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
           {passwordError ? (
             <p className="text-xs text-red-500 font-medium">{passwordError}</p>
           ) : (
@@ -208,24 +225,38 @@ export default function SignupForm() {
           <label className="font-bold text-neutral-700 dark:text-neutral-300">
             Confirm Password
           </label>
-          <input
-            name="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value)
-              if (error) setError(null)
-            }}
-            onBlur={() =>
-              setTouched((prev) => ({ ...prev, confirmPassword: true }))
-            }
-            placeholder="••••••••"
-            className={`px-4 py-2.5 bg-white dark:bg-[#111111] text-neutral-900 dark:text-white border ${
-              confirmPasswordError
-                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                : 'border-neutral-300 dark:border-neutral-700/60 focus:border-[#4F6EF7] focus:ring-2 focus:ring-[#4F6EF7]/20'
-            } rounded-lg outline-none transition-all duration-200 placeholder:text-neutral-400 dark:placeholder:text-neutral-600`}
-          />
+          <div className="relative">
+            <input
+              name="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value)
+                if (error) setError(null)
+              }}
+              onBlur={() =>
+                setTouched((prev) => ({ ...prev, confirmPassword: true }))
+              }
+              placeholder="••••••••"
+              className={`w-full px-4 py-2.5 pr-11 bg-white dark:bg-[#111111] text-neutral-900 dark:text-white border ${
+                confirmPasswordError
+                  ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                  : 'border-neutral-300 dark:border-neutral-700/60 focus:border-[#4F6EF7] focus:ring-2 focus:ring-[#4F6EF7]/20'
+              } rounded-lg outline-none transition-all duration-200 placeholder:text-neutral-400 dark:placeholder:text-neutral-600`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors cursor-pointer"
+            >
+              {showConfirmPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
           {confirmPasswordError && (
             <p className="text-xs text-red-500 font-medium">
               {confirmPasswordError}
