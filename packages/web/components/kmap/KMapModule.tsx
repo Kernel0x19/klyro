@@ -17,8 +17,8 @@ export default function KMapModule() {
 
         {/* K-Map grid + expression output */}
         <div className="flex flex-col flex-1 overflow-hidden">
-          {/* Grid — centred in remaining space */}
-          <div className="flex-1 overflow-auto flex items-center justify-center p-6">
+          {/* Grid — fills remaining space, aligned top-center */}
+          <div className="flex-1 overflow-auto flex items-start justify-center p-8 pt-10">
             <KMapGrid />
           </div>
 

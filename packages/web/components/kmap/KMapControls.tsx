@@ -39,7 +39,7 @@ export default function KMapControls() {
               value={name}
               onChange={(e) => setVariableName(i, e.target.value)}
               maxLength={2}
-              className="w-9 h-7 text-center text-sm font-mono font-bold bg-neutral-900 border border-neutral-700 rounded focus:border-[#4F6EF7] outline-none text-text-primary transition-colors"
+              className="w-9 h-7 text-center text-sm font-mono font-bold bg-surface border border-border-theme rounded focus:border-[#4F6EF7] outline-none text-text-primary transition-colors"
             />
           ))}
         </div>
