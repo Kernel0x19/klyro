@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.4] - 2026-11-10
+
+### Added
+- **Undo / Redo (Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z)**:
+  - Full wire undo/redo history via `zundo` temporal middleware on the edges store.
+  - Undoes and redoes wire draw and delete operations. History cleared on project load.
+- **Export as PNG**:
+  - Live canvas screenshot via `html-to-image`. Downloads `klyro-circuit-{projectId}.png` at 2× pixel ratio.
+  - Export dropdown now shows SVG, PDF, VHDL, Verilog as "(soon)" disabled placeholders.
+- **Auto-Save (30s debounce)**:
+  - Automatically saves project 30 seconds after any IC placement or wire change.
+  - Only triggers when logged in with unsaved changes.
+- **Keyboard Shortcuts Modal**:
+  - Full shortcuts reference accessible from Settings → Keyboard Shortcuts.
+  - Lists all 12 shortcuts (V/W/H/D tools, Ctrl+S, Ctrl+Z/Y, Delete, Esc, Space, Scroll).
+- **Snap-to-Grid Toggle**:
+  - Toggle switch in Settings dropdown to enable/disable grid snapping on the canvas.
+- **Power Button in Topbar**:
+  - Play/Pause icon in topbar now toggles circuit power (previously non-functional).
+  - Shows green Pause when powered ON, grey Play when OFF. Space bar shortcut also works.
+- **Dirty State Indicator**:
+  - Amber dot badge on the Save icon and amber color highlight when project has unsaved changes.
+  - Clears on successful save.
+- **Ctrl+S Global Save Shortcut**.
+
+---
+
 ## [0.2.3] - 2026-11-10
 
 ### Added
