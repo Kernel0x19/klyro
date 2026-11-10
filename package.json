@@ -1,0 +1,24 @@
+{
+  "name": "klyro",
+  "version": "0.3.1",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev --filter=@klyro/web",
+    "dev:desktop": "turbo run dev --filter=@dls/desktop",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "turbo": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
+
