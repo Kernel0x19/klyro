@@ -13,7 +13,7 @@ export default function Topbar() {
     setMounted(true)
   }, [])
   return (
-    <div className="w-full h-25 flex items-center justify-between pt-4 pl-4 pr-10 mt-3">
+    <div className="w-full h-25 flex items-center justify-between pl-4 pr-10 shrink-0 bg-bg text-text-primary">
       <Link
         href={'/'}
         className="flex items-center gap-2.5 p-3 cursor-pointer select-none"
@@ -21,12 +21,12 @@ export default function Topbar() {
         <Image
           src="/favicon.svg"
           alt="Klyro-Logo"
-          width={80}
-          height={80}
+          width={60}
+          height={60}
           className="aspect-square"
         />
         <div className="flex gap-1.5 items-baseline">
-          <h1 className="text-5xl font-extrabold">Klyro</h1>
+          <h1 className="text-4xl font-extrabold">Klyro</h1>
           <h1 className="text-sm font-extrabold">{APP_VERSION}</h1>
         </div>
       </Link>
