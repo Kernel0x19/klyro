@@ -18,7 +18,7 @@ An interactive Digital Logic & Computer Systems simulator designed for students,
 
 ## 🚀 Status
 
-- ✅ **`v0.3.2` (Latest Stable)** — Expression → Circuit Sync ("Build Circuit" button synthesizes SOP into live wired board ICs), enlarged SOP/POS typography, streamlined K-Map layout.
+- ✅ **`v0.3.2` (Latest Stable)** — Expression → Circuit Sync ("Build Circuit" button synthesizes SOP into live wired board ICs), circuit placement confirmation dialogue (create new project vs overwrite), enlarged SOP/POS typography, streamlined K-Map layout.
 - ✅ **`v0.3.1`** — 5-variable K-Map (dual 4×4 grids), K-Map state persistence to Supabase (3s auto-save), SOP → K-Map reverse sync, and variable name input fix.
 - ✅ **`v0.3.0`** — K-Map Visualiser module: 2/3/4-variable Karnaugh maps, Quine-McCluskey minimal SOP & POS solver, Petrick's method, prime implicant group overlays, truth table ↔ K-Map cell sync, and expression output panel.
 - ✅ **`v0.2.4`** — Undo/redo (Ctrl+Z/Y) via `zundo` temporal middleware, PNG export via `html-to-image`, 30s auto-save, keyboard shortcuts modal (12 shortcuts), show-grid toggle, power button in topbar, and dirty state indicator.

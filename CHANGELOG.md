@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Auto-allocates board IC slots (`slot-1` through `slot-5`) and automatically generates all inter-gate signal wires connecting inputs $\to$ inverters $\to$ AND gates $\to$ OR cascade $\to$ output pin-0.
   - Handles tautology (`1` $\to$ VCC) and contradiction (`0` $\to$ GND) edge cases.
   - Automatically transitions the user back to the **Board** module with the synthesized circuit active, wired, and simulated.
+- **Circuit Placement Confirmation Dialogue**:
+  - Added clean confirmation statement modal (`BuildCircuitModal`) when the active board already contains components or wires.
+  - Gives users the choice to safely create a separate new project (preserving existing circuits intact) or overwrite the current board.
+  - If the board is empty, builds directly without interruption.
 
 ### Changed
 - `ExpressionOutput`: Enlarged SOP and POS expression typography to `text-lg md:text-xl` for high visibility and readability.
