@@ -16,9 +16,9 @@ function CopyBtn({ text }: { text: string }) {
     <button
       onClick={handleCopy}
       title="Copy"
-      className="shrink-0 text-neutral-500 hover:text-text-primary transition-colors cursor-pointer"
+      className="shrink-0 p-1.5 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-500 hover:text-text-primary transition-colors cursor-pointer"
     >
-      {copied ? <Check size={13} className="text-green-400" /> : <Copy size={13} />}
+      {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
     </button>
   )
 }
@@ -31,12 +31,12 @@ function ColoredSOP({
   sop: string
   groups: KMapGroup[]
 }) {
-  if (!sop || sop === '0') return <span className="text-neutral-500 font-mono text-sm">0</span>
-  if (sop === '1') return <span className="text-green-400 font-mono text-sm font-bold">1</span>
+  if (!sop || sop === '0') return <span className="text-neutral-500 font-mono text-lg md:text-xl font-medium">0</span>
+  if (sop === '1') return <span className="text-green-500 font-mono text-lg md:text-xl font-bold">1</span>
 
   const terms = sop.split(' + ')
   return (
-    <span className="font-mono text-sm">
+    <span className="font-mono text-lg md:text-xl tracking-wide select-text">
       {terms.map((term, i) => {
         const group = groups.find((g) => g.implicant.expression === term)
         return (
@@ -48,7 +48,7 @@ function ColoredSOP({
               {term}
             </span>
             {i < terms.length - 1 && (
-              <span className="text-neutral-400 mx-1.5">+</span>
+              <span className="text-neutral-400 dark:text-neutral-500 mx-2 font-normal">+</span>
             )}
           </span>
         )
@@ -66,23 +66,23 @@ export default function ExpressionOutput() {
       {/* Main expressions row */}
       <div className="flex items-center gap-0 divide-x divide-border-theme">
         {/* SOP */}
-        <div className="flex items-center gap-2 px-4 py-2.5 flex-1 min-w-0">
-          <span className="text-xs font-bold text-text-secondary shrink-0 uppercase tracking-wide w-9">
+        <div className="flex items-center gap-3 px-5 py-3 flex-1 min-w-0">
+          <span className="text-xs sm:text-sm font-extrabold text-text-secondary shrink-0 uppercase tracking-wider w-11">
             SOP
           </span>
-          <div className="flex-1 min-w-0 overflow-x-auto">
+          <div className="flex-1 min-w-0 overflow-x-auto py-0.5">
             <ColoredSOP sop={minimalSOP} groups={groups} />
           </div>
           <CopyBtn text={minimalSOP} />
         </div>
 
         {/* POS */}
-        <div className="flex items-center gap-2 px-4 py-2.5 flex-1 min-w-0">
-          <span className="text-xs font-bold text-text-secondary shrink-0 uppercase tracking-wide w-9">
+        <div className="flex items-center gap-3 px-5 py-3 flex-1 min-w-0">
+          <span className="text-xs sm:text-sm font-extrabold text-text-secondary shrink-0 uppercase tracking-wider w-11">
             POS
           </span>
-          <div className="flex-1 min-w-0 overflow-x-auto">
-            <span className="font-mono text-sm text-text-primary">
+          <div className="flex-1 min-w-0 overflow-x-auto py-0.5">
+            <span className="font-mono text-lg md:text-xl tracking-wide text-text-primary font-medium select-text">
               {minimalPOS || '—'}
             </span>
           </div>
@@ -93,26 +93,26 @@ export default function ExpressionOutput() {
         {primeImplicants.length > 0 && (
           <button
             onClick={() => setShowPIs((v) => !v)}
-            className="px-3 py-2.5 text-neutral-500 hover:text-text-primary transition-colors cursor-pointer shrink-0"
-            title="Show prime implicants"
+            className="px-3.5 py-3.5 text-neutral-500 hover:text-text-primary hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer shrink-0"
+            title={showPIs ? 'Hide prime implicants' : 'Show prime implicants'}
           >
-            {showPIs ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+            {showPIs ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
           </button>
         )}
       </div>
 
       {/* Prime implicants detail */}
       {showPIs && primeImplicants.length > 0 && (
-        <div className="px-4 pb-2.5 pt-0 flex flex-col gap-1 border-t border-border-theme/50">
-          <div className="flex items-start gap-2 text-xs mt-1.5">
-            <span className="text-text-secondary shrink-0 w-20">All PIs:</span>
-            <div className="flex flex-wrap gap-1.5">
+        <div className="px-5 pb-3 pt-2 flex flex-col gap-2 border-t border-border-theme/50">
+          <div className="flex items-start gap-3 text-sm">
+            <span className="text-text-secondary font-semibold shrink-0 w-24">All PIs:</span>
+            <div className="flex flex-wrap gap-2">
               {primeImplicants.map((pi, i) => {
                 const g = groups.find((g) => g.implicant.expression === pi.expression)
                 return (
                   <span
                     key={i}
-                    className="font-mono px-1.5 py-0.5 rounded text-xs font-bold"
+                    className="font-mono px-2 py-0.5 rounded text-xs sm:text-sm font-bold"
                     style={{
                       color: g?.color ?? 'var(--color-text-primary)',
                       backgroundColor: g ? g.color + '1a' : 'transparent',
@@ -125,18 +125,18 @@ export default function ExpressionOutput() {
               })}
             </div>
           </div>
-          <div className="flex items-start gap-2 text-xs">
-            <span className="text-text-secondary shrink-0 w-20">Essential:</span>
-            <div className="flex flex-wrap gap-1.5">
+          <div className="flex items-start gap-3 text-sm">
+            <span className="text-text-secondary font-semibold shrink-0 w-24">Essential:</span>
+            <div className="flex flex-wrap gap-2">
               {essentialPIs.length === 0 ? (
-                <span className="text-neutral-500">none</span>
+                <span className="text-neutral-500 text-sm">none</span>
               ) : (
                 essentialPIs.map((pi, i) => {
                   const g = groups.find((g) => g.implicant.expression === pi.expression)
                   return (
                     <span
                       key={i}
-                      className="font-mono px-1.5 py-0.5 rounded text-xs font-bold"
+                      className="font-mono px-2 py-0.5 rounded text-xs sm:text-sm font-bold"
                       style={{
                         color: g?.color ?? 'var(--color-text-primary)',
                         backgroundColor: g ? g.color + '1a' : 'transparent',
@@ -155,4 +155,3 @@ export default function ExpressionOutput() {
     </div>
   )
 }
-
