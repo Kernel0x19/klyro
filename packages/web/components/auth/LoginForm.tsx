@@ -67,12 +67,18 @@ export default function LoginForm({ verified, urlError }: LoginFormProps) {
     formData.set('email', email.trim())
     formData.set('password', password)
 
-    const result = await signIn(formData)
-    if (result?.error) {
+    try {
+      const result = await signIn(formData)
+      if (result?.error) {
+        NProgress.done()
+        setError(result.error)
+        setLoading(false)
+        // Input values (email and password) remain fully preserved in state
+      }
+    } catch {
       NProgress.done()
-      setError(result.error)
+      setError('An unexpected error occurred. Please try again.')
       setLoading(false)
-      // Input values (email and password) remain fully preserved in state
     }
   }
 
@@ -135,18 +141,24 @@ export default function LoginForm({ verified, urlError }: LoginFormProps) {
     NProgress.start()
     setError(null)
 
-    const { error: verifyError } = await supabase.auth.verifyOtp({
-      email: trimmedEmail,
-      token: trimmedCode,
-      type: 'email',
-    })
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: trimmedEmail,
+        token: trimmedCode,
+        type: 'email',
+      })
 
-    if (verifyError) {
+      if (verifyError) {
+        NProgress.done()
+        setError(verifyError.message)
+        setLoading(false)
+      } else {
+        window.location.href = '/editor'
+      }
+    } catch {
       NProgress.done()
-      setError(verifyError.message)
+      setError('Failed to verify code. Please try again.')
       setLoading(false)
-    } else {
-      window.location.href = '/editor'
     }
   }
 

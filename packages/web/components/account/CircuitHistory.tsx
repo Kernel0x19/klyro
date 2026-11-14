@@ -46,7 +46,11 @@ export function CircuitHistory({ circuits = [], onDelete }: CirHis) {
     const formData = new FormData()
     formData.set('module', 'board')
     startTransition(async () => {
-      await openOrCreateProject(formData)
+      try {
+        await openOrCreateProject(formData)
+      } catch {
+        NProgress.done()
+      }
     })
   }
   async function confirmDelete() {

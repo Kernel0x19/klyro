@@ -249,24 +249,30 @@ export default function VerifyCard({ type, email, message }: VerifyCardProps) {
         ? 'email_change'
         : 'email'
 
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token: otpCode.trim(),
-      type: otpType,
-    })
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otpCode.trim(),
+        type: otpType,
+      })
 
-    if (error) {
+      if (error) {
+        NProgress.done()
+        setOtpLoading(false)
+        setOtpError(error.message)
+      } else {
+        if (type === 'recovery') {
+          window.location.href = '/account/change-password'
+        } else if (type === 'email_change') {
+          window.location.href = '/auth/verify?type=email_change_completed'
+        } else {
+          window.location.href = '/editor'
+        }
+      }
+    } catch {
       NProgress.done()
       setOtpLoading(false)
-      setOtpError(error.message)
-    } else {
-      if (type === 'recovery') {
-        window.location.href = '/account/change-password'
-      } else if (type === 'email_change') {
-        window.location.href = '/auth/verify?type=email_change_completed'
-      } else {
-        window.location.href = '/editor'
-      }
+      setOtpError('Failed to verify code. Please try again.')
     }
   }
 

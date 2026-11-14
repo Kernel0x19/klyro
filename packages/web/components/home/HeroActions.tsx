@@ -13,7 +13,11 @@ export default function HeroActions() {
     const formData = new FormData()
     formData.set('module', 'board')
     startTransition(async () => {
-      await openOrCreateProject(formData)
+      try {
+        await openOrCreateProject(formData)
+      } catch {
+        NProgress.done()
+      }
     })
   }
 
