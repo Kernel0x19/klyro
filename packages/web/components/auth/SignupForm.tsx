@@ -91,12 +91,18 @@ export default function SignupForm() {
     formData.set('password', password)
     formData.set('confirmPassword', confirmPassword)
 
-    const result = await signUp(formData)
-    if (result?.error) {
+    try {
+      const result = await signUp(formData)
+      if (result?.error) {
+        NProgress.done()
+        setError(result.error)
+        setLoading(false)
+        // Form values remain preserved in state!
+      }
+    } catch {
       NProgress.done()
-      setError(result.error)
+      setError('An unexpected error occurred. Please try again.')
       setLoading(false)
-      // Form values remain preserved in state!
     }
   }
 
