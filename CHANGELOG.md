@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.2] - 2026-11-14
+
+### Added
+- **Expression → Circuit Sync ("Build Circuit")**:
+  - One-click "Build Circuit" button in the K-Map `ExpressionOutput` toolbar.
+  - Automatic logic synthesis engine (`circuitSynthesizer.ts`) converts the minimal SOP expression into standard TTL logic ICs (`74LS04` inverters, `74LS08` 2-input AND, `74LS11` 3-input AND, `74LS21` 4-input AND, and `74LS32` 2-input OR gates).
+  - Auto-allocates board IC slots (`slot-1` through `slot-5`) and automatically generates all inter-gate signal wires connecting inputs $\to$ inverters $\to$ AND gates $\to$ OR cascade $\to$ output pin-0.
+  - Handles tautology (`1` $\to$ VCC) and contradiction (`0` $\to$ GND) edge cases.
+  - Automatically transitions the user back to the **Board** module with the synthesized circuit active, wired, and simulated.
+
+### Changed
+- `ExpressionOutput`: Enlarged SOP and POS expression typography to `text-lg md:text-xl` for high visibility and readability.
+- `KMapModule`: Removed step-by-step QM working panel to simplify and streamline the interface.
+
+---
+
 ## [0.3.1] - 2026-11-10
 
 ### Added

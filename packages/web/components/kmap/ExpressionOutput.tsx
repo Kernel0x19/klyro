@@ -1,7 +1,13 @@
 'use client'
 import { useState } from 'react'
-import { Copy, Check, ChevronDown, ChevronUp } from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
+import { Copy, Check, ChevronDown, ChevronUp, Cpu } from 'lucide-react'
 import { useKMapStore } from '@/stores/useKMapStore'
+import { useBoardStore } from '@/stores/useBoardStore'
+import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
+import { useToastStore } from '@/stores/useToastStore'
+import { getICDefinition } from '@/lib/icLibrary'
+import { synthesizeCircuitFromSOP } from '@/lib/kmap/circuitSynthesizer'
 import type { KMapGroup } from '@/lib/kmap/types'
 
 function CopyBtn({ text }: { text: string }) {
@@ -58,8 +64,47 @@ function ColoredSOP({
 }
 
 export default function ExpressionOutput() {
-  const { minimalSOP, minimalPOS, groups, essentialPIs, primeImplicants } = useKMapStore()
+  const router = useRouter()
+  const pathname = usePathname()
+  const { minimalSOP, minimalPOS, groups, essentialPIs, primeImplicants, variableNames } = useKMapStore()
   const [showPIs, setShowPIs] = useState(false)
+
+  function handleBuildCircuit() {
+    if (!minimalSOP) {
+      useToastStore.getState().showToast('No SOP expression available to build.')
+      return
+    }
+
+    const result = synthesizeCircuitFromSOP(minimalSOP, variableNames)
+    if (!result.success) {
+      useToastStore.getState().showToast(result.error ?? 'Failed to build circuit.')
+      return
+    }
+
+    const board = useBoardStore.getState()
+    board.resetBoard()
+
+    for (const slot of result.slots) {
+      const def = getICDefinition(slot.partNumber)
+      if (def) {
+        board.assignIC(slot.slotId, {
+          partNumber: def.part,
+          name: def.name,
+          packageType: def.packageType,
+          family: def.family,
+          delay: def.delay,
+          vcc: def.vcc,
+          gnd: def.gnd,
+        })
+      }
+    }
+
+    useEditorEdgesStore.getState().setEdges(result.edges)
+    useToastStore.getState().showToast('Circuit synthesized and placed on Board!')
+
+    // Transition back to Board tab
+    router.push(pathname, { scroll: false })
+  }
 
   return (
     <div className="border-t border-border-theme bg-surface shrink-0">
@@ -87,6 +132,19 @@ export default function ExpressionOutput() {
             </span>
           </div>
           <CopyBtn text={minimalPOS} />
+        </div>
+
+        {/* Build Circuit button */}
+        <div className="flex items-center px-4 py-2 shrink-0">
+          <button
+            type="button"
+            onClick={handleBuildCircuit}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#4F6EF7] hover:bg-[#435dd4] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow transition-all cursor-pointer group"
+            title="Synthesize logic gates and wire circuit on Board"
+          >
+            <Cpu size={16} className="group-hover:rotate-12 transition-transform" />
+            <span>Build Circuit</span>
+          </button>
         </div>
 
         {/* PI toggle */}
