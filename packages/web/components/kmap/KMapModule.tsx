@@ -3,7 +3,6 @@ import KMapControls from './KMapControls'
 import TruthTableEditor from './TruthTableEditor'
 import KMapGrid from './KMapGrid'
 import ExpressionOutput from './ExpressionOutput'
-import QMStepsPanel from './QMStepsPanel'
 import KMapPersistenceSync from './KMapPersistenceSync'
 
 interface KMapModuleProps {
@@ -35,10 +34,7 @@ export default function KMapModule({ projectId, userId }: KMapModuleProps) {
           </div>
 
           {/* Expression output panel */}
-          <ExpressionOutput />
-
-          {/* QM step-by-step working panel */}
-          <QMStepsPanel />
+          <ExpressionOutput projectId={projectId} userId={userId} />
         </div>
       </div>
     </div>

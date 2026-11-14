@@ -74,3 +74,38 @@ export async function loadKMapState(
   if (!data?.kmap) return { data: null, error: null }
   return { data: data.kmap, error: null }
 }
+
+/**
+ * Create a brand-new circuit project with a pre-populated board state.
+ */
+export async function createProjectWithBoardState(
+  userId: string | undefined,
+  projectName: string,
+  boardState: SavedBoardState
+): Promise<{ projectId: string; error: string | null }> {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+  const newProjectId = Array.from(
+    { length: 10 },
+    () => chars[Math.floor(Math.random() * chars.length)]
+  ).join('')
+
+  if (!userId) {
+    return { projectId: newProjectId, error: null }
+  }
+
+  const supabase = createClient()
+  const { error } = await supabase.from('circuits').insert({
+    user_id: userId,
+    name: projectName,
+    module: 'board',
+    project_id: newProjectId,
+    board_state: boardState,
+    last_edited: new Date().toISOString(),
+  })
+
+  if (error) {
+    return { projectId: newProjectId, error: error.message }
+  }
+
+  return { projectId: newProjectId, error: null }
+}
