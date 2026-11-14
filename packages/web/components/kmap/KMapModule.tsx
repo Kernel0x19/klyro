@@ -34,7 +34,7 @@ export default function KMapModule({ projectId, userId }: KMapModuleProps) {
           </div>
 
           {/* Expression output panel */}
-          <ExpressionOutput />
+          <ExpressionOutput projectId={projectId} userId={userId} />
         </div>
       </div>
     </div>
