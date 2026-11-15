@@ -74,8 +74,32 @@ function ColoredSOP({
 export default function ExpressionOutput({ userId }: ExpressionOutputProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const { minimalSOP, minimalPOS, groups, essentialPIs, primeImplicants, variableNames } = useKMapStore()
+  const {
+    minimalSOP,
+    minimalPOS,
+    minterms,
+    maxterms,
+    dontCares,
+    groups,
+    essentialPIs,
+    primeImplicants,
+    variableNames,
+  } = useKMapStore()
   const [showPIs, setShowPIs] = useState(false)
+
+  const canonicalSOP = (() => {
+    if (minterms.length === 0 && dontCares.length === 0) return '0'
+    const mPart = minterms.length > 0 ? `Σ m(${minterms.join(', ')})` : 'Σ m(∅)'
+    const dPart = dontCares.length > 0 ? ` + d(${dontCares.join(', ')})` : ''
+    return `${mPart}${dPart}`
+  })()
+
+  const canonicalPOS = (() => {
+    if (maxterms.length === 0 && dontCares.length === 0) return '1'
+    const mPart = maxterms.length > 0 ? `Π M(${maxterms.join(', ')})` : 'Π M(∅)'
+    const dPart = dontCares.length > 0 ? ` · d(${dontCares.join(', ')})` : ''
+    return `${mPart}${dPart}`
+  })()
 
   // Confirmation modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -235,33 +259,65 @@ export default function ExpressionOutput({ userId }: ExpressionOutputProps) {
 
       <div className="border-t border-border-theme bg-surface shrink-0">
         {/* Main expressions row */}
-        <div className="flex items-center gap-0 divide-x divide-border-theme">
-          {/* SOP */}
-          <div className="flex items-center gap-3 px-5 py-3 flex-1 min-w-0">
-            <span className="text-xs sm:text-sm font-extrabold text-text-secondary shrink-0 uppercase tracking-wider w-11">
-              SOP
-            </span>
-            <div className="flex-1 min-w-0 overflow-x-auto py-0.5">
-              <ColoredSOP sop={minimalSOP} groups={groups} />
-            </div>
-            <CopyBtn text={minimalSOP} />
-          </div>
-
-          {/* POS */}
-          <div className="flex items-center gap-3 px-5 py-3 flex-1 min-w-0">
-            <span className="text-xs sm:text-sm font-extrabold text-text-secondary shrink-0 uppercase tracking-wider w-11">
-              POS
-            </span>
-            <div className="flex-1 min-w-0 overflow-x-auto py-0.5">
-              <span className="font-mono text-lg md:text-xl tracking-wide text-text-primary font-medium select-text">
-                {minimalPOS || '—'}
+        <div className="flex items-stretch gap-0 divide-x divide-border-theme">
+          {/* SOP Column (Minimal + Canonical) */}
+          <div className="flex-1 min-w-0 flex flex-col divide-y divide-border-theme/40">
+            {/* Minimal SOP */}
+            <div className="flex items-center gap-3 px-5 py-2.5 flex-1 min-w-0">
+              <span className="text-xs sm:text-sm font-extrabold text-text-secondary shrink-0 uppercase tracking-wider w-11">
+                SOP
               </span>
+              <div className="flex-1 min-w-0 overflow-x-auto py-0.5">
+                <ColoredSOP sop={minimalSOP} groups={groups} />
+              </div>
+              <CopyBtn text={minimalSOP} />
             </div>
-            <CopyBtn text={minimalPOS} />
+
+            {/* Canonical SOP */}
+            <div className="flex items-center gap-2.5 px-5 py-2 min-w-0 bg-surface/40 text-xs">
+              <span className="font-bold text-text-secondary uppercase tracking-wider shrink-0 text-[11px] w-28">
+                Canonical SOP
+              </span>
+              <div className="flex-1 min-w-0 overflow-x-auto py-0.5">
+                <span className="font-mono text-xs sm:text-sm text-text-primary select-text font-semibold">
+                  {canonicalSOP}
+                </span>
+              </div>
+              <CopyBtn text={canonicalSOP} />
+            </div>
           </div>
 
-          {/* Build Circuit button */}
-          <div className="flex items-center px-4 py-2 shrink-0">
+          {/* POS Column (Minimal + Canonical) */}
+          <div className="flex-1 min-w-0 flex flex-col divide-y divide-border-theme/40">
+            {/* Minimal POS */}
+            <div className="flex items-center gap-3 px-5 py-2.5 flex-1 min-w-0">
+              <span className="text-xs sm:text-sm font-extrabold text-text-secondary shrink-0 uppercase tracking-wider w-11">
+                POS
+              </span>
+              <div className="flex-1 min-w-0 overflow-x-auto py-0.5">
+                <span className="font-mono text-lg md:text-xl tracking-wide text-text-primary font-medium select-text">
+                  {minimalPOS || '—'}
+                </span>
+              </div>
+              <CopyBtn text={minimalPOS} />
+            </div>
+
+            {/* Canonical POS */}
+            <div className="flex items-center gap-2.5 px-5 py-2 min-w-0 bg-surface/40 text-xs">
+              <span className="font-bold text-text-secondary uppercase tracking-wider shrink-0 text-[11px] w-28">
+                Canonical POS
+              </span>
+              <div className="flex-1 min-w-0 overflow-x-auto py-0.5">
+                <span className="font-mono text-xs sm:text-sm text-text-primary select-text font-semibold">
+                  {canonicalPOS}
+                </span>
+              </div>
+              <CopyBtn text={canonicalPOS} />
+            </div>
+          </div>
+
+          {/* Actions Column (Build Circuit & Details Toggle) */}
+          <div className="flex items-center px-4 py-2 shrink-0 gap-2">
             <button
               type="button"
               onClick={handleBuildCircuit}
@@ -271,18 +327,17 @@ export default function ExpressionOutput({ userId }: ExpressionOutputProps) {
               <Cpu size={16} className="group-hover:rotate-12 transition-transform" />
               <span>Build Circuit</span>
             </button>
-          </div>
 
-          {/* PI toggle */}
-          {primeImplicants.length > 0 && (
-            <button
-              onClick={() => setShowPIs((v) => !v)}
-              className="px-3.5 py-3.5 text-neutral-500 hover:text-text-primary hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer shrink-0"
-              title={showPIs ? 'Hide prime implicants' : 'Show prime implicants'}
-            >
-              {showPIs ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-            </button>
-          )}
+            {primeImplicants.length > 0 && (
+              <button
+                onClick={() => setShowPIs((v) => !v)}
+                className="p-2 text-neutral-500 hover:text-text-primary hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded transition-colors cursor-pointer shrink-0"
+                title={showPIs ? 'Hide prime implicants' : 'Show prime implicants'}
+              >
+                {showPIs ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Prime implicants detail */}

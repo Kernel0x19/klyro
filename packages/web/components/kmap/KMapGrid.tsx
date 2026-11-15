@@ -6,10 +6,10 @@ import GroupOverlay from './GroupOverlay'
 import KMapGrid5 from './KMapGrid5'
 
 // Header dimensions — must match GroupOverlay constants
-const HEADER_W = 56
-const HEADER_H = 40
-const CELL_W = 68
-const CELL_H = 68
+const HEADER_W = 64
+const HEADER_H = 48
+const CELL_W = 88
+const CELL_H = 88
 
 interface GridConfig {
   rowBits: number
@@ -109,6 +109,7 @@ export default function KMapGrid() {
                     value={cellValues[minterm] ?? 0}
                     groups={groups}
                     onToggle={() => toggleCell(minterm)}
+                    cellSize={CELL_W}
                   />
                 )
               })}

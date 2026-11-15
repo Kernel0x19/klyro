@@ -19,17 +19,17 @@ export default function KMapModule({ projectId, userId }: KMapModuleProps) {
       )}
 
       {/* Controls bar */}
-      <KMapControls />
+      <KMapControls projectId={projectId} />
 
       {/* Main content: truth table left, grid center */}
-      <div className="flex flex-1 overflow-hidden">
+      <div id="kmap-export-area" className="flex flex-1 overflow-hidden bg-bg">
         {/* Truth table */}
         <TruthTableEditor />
 
         {/* K-Map grid + expression output */}
         <div className="flex flex-col flex-1 overflow-hidden">
-          {/* Grid — fills remaining space, aligned top-center */}
-          <div className="flex-1 overflow-auto flex items-start justify-center p-8 pt-10">
+          {/* Grid — fills remaining space, centered horizontally & vertically */}
+          <div className="flex-1 overflow-auto flex items-center justify-center p-6">
             <KMapGrid />
           </div>
 

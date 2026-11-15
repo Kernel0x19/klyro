@@ -128,11 +128,18 @@ export default function EditorActions({
   // ── Export as PNG ───────────────────────────────────────────────────────
   async function handleExportPng() {
     setExportOpen(false)
-    const canvas = document.querySelector('.react-flow__renderer') as HTMLElement | null
-    if (!canvas) return
+    const boardCanvas = document.querySelector('.react-flow__renderer') as HTMLElement | null
+    const kmapArea = document.querySelector('#kmap-export-area') as HTMLElement | null
+    const target = boardCanvas || kmapArea
+    if (!target) return
+
+    const isKMap = !boardCanvas && !!kmapArea
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
+    const bgColor = isDark ? '#000000' : '#ffffff'
+
     try {
-      const dataUrl = await toPng(canvas, {
-        backgroundColor: 'var(--background)',
+      const dataUrl = await toPng(target, {
+        backgroundColor: bgColor,
         pixelRatio: 2,
         filter: (node) => {
           // Exclude controls and panels from screenshot
@@ -143,7 +150,9 @@ export default function EditorActions({
       })
       const a = document.createElement('a')
       a.href = dataUrl
-      a.download = `klyro-circuit-${projectId}.png`
+      a.download = isKMap
+        ? `klyro-kmap-${projectId || 'export'}.png`
+        : `klyro-circuit-${projectId || 'circuit'}.png`
       a.click()
     } catch (err) {
       console.error('PNG export failed:', err)

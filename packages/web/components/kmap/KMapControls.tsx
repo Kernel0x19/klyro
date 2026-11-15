@@ -1,7 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import { useKMapStore } from '@/stores/useKMapStore'
-import { RotateCcw, ArrowDownToLine } from 'lucide-react'
+import { RotateCcw, ArrowDownToLine, Download } from 'lucide-react'
+import { toPng } from 'html-to-image'
 import type { VarCount } from '@/stores/useKMapStore'
 
 // ── Per-input draft state ──────────────────────────────────────────────────────
@@ -47,7 +49,13 @@ function VarNameInput({ storeValue, index, onCommit }: VarNameInputProps) {
 }
 
 // ── Main controls bar ──────────────────────────────────────────────────────────
-export default function KMapControls() {
+interface KMapControlsProps {
+  projectId?: string | undefined
+}
+
+export default function KMapControls({ projectId }: KMapControlsProps = {}) {
+  const params = useParams()
+  const effectiveProjectId = projectId || (params?.projectId as string | undefined)
   const { variables, setVariables, variableNames, setVariableName, reset, loadFromSOP } = useKMapStore()
   const [sopInput, setSopInput] = useState('')
 
@@ -55,6 +63,25 @@ export default function KMapControls() {
     if (!sopInput.trim()) return
     loadFromSOP(sopInput.trim())
     setSopInput('')
+  }
+
+  async function handleExportKMap() {
+    const target = document.querySelector('#kmap-export-area') as HTMLElement | null
+    if (!target) return
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
+    const bgColor = isDark ? '#000000' : '#ffffff'
+    try {
+      const dataUrl = await toPng(target, {
+        backgroundColor: bgColor,
+        pixelRatio: 2,
+      })
+      const a = document.createElement('a')
+      a.href = dataUrl
+      a.download = effectiveProjectId ? `klyro-kmap-${effectiveProjectId}.png` : 'klyro-kmap.png'
+      a.click()
+    } catch (err) {
+      console.error('K-Map PNG export failed:', err)
+    }
   }
 
   return (
@@ -117,7 +144,15 @@ export default function KMapControls() {
         </button>
       </div>
 
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-2">
+        <button
+          onClick={handleExportKMap}
+          title="Export K-Map as PNG"
+          className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-text-primary transition-colors px-2.5 py-1.5 rounded hover:bg-neutral-800 cursor-pointer"
+        >
+          <Download size={12} />
+          Export PNG
+        </button>
         <button
           onClick={reset}
           title="Reset K-Map"
