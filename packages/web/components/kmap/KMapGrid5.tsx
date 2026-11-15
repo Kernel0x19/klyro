@@ -3,10 +3,10 @@ import { useKMapStore } from '@/stores/useKMapStore'
 import { getGrayOrder, getMintermAt5, getGroupRects5 } from '@/lib/kmap/kMapLayout'
 import KMapCell from './KMapCell'
 
-const HEADER_W = 56
-const HEADER_H = 40
-const CELL_W = 60
-const CELL_H = 60
+const HEADER_W = 60
+const HEADER_H = 44
+const CELL_W = 74
+const CELL_H = 74
 
 /** Single 4×4 half-map for E=0 or E=1 */
 function HalfMap({ half }: { half: 0 | 1 }) {

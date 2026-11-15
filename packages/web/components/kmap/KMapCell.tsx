@@ -9,7 +9,7 @@ interface KMapCellProps {
   cellSize?: number
 }
 
-export default function KMapCell({ minterm, value, groups, onToggle, cellSize = 68 }: KMapCellProps) {
+export default function KMapCell({ minterm, value, groups, onToggle, cellSize = 88 }: KMapCellProps) {
   const cellGroups = groups.filter((g) => g.cells.includes(minterm))
 
   return (
@@ -29,13 +29,13 @@ export default function KMapCell({ minterm, value, groups, onToggle, cellSize = 
       ))}
 
       {/* Minterm number (tiny, top-left) */}
-      <span className="absolute top-0.5 left-1 text-[9px] font-mono text-neutral-400 dark:text-neutral-600 select-none z-10">
+      <span className="absolute top-1 left-1.5 text-[10px] font-mono text-neutral-400 dark:text-neutral-500 select-none z-10">
         {minterm}
       </span>
 
       {/* Cell value */}
       <span
-        className={`relative z-10 text-xl font-bold font-mono transition-colors ${
+        className={`relative z-10 text-2xl font-bold font-mono transition-colors ${
           value === 1
             ? 'text-green-400'
             : value === 'X'

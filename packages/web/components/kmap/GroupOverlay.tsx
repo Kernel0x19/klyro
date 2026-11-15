@@ -2,12 +2,12 @@
 import type { KMapGroup } from '@/lib/kmap/types'
 import { getGroupRects } from '@/lib/kmap/kMapLayout'
 
-// Fixed dimensions — must match KMapGrid cell sizes (w-14 = 56px)
-const CELL_W = 68
-const CELL_H = 68
-const HEADER_W = 56  // row header column width
-const HEADER_H = 40  // col header row height
-const PAD = 5        // inset padding for each rect
+// Fixed dimensions — must match KMapGrid cell sizes
+const CELL_W = 88
+const CELL_H = 88
+const HEADER_W = 64  // row header column width
+const HEADER_H = 48  // col header row height
+const PAD = 6        // inset padding for each rect
 
 interface GroupOverlayProps {
   groups: KMapGroup[]
