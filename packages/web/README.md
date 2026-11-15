@@ -53,9 +53,11 @@ packages/web/
 - **2 to 5-Variable Karnaugh Maps**:
   - Supports 2, 3, 4, and 5-variable (dual 4×4 half-maps) K-Maps with Gray-code coordinate mapping.
   - Two-way sync: Clicking K-Map cells updates the truth table; editing the truth table updates the K-Map.
-- **Minimization Algorithms (`lib/kmap/`)**:
+- **Minimization Algorithms & Output (`lib/kmap/`)**:
   - Quine-McCluskey solver (`quineMcCluskey.ts`) computes prime implicants.
   - Petrick's method (`petrick.ts`) finds the exact minimal Sum of Products (SOP) and Product of Sums (POS).
+  - Displays canonical minterm ($\Sigma m$) and maxterm ($\Pi M$) notation with 1-click copy buttons.
+  - Export K-Map workspace as high-resolution PNG (`klyro-kmap-<projectId>.png`).
   - Reverse sync: `loadFromSOP` parses user-entered Boolean equations and populates the K-Map.
 - **Boolean Expression → Circuit Synthesis (`circuitSynthesizer.ts`)**:
   - Translates minimal SOP equations directly into physical TTL ICs (`74LS04` NOT, `74LS08`/`74LS11`/`74LS21` AND, `74LS32` OR).

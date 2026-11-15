@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.3] - 2026-11-15
+
+### Added
+- **K-Map PNG Export**:
+  - Topbar "Export as PNG" now detects active module and exports high-resolution image of the K-Map workspace (`#kmap-export-area`) containing Truth Table, K-Map grid with colored grouping overlays, and Expression Output as `klyro-kmap-<projectId>.png`.
+  - Added dedicated 1-click "Export PNG" button to the `KMapControls` toolbar for direct access.
+  - Theme-aware background rendering (solid black `#000000` in dark mode, solid white `#ffffff` in light mode) preventing transparent canvas export artifacts.
+- **Canonical Minterm / Maxterm Notation**:
+  - Added canonical SOP notation ($\Sigma m(m_1, m_2, \dots) + d(d_1, \dots)$) to `ExpressionOutput`.
+  - Added canonical POS notation ($\Pi M(M_1, M_2, \dots) \cdot d(d_1, \dots)$) to `ExpressionOutput`.
+  - Independent 1-click copy buttons for both canonical forms.
+  - Graceful handling of empty minterm/maxterm sets ($\Sigma m(\emptyset)$ / $\Pi M(\emptyset)$).
+
+### Changed
+- `ExpressionOutput`: Restructured bottom panel into unified vertical columns ensuring the middle partition between Canonical SOP/POS and Normal SOP/POS aligns continuously.
+- `KMapGrid`: Enlarged cell size from `68px` to `88px` for 2–4 variable maps (`74px` for 5-variable dual maps), centered the grid vertically and horizontally in the workspace, and scaled cell typography to `text-2xl`.
+
+---
+
 ## [0.3.2] - 2026-11-14
 
 ### Added

@@ -17,11 +17,12 @@ simplified Boolean expressions into circuits.
   and a waveform viewer. Run a continuous clock or step through one pulse at a
   time.
 - **Simplify Boolean logic** using 2–5-variable Karnaugh maps, a synced truth
-  table, and minimal sum-of-products (SOP) and product-of-sums (POS) expressions.
+  table, minimal sum-of-products (SOP) and product-of-sums (POS), and canonical
+  minterm ($\Sigma m$) and maxterm ($\Pi M$) notation.
 - **Build a circuit from a K-map** by converting the minimized SOP expression
   into wired ICs. The generated circuit must fit within the board’s five slots.
 - **Keep and share your work** by signing in to save projects or exporting the
-  board as a PNG.
+  board or K-map as a PNG.
 
 ## Try the editor
 
