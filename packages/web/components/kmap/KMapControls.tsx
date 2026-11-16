@@ -56,7 +56,16 @@ interface KMapControlsProps {
 export default function KMapControls({ projectId }: KMapControlsProps = {}) {
   const params = useParams()
   const effectiveProjectId = projectId || (params?.projectId as string | undefined)
-  const { variables, setVariables, variableNames, setVariableName, reset, loadFromSOP } = useKMapStore()
+  const {
+    variables,
+    setVariables,
+    variableNames,
+    setVariableName,
+    reset,
+    loadFromSOP,
+    fillAll,
+    invertCells,
+  } = useKMapStore()
   const [sopInput, setSopInput] = useState('')
 
   function handleLoadSOP() {
@@ -142,6 +151,39 @@ export default function KMapControls({ projectId }: KMapControlsProps = {}) {
         >
           <ArrowDownToLine size={12} />
         </button>
+      </div>
+
+      <div className="w-px h-5 bg-border-theme" />
+
+      {/* Quick Fill actions */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs font-semibold text-text-secondary uppercase tracking-wide shrink-0">Quick Fill</span>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => fillAll(0)}
+            title="Set all cells to 0"
+            className="h-7 px-2 text-xs font-mono font-bold bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-white rounded transition-colors cursor-pointer"
+          >
+            All 0
+          </button>
+          <button
+            type="button"
+            onClick={() => fillAll(1)}
+            title="Set all cells to 1"
+            className="h-7 px-2 text-xs font-mono font-bold bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-white rounded transition-colors cursor-pointer"
+          >
+            All 1
+          </button>
+          <button
+            type="button"
+            onClick={invertCells}
+            title="Invert all cells (0 ↔ 1)"
+            className="h-7 px-2 text-xs font-mono font-bold bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-white rounded transition-colors cursor-pointer"
+          >
+            Invert
+          </button>
+        </div>
       </div>
 
       <div className="ml-auto flex items-center gap-2">

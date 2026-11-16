@@ -47,6 +47,7 @@ export default async function EditorPage({ params, searchParams }: Props) {
         projectName={projectName}
         projectId={projectId}
         userId={user?.id}
+        activeModule={activeModule}
       />
       {isKMap ? (
         <KMapModule projectId={projectId} {...(user?.id ? { userId: user.id } : {})} />

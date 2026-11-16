@@ -15,7 +15,7 @@ const rawVersion =
   process.env.NEXT_PUBLIC_APP_VERSION ||
   process.env.VERSION ||
   process.env.APP_VERSION ||
-  'v0.3.3'
+  'v0.3.4'
 
 const formattedVersion = rawVersion.startsWith('v')
   ? rawVersion

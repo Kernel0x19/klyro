@@ -2,7 +2,14 @@
 import { useKMapStore } from '@/stores/useKMapStore'
 
 export default function TruthTableEditor() {
-  const { variables, variableNames, cellValues, toggleCell } = useKMapStore()
+  const {
+    variables,
+    variableNames,
+    cellValues,
+    toggleCell,
+    hoveredMinterm,
+    setHoveredMinterm,
+  } = useKMapStore()
   const numRows = 1 << variables
   const names = variableNames.slice(0, variables)
 
@@ -46,7 +53,13 @@ export default function TruthTableEditor() {
               return (
                 <tr
                   key={i}
-                  className="border-b border-border-theme/40 hover:bg-surface/60 transition-colors"
+                  onMouseEnter={() => setHoveredMinterm(i)}
+                  onMouseLeave={() => setHoveredMinterm(null)}
+                  className={`border-b border-border-theme/40 transition-colors ${
+                    hoveredMinterm === i
+                      ? 'bg-[#4F6EF7]/20 border-l-2 border-l-[#4F6EF7]'
+                      : 'hover:bg-surface/60'
+                  }`}
                 >
                   <td className="px-2 py-1 text-text-secondary font-mono">{i}</td>
                   {bits.map((b, j) => (

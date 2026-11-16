@@ -30,6 +30,9 @@ export default function KMapPersistenceSync({ projectId, userId }: Props) {
       if (data) {
         loadSnapshot(data as SavedKMapState)
         initialSnap.current = JSON.stringify(data)
+      } else {
+        useKMapStore.getState().reset()
+        initialSnap.current = JSON.stringify(toSnapshot())
       }
       isLoaded.current = true
     }

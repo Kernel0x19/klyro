@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { useBoardStore } from '@/stores/useBoardStore'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
+import { useKMapStore } from '@/stores/useKMapStore'
 import { loadBoardState } from '@/lib/circuitService'
 import { deserializeBoardState } from '@/lib/boardStateSerializer'
 
@@ -30,6 +31,7 @@ export default function ProjectSync({ projectId, isLoggedIn, userId }: Props) {
     initialEdgeCount.current = -1
     initialSlotSnapshot.current = ''
     resetBoard()
+    useKMapStore.getState().reset()
 
     if (!isLoggedIn || !userId) {
       isLoaded.current = true

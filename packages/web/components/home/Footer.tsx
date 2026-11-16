@@ -1,7 +1,12 @@
+'use client'
+
+import { useTransition } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import NProgress from 'nprogress'
 import { openOrCreateProject } from '@/lib/supabase/projects'
 import { APP_VERSION } from '@/lib/version'
+
 const links = {
   Product: [
     { label: 'IC Circuit Board', module: 'board' },
@@ -21,7 +26,23 @@ const links = {
     { label: 'License', href: '/license' },
   ],
 }
+
 export default function Footer() {
+  const [isPending, startTransition] = useTransition()
+
+  function handleOpenProduct(module: string) {
+    NProgress.start()
+    const formData = new FormData()
+    formData.set('module', module)
+    startTransition(async () => {
+      try {
+        await openOrCreateProject(formData)
+      } catch {
+        NProgress.done()
+      }
+    })
+  }
+
   return (
     <footer className="w-full border-t-2 border-border-theme bg-bg relative select-none">
       <div
@@ -85,15 +106,14 @@ export default function Footer() {
               <ul className="flex flex-col gap-2.5">
                 {links.Product.map((item) => (
                   <li key={item.label}>
-                    <form action={openOrCreateProject}>
-                      <input type="hidden" name="module" value={item.module} />
-                      <button
-                        type="submit"
-                        className="text-sm text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
-                      >
-                        {item.label}
-                      </button>
-                    </form>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => handleOpenProduct(item.module)}
+                      className="text-sm text-text-secondary hover:text-text-primary transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-wait"
+                    >
+                      {item.label}
+                    </button>
                   </li>
                 ))}
               </ul>

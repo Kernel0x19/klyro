@@ -25,6 +25,7 @@ import { useBoardStore } from '@/stores/useBoardStore'
 import { saveBoardState } from '@/lib/circuitService'
 import { serializeBoardState } from '@/lib/boardStateSerializer'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
+import { useKMapStore } from '@/stores/useKMapStore'
 import { toPng } from 'html-to-image'
 
 interface EditorActionsProps {
@@ -337,7 +338,12 @@ export default function EditorActions({
                 Account
               </Link>
               <button
-                onClick={() => signOut()}
+                onClick={() => {
+                  useKMapStore.getState().reset()
+                  useBoardStore.getState().resetBoard()
+                  useEditorEdgesStore.getState().setEdges([])
+                  signOut()
+                }}
                 className="w-full px-4 py-2.5 flex items-center gap-2.5 text-sm font-medium text-neutral-800 dark:text-white hover:bg-red-500/10 hover:text-red-400 transition-colors duration-150 cursor-pointer border-t border-neutral-200 dark:border-neutral-700/60"
               >
                 <LogOut size={14} />
