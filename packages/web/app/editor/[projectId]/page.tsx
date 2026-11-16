@@ -7,6 +7,7 @@ import GuestRedirect from '@/components/editor/GuestRedirect'
 import PropertiesPanel from '@/components/editor/PropertiesPanel'
 import BottomPanel from '@/components/editor/BottomPanel'
 import KMapModule from '@/components/kmap/KMapModule'
+import FSMModule from '@/components/fsm/FSMModule'
 
 interface Props {
   params: Promise<{ projectId: string }>
@@ -16,6 +17,7 @@ export default async function EditorPage({ params, searchParams }: Props) {
   const { projectId } = await params
   const { module: activeModule } = await searchParams
   const isKMap = activeModule === 'k-map-visualiser'
+  const isFSM = activeModule === 'fsm'
 
   const supabase = await createServerSupabaseClient()
   const {
@@ -51,6 +53,8 @@ export default async function EditorPage({ params, searchParams }: Props) {
       />
       {isKMap ? (
         <KMapModule projectId={projectId} {...(user?.id ? { userId: user.id } : {})} />
+      ) : isFSM ? (
+        <FSMModule projectId={projectId} {...(user?.id ? { userId: user.id } : {})} />
       ) : (
         <div className="flex flex-1 overflow-hidden gap-1">
           <Sidebar />

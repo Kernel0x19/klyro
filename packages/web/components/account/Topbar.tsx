@@ -8,6 +8,7 @@ import { signOut } from '@/lib/supabase/auth'
 import { useBoardStore } from '@/stores/useBoardStore'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
 import { useKMapStore } from '@/stores/useKMapStore'
+import { useFSMStore } from '@/stores/useFSMStore'
 import { APP_VERSION } from '@/lib/version'
 export default function Topbar() {
   const { theme, toggleTheme } = useTheme()
@@ -51,6 +52,7 @@ export default function Topbar() {
         </button>
         <button
           onClick={() => {
+            useFSMStore.getState().reset()
             useKMapStore.getState().reset()
             useBoardStore.getState().resetBoard()
             useEditorEdgesStore.getState().setEdges([])
