@@ -12,24 +12,29 @@ function fromParam(param: string) {
   return Modules.find((m) => toParam(m) === param) ?? 'Board'
 }
 
-export default function ModuleSelection() {
+interface ModuleSelectionProps {
+  initialModule?: string | undefined
+}
+
+export default function ModuleSelection({ initialModule }: ModuleSelectionProps = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const [active, setActive] = useState('Board')
+  // Derive initial/active module immediately from searchParams or SSR prop
+  const urlParam = searchParams?.get('module') ?? initialModule ?? 'board'
+  const resolvedActive = fromParam(urlParam)
+
+  // Optional optimistic override while a user click is in-flight
+  const [optimistic, setOptimistic] = useState<string | null>(null)
+  const active = optimistic ?? resolvedActive
+
   /** The param string of the module currently being navigated to, null when settled */
   const [pendingModule, setPendingModule] = useState<string | null>(null)
 
-  // Sync active tab from URL
+  // When searchParams settle, clear the pending state and optimistic override
   useEffect(() => {
-    const selectedModule = searchParams.get('module')
-    if (selectedModule) setActive(fromParam(selectedModule))
-    else setActive('Board')
-  }, [searchParams])
-
-  // When searchParams settle, clear the pending state
-  useEffect(() => {
+    setOptimistic(null)
     if (pendingModule !== null) {
       setPendingModule(null)
     }
@@ -38,7 +43,7 @@ export default function ModuleSelection() {
 
   function handleSelect(module: string) {
     if (module === active) return // already on this module
-    setActive(module)
+    setOptimistic(module)
 
     const param = toParam(module)
     // Show loading overlay immediately

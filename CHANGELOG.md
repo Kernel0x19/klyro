@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.4] - 2026-11-16
+
+### Added
+- **Truth Table ↔ Cell Two-Way Hover Highlighting**:
+  - Hovering over any row in the Truth Table highlights the corresponding cell in the K-Map grid with an accent blue ring, glowing border, and elevated z-index.
+  - Hovering over any K-Map cell highlights the corresponding minterm row in the Truth Table with an accent blue indicator and background tint.
+- **Quick-Fill Toolbar Actions**:
+  - Added dedicated quick-fill actions to the `KMapControls` toolbar:
+    - **All 0**: Sets all truth table outputs and K-Map cells to `0` and triggers logic minimization.
+    - **All 1**: Sets all truth table outputs and K-Map cells to `1` and triggers logic minimization.
+    - **Invert**: Flips all `0`s to `1`s and `1`s to `0`s (preserving don't-care `'X'` entries) and recalculates minimal SOP and POS expressions.
+
+### Fixed
+- **Quick Action & Footer Link Loading States**:
+  - Fixed missing loading indicator on landing page quick start buttons ("Open Board", "Open K-Map", "Open FSM") by introducing `useTransition`, `NProgress.start()`, and active button spinner state ("Opening...").
+  - Fixed missing loading indicator on footer product links ("IC Circuit Board", "K-Map Solver", "FSM Builder") with seamless `NProgress` loading progress feedback.
+  - Enhanced global `NavigationProgress` to intercept `<form>` submissions alongside standard `<a>` link navigations.
+- **Topbar Module Highlight Flickering**:
+  - Eliminated the 200–300ms delayed tab shift where the topbar temporarily highlighted "Board" before switching to "K-Map Visualiser". Module selection is now synchronously derived from search parameters and initial props during render.
+- **Logout K-Map State Leak**:
+  - Fixed issue where logging out from an authenticated account could retain previous K-Map data when opening K-Map as a guest. `useKMapStore`, `useBoardStore`, and `useEditorEdgesStore` are now explicitly reset upon user signout, project changes, and unauthenticated guest initialization.
+
+---
+
 ## [0.3.3] - 2026-11-15
 
 ### Added

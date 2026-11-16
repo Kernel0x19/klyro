@@ -1,4 +1,6 @@
 'use client'
+import { useEffect } from 'react'
+import { useKMapStore } from '@/stores/useKMapStore'
 import KMapControls from './KMapControls'
 import TruthTableEditor from './TruthTableEditor'
 import KMapGrid from './KMapGrid'
@@ -11,6 +13,13 @@ interface KMapModuleProps {
 }
 
 export default function KMapModule({ projectId, userId }: KMapModuleProps) {
+  // Ensure guests always start with a completely fresh K-Map store on mount or project switch
+  useEffect(() => {
+    if (!userId) {
+      useKMapStore.getState().reset()
+    }
+  }, [projectId, userId])
+
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       {/* Persistence sync — only when logged in */}

@@ -28,12 +28,20 @@ interface KMapState {
   // QM step-by-step working (for the step panel)
   qmSteps: QMStep[]
 
+  // Active hover highlighting between Truth Table and K-Map cells
+  hoveredMinterm: number | null
+  setHoveredMinterm: (m: number | null) => void
+
   // Actions
   setVariables: (n: VarCount) => void
   setVariableName: (index: number, name: string) => void
   toggleCell: (minterm: number) => void
   setCellValue: (minterm: number, val: CellValue) => void
   reset: () => void
+
+  // Quick-fill actions
+  fillAll: (val: CellValue) => void
+  invertCells: () => void
 
   /** Parse a SOP string and fill in the K-Map cells that match the expression */
   loadFromSOP: (sop: string) => void
@@ -230,6 +238,21 @@ export const useKMapStore = create<KMapState>((set, get) => {
     variableNames: [...DEFAULT_VAR_NAMES],
     cellValues: initCells,
     ...initDerived,
+    hoveredMinterm: null,
+
+    setHoveredMinterm: (m) => set({ hoveredMinterm: m }),
+
+    fillAll: (val) => {
+      const { variables, variableNames } = get()
+      const cellValues = Array<CellValue>(1 << variables).fill(val)
+      set({ cellValues, ...recompute(variables, variableNames, cellValues) })
+    },
+
+    invertCells: () => {
+      const { variables, variableNames, cellValues } = get()
+      const newCells = cellValues.map((v) => (v === 1 ? 0 : v === 0 ? 1 : 'X'))
+      set({ cellValues: newCells, ...recompute(variables, variableNames, newCells) })
+    },
 
     setVariables: (n) => {
       const cellValues = makeDefaultCells(n)
@@ -263,7 +286,7 @@ export const useKMapStore = create<KMapState>((set, get) => {
     reset: () => {
       const { variables, variableNames } = get()
       const cellValues = makeDefaultCells(variables)
-      set({ cellValues, ...recompute(variables, variableNames, cellValues) })
+      set({ cellValues, hoveredMinterm: null, ...recompute(variables, variableNames, cellValues) })
     },
 
     loadFromSOP: (sop) => {

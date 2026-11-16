@@ -53,6 +53,8 @@ packages/web/
 - **2 to 5-Variable Karnaugh Maps**:
   - Supports 2, 3, 4, and 5-variable (dual 4×4 half-maps) K-Maps with Gray-code coordinate mapping.
   - Two-way sync: Clicking K-Map cells updates the truth table; editing the truth table updates the K-Map.
+  - Interactive two-way hover highlighting: Hovering on a truth table row highlights the corresponding K-Map cell, and hovering on a cell highlights the truth table row.
+  - Quick-Fill toolbar actions: 1-click "All 0", "All 1", and "Invert" buttons to rapidly populate or invert cell values.
 - **Minimization Algorithms & Output (`lib/kmap/`)**:
   - Quine-McCluskey solver (`quineMcCluskey.ts`) computes prime implicants.
   - Petrick's method (`petrick.ts`) finds the exact minimal Sum of Products (SOP) and Product of Sums (POS).

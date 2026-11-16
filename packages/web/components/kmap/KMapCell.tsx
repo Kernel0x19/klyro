@@ -1,5 +1,6 @@
 'use client'
 import type { CellValue, KMapGroup } from '@/lib/kmap/types'
+import { useKMapStore } from '@/stores/useKMapStore'
 
 interface KMapCellProps {
   minterm: number
@@ -11,12 +12,21 @@ interface KMapCellProps {
 
 export default function KMapCell({ minterm, value, groups, onToggle, cellSize = 88 }: KMapCellProps) {
   const cellGroups = groups.filter((g) => g.cells.includes(minterm))
+  const hoveredMinterm = useKMapStore((s) => s.hoveredMinterm)
+  const setHoveredMinterm = useKMapStore((s) => s.setHoveredMinterm)
+  const isHovered = hoveredMinterm === minterm
 
   return (
     <td
       onClick={onToggle}
+      onMouseEnter={() => setHoveredMinterm(minterm)}
+      onMouseLeave={() => setHoveredMinterm(null)}
       title={`m${minterm}`}
-      className="border border-neutral-700 text-center cursor-pointer select-none relative align-middle"
+      className={`border text-center cursor-pointer select-none relative align-middle transition-all duration-150 ${
+        isHovered
+          ? 'border-[#4F6EF7] ring-2 ring-[#4F6EF7] z-20 brightness-125 bg-[#4F6EF7]/15'
+          : 'border-neutral-700 hover:border-neutral-500'
+      }`}
       style={{ width: cellSize, height: cellSize, minWidth: cellSize, minHeight: cellSize }}
     >
       {/* Group background tints (layered) */}

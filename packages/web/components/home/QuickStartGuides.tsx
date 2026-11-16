@@ -1,6 +1,11 @@
+'use client'
+
+import { useState, useTransition } from 'react'
 import { Cpu, Grid3x3, Workflow } from 'lucide-react'
 import Image from 'next/image'
+import NProgress from 'nprogress'
 import { openOrCreateProject } from '@/lib/supabase/projects'
+
 const cards = [
   {
     Icon: Cpu,
@@ -24,7 +29,26 @@ const cards = [
     module: 'fsm',
   },
 ]
+
 export default function QuickStartGuides() {
+  const [isPending, startTransition] = useTransition()
+  const [activeModule, setActiveModule] = useState<string | null>(null)
+
+  function handleOpen(module: string) {
+    setActiveModule(module)
+    NProgress.start()
+    const formData = new FormData()
+    formData.set('module', module)
+    startTransition(async () => {
+      try {
+        await openOrCreateProject(formData)
+      } catch {
+        NProgress.done()
+        setActiveModule(null)
+      }
+    })
+  }
+
   return (
     <section
       id="quick-start-guides"
@@ -63,22 +87,30 @@ export default function QuickStartGuides() {
               </h2>
               <p className="text-lg leading-relaxed">{card.desc}</p>
             </div>
-            <form action={openOrCreateProject} className="w-full">
-              <input type="hidden" name="module" value={card.module} />
-              <button
-                type="submit"
-                className="w-full text-white flex items-center justify-center px-4 py-3 bg-get-started text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-2xl cursor-pointer group"
-              >
-                {card.cta}
-                <Image
-                  src="/diagonal-arrow.svg"
-                  alt="Arrow"
-                  width={16}
-                  height={16}
-                  className="aspect-square"
-                />
-              </button>
-            </form>
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => handleOpen(card.module)}
+              className="w-full text-white flex items-center justify-center px-4 py-3 bg-get-started text-xl font-bold gap-2 transition-all duration-500 hover:bg-get-started-hover hover:rounded-2xl cursor-pointer group disabled:opacity-75 disabled:cursor-wait"
+            >
+              {isPending && activeModule === card.module ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Opening...
+                </span>
+              ) : (
+                <>
+                  {card.cta}
+                  <Image
+                    src="/diagonal-arrow.svg"
+                    alt="Arrow"
+                    width={16}
+                    height={16}
+                    className="aspect-square"
+                  />
+                </>
+              )}
+            </button>
           </div>
         ))}
       </div>

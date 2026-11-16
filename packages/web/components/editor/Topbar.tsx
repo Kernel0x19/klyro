@@ -11,6 +11,7 @@ interface TopbarProps {
   projectName?: string | undefined
   projectId?: string | undefined
   userId?: string | undefined
+  activeModule?: string | undefined
 }
 export default function Topbar({
   avatarUrl,
@@ -18,6 +19,7 @@ export default function Topbar({
   projectName,
   projectId,
   userId,
+  activeModule,
 }: TopbarProps) {
   const title = projectName ?? 'Untitled Project'
   const pid = projectId ?? ''
@@ -45,7 +47,7 @@ export default function Topbar({
         <ProjectTitle initialTitle={title} projectId={pid} userId={uid} />
       </div>
       <Suspense fallback={null}>
-        <ModuleSelection />
+        <ModuleSelection initialModule={activeModule} />
       </Suspense>
       <EditorActions avatarUrl={avatarUrl} name={name} projectId={pid} userId={uid} />
     </nav>

@@ -149,10 +149,18 @@ export function NavigationProgress() {
       return origReplace(state, title, url)
     }
 
+    // 4. Capture form submissions (such as Server Actions or search forms)
+    const handleSubmit = (e: Event) => {
+      if (e.defaultPrevented) return
+      startProgress()
+    }
+
     document.addEventListener('click', handleClick, { capture: true })
+    document.addEventListener('submit', handleSubmit, { capture: true })
 
     return () => {
       document.removeEventListener('click', handleClick, { capture: true })
+      document.removeEventListener('submit', handleSubmit, { capture: true })
       history.pushState = origPush
       history.replaceState = origReplace
       if (safetyTimer.current) clearTimeout(safetyTimer.current)

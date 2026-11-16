@@ -5,6 +5,9 @@ import Link from 'next/link'
 import { useTheme } from '@/components/hooks/useTheme'
 import { Sun, Moon, LogOut } from 'lucide-react'
 import { signOut } from '@/lib/supabase/auth'
+import { useBoardStore } from '@/stores/useBoardStore'
+import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
+import { useKMapStore } from '@/stores/useKMapStore'
 import { APP_VERSION } from '@/lib/version'
 export default function Topbar() {
   const { theme, toggleTheme } = useTheme()
@@ -47,7 +50,12 @@ export default function Topbar() {
           )}
         </button>
         <button
-          onClick={() => signOut()}
+          onClick={() => {
+            useKMapStore.getState().reset()
+            useBoardStore.getState().resetBoard()
+            useEditorEdgesStore.getState().setEdges([])
+            signOut()
+          }}
           title="Log out"
           className="text-white flex items-center justify-center p-3 bg-red-500 text-base font-bold transition-all duration-500 hover:bg-red-600 hover:rounded-lg cursor-pointer"
         >
