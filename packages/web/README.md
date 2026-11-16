@@ -66,9 +66,24 @@ packages/web/
   - Automatically places ICs into breadboard sockets and wires inputs and outputs.
   - Offers a confirmation dialog (`BuildCircuitModal.tsx`) to create a new project or overwrite the current board.
 
-### 3. State Management (`stores/`)
+### 3. FSM Builder & ASM Chart Generator (`components/fsm/`, `lib/fsm/`)
+- **Visual State Diagram Canvas**:
+  - State nodes with names, binary/gray encodings, initial state badges, and Moore outputs.
+  - Directed transition edges with condition expressions, self-loops, and Mealy outputs.
+  - Interactive clock stepper with input pin overrides and live glowing active state transitions.
+  - Support for both Mealy and Moore sequential models.
+- **ASM Chart Auto-Generation**:
+  - Auto-translates state diagrams into standard ASM blocks: State Boxes, Decision Diamonds, and Conditional Output Ovals.
+  - Diagram, ASM Chart, and Side-by-Side Split viewing modes.
+- **State Transition Tables & Logic Minimization**:
+  - Binary, Gray Code, and One-Hot state encodings.
+  - Auto-derives minimized Boolean next-state ($D_k$) and output equations using Quine-McCluskey.
+  - 1-click export to Markdown, CSV, and LaTeX, plus high-res PNG export.
+
+### 4. State Management (`stores/`)
 - **`useBoardStore`**: Manages placed ICs, pin connections, wire paths, simulation power, and tool modes. Wrapped with `zundo` temporal middleware for full Undo (`Ctrl+Z`) and Redo (`Ctrl+Y`) history.
 - **`useKMapStore`**: Manages variable count (2–5), custom variable names, cell values (`0`, `1`, `X`), prime implicant groups, and active highlight states.
+- **`useFSMStore`**: Manages states, transitions, input/output variables, active simulation state, view modes, and derived state tables.
 
 ---
 

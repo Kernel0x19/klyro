@@ -21,8 +21,12 @@ simplified Boolean expressions into circuits.
   minterm ($\Sigma m$) and maxterm ($\Pi M$) notation.
 - **Build a circuit from a K-map** by converting the minimized SOP expression
   into wired ICs. The generated circuit must fit within the board’s five slots.
+- **Design Finite State Machines (FSM)** and auto-generate Algorithmic State
+  Machine (ASM) charts with interactive clock stepping, binary/gray/one-hot
+  encodings, state transition table export (Markdown, CSV, LaTeX), and minimal
+  next-state Boolean logic derivation.
 - **Keep and share your work** by signing in to save projects or exporting the
-  board or K-map as a PNG.
+  board, K-map, or FSM diagram as a PNG.
 
 ## Try the editor
 

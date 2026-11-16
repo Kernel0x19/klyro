@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] - 2026-11-16
+
+### Added
+- **Visual FSM Builder**:
+  - Interactive state diagram canvas built with React Flow (`@xyflow/react`) accessible under `/editor/[projectId]?module=fsm` or topbar "FSM" tab.
+  - Custom circular state nodes (`StateNode.tsx`) with state names, binary/gray encodings, initial state badges, and Moore outputs.
+  - Custom directed transition edges (`TransitionEdge.tsx`) supporting bezier curves, self-loops, and condition label pills.
+  - Modal inspectors (`EditStateModal.tsx` & `EditTransitionModal.tsx`) for configuring state names, Moore outputs, conditions, and Mealy outputs.
+  - Interactive **Clock Stepper**: Toggle input pins and pulse the clock to watch the active state advance with glowing accent highlights.
+  - Support for both **Mealy** and **Moore** sequential machine models.
+- **Algorithmic State Machine (ASM) Chart Auto-Generation**:
+  - Automatically translates active state diagrams into standard ASM chart blocks:
+    - **State Box**: Rectangle showing State Name, binary encoding, and Moore outputs.
+    - **Decision Box**: Diamond evaluating input condition variables with `0` (False) and `1` (True) branches.
+    - **Conditional Output Box**: Oval showing conditional Mealy outputs.
+  - Three viewing modes: **State Diagram**, **ASM Chart**, and **Side-by-Side Split View**.
+- **State Transition Table & Logic Minimization**:
+  - Generates comprehensive Present State $\to$ Inputs $\to$ Next State $\to$ Outputs tables.
+  - Multiple state encoding assignments: **Binary**, **Gray Code**, and **One-Hot**.
+  - Derives minimized Boolean SOP logic equations for next-state bits ($D_k$) and outputs ($Z_m$) using the Quine-McCluskey solver.
+  - 1-click export of State Tables to **Markdown**, **CSV**, and **LaTeX**.
+  - High-resolution PNG export of diagrams and ASM charts (`klyro-fsm-<projectId>.png`).
+- **Built-in FSM Presets**:
+  - Sequence Detector '101' (Mealy).
+  - 2-Bit Gray Counter (Moore).
+  - Simple Traffic Light Controller (Moore).
+
+---
+
 ## [0.3.4] - 2026-11-16
 
 ### Added

@@ -26,6 +26,7 @@ import { saveBoardState } from '@/lib/circuitService'
 import { serializeBoardState } from '@/lib/boardStateSerializer'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
 import { useKMapStore } from '@/stores/useKMapStore'
+import { useFSMStore } from '@/stores/useFSMStore'
 import { toPng } from 'html-to-image'
 
 interface EditorActionsProps {
@@ -129,12 +130,14 @@ export default function EditorActions({
   // ── Export as PNG ───────────────────────────────────────────────────────
   async function handleExportPng() {
     setExportOpen(false)
-    const boardCanvas = document.querySelector('.react-flow__renderer') as HTMLElement | null
+    const fsmArea = document.querySelector('#fsm-export-area') as HTMLElement | null
     const kmapArea = document.querySelector('#kmap-export-area') as HTMLElement | null
-    const target = boardCanvas || kmapArea
+    const boardCanvas = !kmapArea && !fsmArea ? (document.querySelector('.react-flow__renderer') as HTMLElement | null) : null
+    const target = fsmArea || kmapArea || boardCanvas
     if (!target) return
 
-    const isKMap = !boardCanvas && !!kmapArea
+    const isFSM = !!fsmArea
+    const isKMap = !isFSM && !!kmapArea
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
     const bgColor = isDark ? '#000000' : '#ffffff'
 
@@ -151,9 +154,11 @@ export default function EditorActions({
       })
       const a = document.createElement('a')
       a.href = dataUrl
-      a.download = isKMap
-        ? `klyro-kmap-${projectId || 'export'}.png`
-        : `klyro-circuit-${projectId || 'circuit'}.png`
+      a.download = isFSM
+        ? `klyro-fsm-${projectId || 'export'}.png`
+        : isKMap
+          ? `klyro-kmap-${projectId || 'export'}.png`
+          : `klyro-circuit-${projectId || 'circuit'}.png`
       a.click()
     } catch (err) {
       console.error('PNG export failed:', err)
@@ -339,6 +344,7 @@ export default function EditorActions({
               </Link>
               <button
                 onClick={() => {
+                  useFSMStore.getState().reset()
                   useKMapStore.getState().reset()
                   useBoardStore.getState().resetBoard()
                   useEditorEdgesStore.getState().setEdges([])
