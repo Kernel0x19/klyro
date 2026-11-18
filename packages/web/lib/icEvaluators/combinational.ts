@@ -1,7 +1,24 @@
+/**
+ * Klyro — Combinational Logic MSI IC Evaluators
+ *
+ * Implements functional simulation models for Medium Scale Integration (MSI) ICs:
+ * - 74LS83: 4-Bit Binary Full Adder with Fast Lookahead Carry
+ * - 74LS85: 4-Bit Magnitude Comparator with cascading inputs
+ * - 74LS138: 3-to-8 Line Decoder / Demultiplexer (Active-LOW outputs, 3 enable pins)
+ * - 74LS139: Dual 2-to-4 Line Decoder / Demultiplexer
+ * - 74LS151: 8-to-1 Data Selector / Multiplexer with complementary outputs (Y, /Y)
+ * - 74LS153: Dual 4-to-1 Data Selector / Multiplexer with individual strobes
+ */
+
 import type { SignalState } from '../simulationEngine'
 
+/**
+ * Execution context provided by simulationEngine to combinational IC evaluators.
+ */
 export interface ICEvaluatorContext {
+  /** Reads current logic state of a pin */
   getPinSignal: (pinNumber: number) => SignalState
+  /** Sets the output logic state on a pin */
   setPinSignal: (pinNumber: number, state: SignalState) => void
 }
 
@@ -17,6 +34,9 @@ function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
   return null
 }
 
+/**
+ * Converts a nullable boolean into a valid SignalState ('HIGH', 'LOW', or 'X').
+ */
 function toSignal(boolVal: boolean | null): SignalState {
   if (boolVal === null) return 'X'
   return boolVal ? 'HIGH' : 'LOW'
@@ -24,11 +44,17 @@ function toSignal(boolVal: boolean | null): SignalState {
 
 /**
  * 74LS83: 4-Bit Binary Full Adder with Fast Carry
- * A inputs: A1 (P10), A2 (P8), A3 (P3), A4 (P1)
- * B inputs: B1 (P11), B2 (P7), B3 (P4), B4 (P16)
- * Carry In: C0 (P12)
- * Sum outputs: S1 (P9), S2 (P6), S3 (P2), S4 (P14)
- * Carry Out: C4 (P15)
+ *
+ * Adds two 4-bit binary numbers (A + B) plus carry-in (C0) to generate a 4-bit
+ * sum (S1..S4) and carry-out (C4).
+ *
+ * Pins:
+ * - A inputs: A1 (P10), A2 (P8), A3 (P3), A4 (P1)
+ * - B inputs: B1 (P11), B2 (P7), B3 (P4), B4 (P16)
+ * - Carry In: C0 (P12)
+ * - Sum outputs: S1 (P9), S2 (P6), S3 (P2), S4 (P14)
+ * - Carry Out: C4 (P15)
+ * - Power: Pin 5 (VCC), Pin 12 (GND on 16-pin package or pinout standard)
  */
 export function evaluate74LS83(ctx: ICEvaluatorContext): void {
   const aPins = [10, 8, 3, 1]
@@ -67,9 +93,16 @@ export function evaluate74LS83(ctx: ICEvaluatorContext): void {
 
 /**
  * 74LS85: 4-Bit Magnitude Comparator
- * Inputs: A0..A3 (P10, P12, P13, P15), B0..B3 (P9, P11, P14, P1)
- * Cascading: IAGTB (P2), IAEQB (P3), IALTB (P4)
- * Outputs: OAGTB (P7), OAEQB (P6), OALTB (P5)
+ *
+ * Compares two 4-bit binary words (A and B) and produces outputs indicating
+ * whether A > B, A = B, or A < B. Supports expansion via cascading inputs.
+ *
+ * Pins:
+ * - A inputs: A0 (P10), A1 (P12), A2 (P13), A3 (P15)
+ * - B inputs: B0 (P9),  B1 (P11), B2 (P14), B3 (P1)
+ * - Cascading: IAGTB (P2), IAEQB (P3), IALTB (P4)
+ * - Outputs: OAGTB (P7), OAEQB (P6), OALTB (P5)
+ * - Power: Pin 16 (VCC), Pin 8 (GND)
  */
 export function evaluate74LS85(ctx: ICEvaluatorContext): void {
   const aPins = [10, 12, 13, 15]
@@ -135,9 +168,12 @@ export function evaluate74LS85(ctx: ICEvaluatorContext): void {
 
 /**
  * 74LS138: 3-to-8 Line Decoder / Demultiplexer
- * Select: A (P1), B (P2), C (P3)
- * Enables: G1 (P6, Active HIGH), /G2A (P4, Active LOW), /G2B (P5, Active LOW)
- * Outputs: /Y0../Y7 (P15, P14, P13, P12, P11, P10, P9, P7) - Active LOW
+ *
+ * Pins:
+ * - Select: A (P1), B (P2), C (P3)
+ * - Enables: G1 (P6, Active HIGH), /G2A (P4, Active LOW), /G2B (P5, Active LOW)
+ * - Outputs: /Y0../Y7 (P15, P14, P13, P12, P11, P10, P9, P7) - Active LOW
+ * - Power: Pin 16 (VCC), Pin 8 (GND)
  */
 export function evaluate74LS138(ctx: ICEvaluatorContext): void {
   const outPins = [15, 14, 13, 12, 11, 10, 9, 7]
@@ -171,8 +207,11 @@ export function evaluate74LS138(ctx: ICEvaluatorContext): void {
 
 /**
  * 74LS139: Dual 2-to-4 Line Demultiplexer
- * Unit 1: Enable 1/E (P1, Active LOW), Select 1A (P2), 1B (P3), Outputs 1/Y0..1/Y3 (P4, P5, P6, P7)
- * Unit 2: Enable 2/E (P15, Active LOW), Select 2A (P14), 2B (P13), Outputs 2/Y0..2/Y3 (P12, P11, P10, P9)
+ *
+ * Pins:
+ * - Unit 1: Enable 1/E (P1, Active LOW), Select 1A (P2), 1B (P3), Outputs 1/Y0..1/Y3 (P4, P5, P6, P7)
+ * - Unit 2: Enable 2/E (P15, Active LOW), Select 2A (P14), 2B (P13), Outputs 2/Y0..2/Y3 (P12, P11, P10, P9)
+ * - Power: Pin 16 (VCC), Pin 8 (GND)
  */
 export function evaluate74LS139(ctx: ICEvaluatorContext): void {
   // Unit 1
@@ -206,17 +245,20 @@ export function evaluate74LS139(ctx: ICEvaluatorContext): void {
 
 /**
  * 74LS151: 8-to-1 Data Selector / Multiplexer
- * Data inputs: D0..D7 (P12, P13, P14, P15, P1, P2, P3, P4)
- * Select: S0 (P11), S1 (P10), S2 (P9)
- * Strobe: /E (P7, Active LOW)
- * Outputs: Y (P5, non-inverted), /Y (P6, inverted)
+ *
+ * Pins:
+ * - Data inputs: D0..D7 (P12, P13, P14, P15, P1, P2, P3, P4)
+ * - Select: S0 (P11), S1 (P10), S2 (P9)
+ * - Strobe: /E (P7, Active LOW)
+ * - Outputs: Y (P5, non-inverted), /Y (P6, inverted)
+ * - Power: Pin 16 (VCC), Pin 8 (GND)
  */
 export function evaluate74LS151(ctx: ICEvaluatorContext): void {
   const dataPins = [12, 13, 14, 15, 1, 2, 3, 4]
   const strobe = toBool(ctx.getPinSignal(7), true) // Active LOW
 
   if (strobe === true) {
-    // Disabled
+    // Disabled: Y is LOW, /Y is HIGH
     ctx.setPinSignal(5, 'LOW')
     ctx.setPinSignal(6, 'HIGH')
     return
@@ -241,9 +283,12 @@ export function evaluate74LS151(ctx: ICEvaluatorContext): void {
 
 /**
  * 74LS153: Dual 4-to-1 Data Selector / Multiplexer
- * Shared select: S0 (P14), S1 (P2)
- * Unit 1: 1/E (P1, Active LOW), 1C0..1C3 (P6, P5, P4, P3), Output 1Y (P7)
- * Unit 2: 2/E (P15, Active LOW), 2C0..2C3 (P10, P11, P12, P13), Output 2Y (P9)
+ *
+ * Pins:
+ * - Shared select: S0 (P14), S1 (P2)
+ * - Unit 1: 1/E (P1, Active LOW), 1C0..1C3 (P6, P5, P4, P3), Output 1Y (P7)
+ * - Unit 2: 2/E (P15, Active LOW), 2C0..2C3 (P10, P11, P12, P13), Output 2Y (P9)
+ * - Power: Pin 16 (VCC), Pin 8 (GND)
  */
 export function evaluate74LS153(ctx: ICEvaluatorContext): void {
   const s0 = toBool(ctx.getPinSignal(14), false) ?? false
@@ -270,4 +315,5 @@ export function evaluate74LS153(ctx: ICEvaluatorContext): void {
     ctx.setPinSignal(9, 'LOW')
   }
 }
+
 

@@ -12,7 +12,6 @@ import {
   Copy,
   Check,
   Download,
-  FileSpreadsheet,
   FileCode,
 } from 'lucide-react'
 

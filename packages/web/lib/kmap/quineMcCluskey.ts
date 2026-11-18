@@ -1,15 +1,37 @@
+/**
+ * Klyro — Quine-McCluskey Algorithm
+ *
+ * Implements tabular minimization for Boolean functions:
+ * 1. Groups minterms and don't-cares by count of 1s (Hamming weight).
+ * 2. Systematically combines adjacent terms differing by exactly a power of 2 (one variable).
+ * 3. Tracks uncombined terms across reduction passes to yield all Prime Implicants (PIs).
+ * 4. Produces algebraic Sum-of-Products (SOP) literals (e.g. A'B + CD).
+ */
+
 import type { Implicant } from './types'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Checks whether an integer is an exact power of two (has exactly one bit set).
+ */
 function isPowerOfTwo(n: number): boolean {
   return n > 0 && (n & (n - 1)) === 0
 }
 
-/** Build the SOP term string for one implicant.
- *  bit=1 in value → variable appears UNcomplemented (A)
- *  bit=0 in value → variable appears complemented (A')
- *  bit set in mask → variable is free (doesn't appear)
+/**
+ * Builds the algebraic Sum-of-Products literal string for an individual prime implicant.
+ *
+ * Bit interpretation:
+ * - Bit set in `mask`: Variable is eliminated (don't care / does not appear).
+ * - Bit set in `value` (with mask=0): Variable appears in uncomplemented form (`A`).
+ * - Bit clear in `value` (with mask=0): Variable appears in complemented form (`A'`).
+ *
+ * @param value Bit values representing the fixed literals
+ * @param mask Bit mask of eliminated variables
+ * @param numVars Total number of variables in the Boolean function
+ * @param varNames Variable labels (e.g., ['A', 'B', 'C', 'D'])
+ * @returns Algebraic product term string (e.g., "AB'", "Q0'X")
  */
 export function buildSOPTerm(
   value: number,
@@ -27,17 +49,33 @@ export function buildSOPTerm(
   return terms.length === 0 ? '1' : terms.join('')
 }
 
-// ── Core QM data structure ────────────────────────────────────────────────────
+// ── Core QM Data Structures ──────────────────────────────────────────────────
 
+/**
+ * Internal representation of a term during the reduction passes.
+ */
 interface RawImpl {
+  /** Literal values of non-masked bits */
   value: number
+  /** Bitmask where 1 indicates an eliminated (dash) variable */
   mask: number
+  /** All fundamental minterm indices subsumed by this implicant */
   allMinterms: number[]
+  /** Flag marking whether this term successfully combined with another in the current pass */
   combined: boolean
 }
 
-// ── Main export ───────────────────────────────────────────────────────────────
+// ── Main Export ──────────────────────────────────────────────────────────────
 
+/**
+ * Identifies all Prime Implicants of a Boolean function using the Quine-McCluskey tabular reduction.
+ *
+ * @param minterms Array of required minterm decimal indices (f=1)
+ * @param dontCares Array of don't-care decimal indices (f=X)
+ * @param numVars Total number of Boolean variables
+ * @param varNames Array of variable names in MSB to LSB order
+ * @returns Complete list of unique prime implicants covering at least one true minterm
+ */
 export function findPrimeImplicants(
   minterms: number[],
   dontCares: number[],
@@ -49,6 +87,7 @@ export function findPrimeImplicants(
 
   if (all.length === 0) return []
 
+  // Initialize Pass 0: 0th-order implicants (individual minterm cells)
   let current: RawImpl[] = all.map((m) => ({
     value: m,
     mask: 0,
@@ -58,6 +97,7 @@ export function findPrimeImplicants(
 
   const primeImplicants: RawImpl[] = []
 
+  // Iteratively combine terms differing by single literals (powers of 2)
   while (current.length > 0) {
     const next: RawImpl[] = []
     const seen = new Set<string>()
@@ -70,13 +110,16 @@ export function findPrimeImplicants(
         const a = current[i] as RawImpl
         const b = current[j] as RawImpl
 
+        // Can only combine terms with identical dash masks
         if (a.mask !== b.mask) continue
         const diff = a.value ^ b.value
+        // Must differ by exactly one binary variable
         if (!isPowerOfTwo(diff)) continue
 
         const newValue = a.value & b.value
         const newMask = a.mask | diff
         const key = `${newValue}|${newMask}`
+
         if (!seen.has(key)) {
           seen.add(key)
           next.push({
@@ -91,6 +134,7 @@ export function findPrimeImplicants(
       }
     }
 
+    // Any term that could not be combined with any neighbor is a Prime Implicant
     for (const impl of current) {
       if (!impl.combined) primeImplicants.push(impl)
     }
@@ -98,7 +142,7 @@ export function findPrimeImplicants(
     current = next
   }
 
-  // Deduplicate PIs
+  // Deduplicate Prime Implicants
   const seen = new Set<string>()
   const uniquePIs: RawImpl[] = []
   for (const pi of primeImplicants) {
@@ -109,7 +153,7 @@ export function findPrimeImplicants(
     }
   }
 
-  // Filter to only PIs covering at least one real minterm
+  // Filter out PIs that only cover don't-cares (must cover at least one real minterm)
   return uniquePIs
     .filter((pi) => pi.allMinterms.some((m) => mintermSet.has(m)))
     .map((pi) => ({
@@ -121,3 +165,4 @@ export function findPrimeImplicants(
       expression: buildSOPTerm(pi.value, pi.mask, numVars, varNames),
     }))
 }
+

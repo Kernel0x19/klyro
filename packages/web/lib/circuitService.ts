@@ -45,7 +45,6 @@ export async function saveKMapState(
   userId: string,
   kmap: SavedKMapState
 ): Promise<{ error: string | null }> {
-  const supabase = createClient()
   // Load current state first to merge
   const { data: current } = await loadBoardState(projectId, userId)
   const merged: SavedBoardState = current

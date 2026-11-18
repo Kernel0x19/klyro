@@ -1,6 +1,23 @@
+/**
+ * Klyro — Universal Shift Register IC Evaluators
+ *
+ * Implements functional simulation models for parallel and serial shift registers:
+ * - 74HC194 / 74LS194: 4-Bit Bidirectional Universal Shift Register
+ *
+ * Operational Modes:
+ * - S1=0, S0=0: Inhibit Clock (Hold state)
+ * - S1=0, S0=1: Shift Right (Serial in via SR, bits cascade QA -> QB -> QC -> QD)
+ * - S1=1, S0=0: Shift Left (Serial in via SL, bits cascade QD -> QC -> QB -> QA)
+ * - S1=1, S0=1: Parallel Load (Loads parallel inputs A, B, C, D into QA..QD synchronously)
+ * - /CLR = 0: Asynchronous Master Reset (forces all outputs to LOW immediately)
+ */
+
 import type { SignalState } from '../simulationEngine'
 import type { SequentialEvaluatorContext } from './sequential'
 
+/**
+ * Helper: Converts a SignalState into a boolean logic value with optional fallback default.
+ */
 function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
   if (sig === 'HIGH') return true
   if (sig === 'LOW') return false
@@ -28,6 +45,7 @@ function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
  * - QC:   Pin 13 (Parallel output C)
  * - QB:   Pin 14 (Parallel output B)
  * - QA:   Pin 15 (Parallel output A / shift-left serial output)
+ * - Power: Pin 16 (VCC), Pin 8 (GND)
  */
 export function evaluate74x194(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
@@ -88,3 +106,4 @@ export function evaluate74x194(ctx: SequentialEvaluatorContext): void {
 
   ctx.setChipState({ ...state, qa, qb, qc, qd })
 }
+

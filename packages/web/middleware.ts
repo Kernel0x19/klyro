@@ -58,8 +58,6 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === '/editor') {
     return NextResponse.redirect(new URL('/', request.url))
   }
-  if (!user && request.nextUrl.pathname.startsWith('/editor')) {
-  }
   const isPasswordRecoveryRoute =
     request.nextUrl.pathname.startsWith('/account/change-password') ||
     request.nextUrl.pathname.startsWith('/account/reset-password')

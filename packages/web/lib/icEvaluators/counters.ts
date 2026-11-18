@@ -1,6 +1,18 @@
+/**
+ * Klyro — Digital Counter IC Evaluators
+ *
+ * Implements functional simulation models for asynchronous ripple and synchronous counters:
+ * - 74LS90: Asynchronous BCD decade counter (bi-quinary: divide-by-2 and divide-by-5)
+ * - 74LS93: Asynchronous 4-bit binary ripple counter (divide-by-2 and divide-by-8)
+ * - 74x191 (74LS191 / 74HC191): Synchronous presettable 4-bit up/down binary counter with ripple carry
+ */
+
 import type { SignalState } from '../simulationEngine'
 import type { SequentialEvaluatorContext } from './sequential'
 
+/**
+ * Helper: Converts a SignalState into a boolean logic value with optional fallback default.
+ */
 function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
   if (sig === 'HIGH') return true
   if (sig === 'LOW') return false
@@ -22,6 +34,12 @@ function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
  * - QD:    Pin 11 (Output bit 3)
  * - QA:    Pin 12 (Output bit 0, divide-by-2)
  * - CKA:   Pin 14 (Negative edge-triggered divide-by-2 clock)
+ * - Power: Pin 5 (VCC), Pin 10 (GND)
+ *
+ * Mode table:
+ * - Reset 9: R9(1) AND R9(2) = HIGH -> QA=1, QB=0, QC=0, QD=1 (BCD 9)
+ * - Reset 0: R0(1) AND R0(2) = HIGH -> QA=0, QB=0, QC=0, QD=0 (BCD 0)
+ * - Count: Falling edge on CKA toggles QA; falling edge on CKB increments div5 (0..4)
  */
 export function evaluate74LS90(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
@@ -86,6 +104,7 @@ export function evaluate74LS90(ctx: SequentialEvaluatorContext): void {
  * - QD:    Pin 11 (Output bit 3)
  * - QA:    Pin 12 (Output bit 0, divide-by-2)
  * - CKA:   Pin 14 (Negative edge-triggered divide-by-2 clock)
+ * - Power: Pin 5 (VCC), Pin 10 (GND)
  */
 export function evaluate74LS93(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
@@ -143,6 +162,7 @@ export function evaluate74LS93(ctx: SequentialEvaluatorContext): void {
  * - RCO:      Pin 13 (Ripple Clock Output: Active LOW)
  * - /MAX//MIN: Pin 14 (Terminal count reached: Active HIGH)
  * - CLK:      Pin 15 (Positive edge-triggered)
+ * - Power:    Pin 16 (VCC), Pin 8 (GND)
  */
 export function evaluate74x191(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
@@ -174,7 +194,7 @@ export function evaluate74x191(ctx: SequentialEvaluatorContext): void {
     }
   }
 
-  // Max/Min and Ripple Clock Output logic
+  // Max/Min and Ripple Clock Output logic:
   // In UP mode (downUp = false), terminal is 15
   // In DOWN mode (downUp = true), terminal is 0
   const isTerminal = downUp ? count === 0 : count === 15
@@ -192,4 +212,5 @@ export function evaluate74x191(ctx: SequentialEvaluatorContext): void {
 
   ctx.setChipState({ ...state, count })
 }
+
 

@@ -1,10 +1,22 @@
 'use client'
+/**
+ * Klyro — Karnaugh Map (K-Map) Visualizer Store (Zustand)
+ *
+ * State management for 2, 3, 4, and 5-variable Karnaugh Maps:
+ * - Dynamic cell value manipulation (0, 1, X / Don't Care)
+ * - Real-time re-derivation of Prime Implicants, Essential PIs, minimal SOP & POS expressions
+ * - Quine-McCluskey step-by-step educational breakdown
+ * - Visual grouping overlay generation with toroidal wrap-around handling
+ * - Bi-directional hover highlighting between Truth Table, K-Map Grid, and Expression Terms
+ */
+
 import { create } from 'zustand'
 import type { CellValue, Implicant, KMapGroup, SavedKMapState } from '@/lib/kmap/types'
 import { findPrimeImplicants, buildSOPTerm } from '@/lib/kmap/quineMcCluskey'
 import { selectMinimalCover } from '@/lib/kmap/petrick'
 import { toSOP, toPOS } from '@/lib/kmap/expressionBuilder'
 import { buildKMapGroups } from '@/lib/kmap/groupFinder'
+
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

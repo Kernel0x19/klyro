@@ -2,7 +2,8 @@
 import React, { useState } from 'react'
 import { useFSMStore } from '@/stores/useFSMStore'
 import { FSM_PRESETS } from '@/lib/fsm/fsmPresets'
-import { toPng } from 'html-to-image'
+import { exportReactFlowToPng } from '@/lib/fsm/fsmExport'
+import { generateASMChart } from '@/lib/fsm/asmGenerator'
 import {
   Plus,
   Play,
@@ -11,7 +12,6 @@ import {
   LayoutGrid,
   GitBranch,
   Columns,
-  Cpu,
   Sparkles,
 } from 'lucide-react'
 
@@ -25,12 +25,12 @@ export default function FSMControls({ projectId }: FSMControlsProps) {
   const viewMode = useFSMStore((s) => s.viewMode)
   const setViewMode = useFSMStore((s) => s.setViewMode)
   const addState = useFSMStore((s) => s.addState)
+  const states = useFSMStore((s) => s.states)
+  const transitions = useFSMStore((s) => s.transitions)
   const inputs = useFSMStore((s) => s.inputs)
   const outputs = useFSMStore((s) => s.outputs)
+  const encodings = useFSMStore((s) => s.encodings)
   const addInput = useFSMStore((s) => s.addInput)
-  const removeInput = useFSMStore((s) => s.removeInput)
-  const addOutput = useFSMStore((s) => s.addOutput)
-  const removeOutput = useFSMStore((s) => s.removeOutput)
   const inputValues = useFSMStore((s) => s.inputValues)
   const setInputValue = useFSMStore((s) => s.setInputValue)
   const stepClock = useFSMStore((s) => s.stepClock)
@@ -41,23 +41,53 @@ export default function FSMControls({ projectId }: FSMControlsProps) {
 
   const [newInpName, setNewInpName] = useState('')
   const [showAddInp, setShowAddInp] = useState(false)
-  const [newOutName, setNewOutName] = useState('')
-  const [showAddOut, setShowAddOut] = useState(false)
 
   async function handleExportPNG() {
-    const target = document.getElementById('fsm-export-area')
-    if (!target) return
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
-    const bgColor = isDark ? '#000000' : '#ffffff'
+    const namePrefix = projectId ? `klyro-fsm-${projectId}` : 'klyro-fsm'
+
     try {
-      const dataUrl = await toPng(target, {
-        backgroundColor: bgColor,
-        pixelRatio: 2,
-      })
-      const a = document.createElement('a')
-      a.href = dataUrl
-      a.download = projectId ? `klyro-fsm-${projectId}.png` : 'klyro-fsm.png'
-      a.click()
+      if (viewMode === 'diagram' || viewMode === 'split') {
+        const diagramEl = document.getElementById('fsm-diagram-canvas')
+        if (diagramEl) {
+          const nodes = states.map((s) => ({
+            position: { x: s.x, y: s.y },
+            width: 96,
+            height: 96,
+          }))
+          await exportReactFlowToPng(
+            diagramEl,
+            nodes,
+            viewMode === 'split' ? `${namePrefix}-diagram.png` : `${namePrefix}.png`,
+            isDark
+          )
+        }
+      }
+
+      if (viewMode === 'asm' || viewMode === 'split') {
+        const asmEl = document.getElementById('fsm-asm-canvas')
+        if (asmEl) {
+          const { blocks } = generateASMChart(
+            states,
+            transitions,
+            inputs,
+            outputs,
+            machineType,
+            encodings
+          )
+          const nodes = blocks.map((b) => ({
+            position: { x: b.x, y: b.y },
+            width: b.type === 'state' ? 180 : b.type === 'decision' ? 130 : 120,
+            height: b.type === 'state' ? 70 : b.type === 'decision' ? 90 : 60,
+          }))
+          await exportReactFlowToPng(
+            asmEl,
+            nodes,
+            viewMode === 'split' ? `${namePrefix}-asm.png` : `${namePrefix}.png`,
+            isDark
+          )
+        }
+      }
     } catch (err) {
       console.error('FSM PNG export failed:', err)
     }
@@ -71,13 +101,6 @@ export default function FSMControls({ projectId }: FSMControlsProps) {
     }
   }
 
-  function handleCreateOutput() {
-    if (newOutName.trim()) {
-      addOutput(newOutName)
-      setNewOutName('')
-      setShowAddOut(false)
-    }
-  }
 
   return (
     <div className="flex items-center gap-3 px-4 py-2 border-b border-border-theme shrink-0 bg-surface flex-wrap font-mono text-xs">

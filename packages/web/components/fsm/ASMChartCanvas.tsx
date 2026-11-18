@@ -53,10 +53,15 @@ export default function ASMChartCanvas() {
             ? 'asmDecision'
             : 'asmCondOutput'
 
+      const width = b.type === 'state' ? 180 : b.type === 'decision' ? 130 : 120
+      const height = b.type === 'state' ? 70 : b.type === 'decision' ? 90 : 60
+
       return {
         id: b.id,
         type,
         position: { x: b.x, y: b.y },
+        width,
+        height,
         data: {
           name: b.name,
           code: b.code,
@@ -91,7 +96,7 @@ export default function ASMChartCanvas() {
   }, [rawEdges])
 
   return (
-    <div className="relative w-full h-full bg-black/40">
+    <div id="fsm-asm-canvas" className="relative w-full h-full bg-black/40">
       <div className="absolute top-3 left-4 z-10 px-2.5 py-1 rounded bg-surface/90 border border-border-theme backdrop-blur-xs text-[11px] font-mono text-text-secondary select-none">
         Auto-Generated ASM Chart (Algorithmic State Machine)
       </div>
