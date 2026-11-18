@@ -12,7 +12,7 @@ export default function ASMStateNode({ data }: { data: ASMStateNodeData }) {
   const outputList = data.outputs ? Object.entries(data.outputs) : []
 
   return (
-    <div className="group relative w-44 border-2 border-[#4F6EF7] bg-surface rounded-sm shadow-md font-mono select-none">
+    <div className="relative w-44 border-2 border-[#4F6EF7] bg-surface rounded-sm shadow-md font-mono select-none">
       {/* Top Header: State Name on Left, Code on Right */}
       <div className="flex items-center justify-between px-2.5 py-1 border-b border-border-theme bg-[#4F6EF7]/15 text-xs font-bold text-text-primary">
         <span>{data.name}</span>
@@ -39,30 +39,34 @@ export default function ASMStateNode({ data }: { data: ASMStateNodeData }) {
         )}
       </div>
 
-      {/* Handles on 4 sides (hidden by default, fade in on hover) */}
+      {/* Connection points: Always visible, non-editable */}
       <Handle
         type="target"
         position={Position.Top}
         id="top"
-        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-crosshair"
+        isConnectable={false}
+        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border !border-surface shadow-sm cursor-default"
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="bottom"
-        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-crosshair"
+        isConnectable={false}
+        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border !border-surface shadow-sm cursor-default"
       />
       <Handle
         type="target"
         position={Position.Left}
         id="left"
-        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-crosshair"
+        isConnectable={false}
+        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border !border-surface shadow-sm cursor-default"
       />
       <Handle
         type="target"
         position={Position.Right}
         id="right"
-        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-crosshair"
+        isConnectable={false}
+        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border !border-surface shadow-sm cursor-default"
       />
     </div>
   )
