@@ -12,6 +12,7 @@ import {
   GitBranch,
   Columns,
   Cpu,
+  Sparkles,
 } from 'lucide-react'
 
 interface FSMControlsProps {
@@ -35,6 +36,7 @@ export default function FSMControls({ projectId }: FSMControlsProps) {
   const stepClock = useFSMStore((s) => s.stepClock)
   const resetSimulation = useFSMStore((s) => s.resetSimulation)
   const loadPreset = useFSMStore((s) => s.loadPreset)
+  const arrangeSymmetrical = useFSMStore((s) => s.arrangeSymmetrical)
   const reset = useFSMStore((s) => s.reset)
 
   const [newInpName, setNewInpName] = useState('')
@@ -234,6 +236,14 @@ export default function FSMControls({ projectId }: FSMControlsProps) {
 
       {/* 6. Action Buttons Right */}
       <div className="ml-auto flex items-center gap-2">
+        <button
+          onClick={arrangeSymmetrical}
+          title="Auto-arrange states symmetrically in a circle"
+          className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-blue-300 bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 rounded transition-colors cursor-pointer"
+        >
+          <Sparkles size={12} />
+          Symmetrical Layout
+        </button>
         <button
           onClick={() => addState()}
           className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-white bg-green-600 hover:bg-green-500 rounded transition-colors cursor-pointer"

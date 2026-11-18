@@ -55,6 +55,8 @@ export interface ASMEdge {
   id: string
   source: string
   target: string
+  sourceHandle?: string | undefined
+  targetHandle?: string | undefined
   label?: string | undefined
 }
 

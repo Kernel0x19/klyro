@@ -31,8 +31,8 @@ export default function ASMCondOutputNode({ data }: { data: ASMCondOutputNodeDat
         <span className="text-[10px] text-neutral-500 italic">None</span>
       )}
 
-      <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-emerald-500" />
-      <Handle type="source" position={Position.Bottom} className="!w-2 !h-2 !bg-emerald-500" />
+      <Handle type="target" position={Position.Top} id="top" className="!w-2.5 !h-2.5 !bg-emerald-500 !border-none" />
+      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-2.5 !h-2.5 !bg-emerald-500 !border-none" />
     </div>
   )
 }

@@ -7,6 +7,7 @@ import {
   type Node,
   type Edge,
   MarkerType,
+  ConnectionMode,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useFSMStore } from '@/stores/useFSMStore'
@@ -60,7 +61,7 @@ export default function ASMChartCanvas() {
           name: b.name,
           code: b.code,
           outputs: b.outputs,
-          condition: b.name,
+          condition: b.conditionVar ?? b.name,
         },
       }
     })
@@ -71,15 +72,20 @@ export default function ASMChartCanvas() {
       id: e.id,
       source: e.source,
       target: e.target,
-      label: e.label,
-      labelStyle: { fill: '#aaa', fontSize: 10, fontFamily: 'monospace' },
-      labelBgStyle: { fill: '#1a1a1a', fillOpacity: 0.8 },
-      style: { stroke: '#4F6EF7', strokeWidth: 1.5 },
+      ...(e.sourceHandle ? { sourceHandle: e.sourceHandle } : {}),
+      ...(e.targetHandle ? { targetHandle: e.targetHandle } : {}),
+      type: 'smoothstep',
+      pathOptions: { borderRadius: 8 },
+      ...(e.label ? { label: e.label } : {}),
+      labelStyle: { fill: '#93c5fd', fontSize: 11, fontWeight: 700, fontFamily: 'monospace' },
+      labelBgStyle: { fill: '#0c1020', stroke: '#4F6EF7', strokeWidth: 1, rx: 4, ry: 4 },
+      labelBgPadding: [6, 3] as [number, number],
+      style: { stroke: '#4F6EF7', strokeWidth: 2 },
       markerEnd: {
         type: MarkerType.ArrowClosed,
         color: '#4F6EF7',
-        width: 12,
-        height: 12,
+        width: 14,
+        height: 14,
       },
     }))
   }, [rawEdges])
@@ -93,12 +99,12 @@ export default function ASMChartCanvas() {
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        connectionMode={ConnectionMode.Loose}
         fitView
-        fitViewOptions={{ padding: 0.3 }}
+        fitViewOptions={{ padding: 0.25 }}
         minZoom={0.2}
         maxZoom={2.5}
         nodesDraggable={true}
-        proOptions={{ hideAttribution: true }}
       >
         <Background color="#333" gap={20} size={1} />
         <Controls className="!bg-surface !border-border-theme !rounded !shadow-md" />

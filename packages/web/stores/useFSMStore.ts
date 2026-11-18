@@ -13,6 +13,7 @@ import {
   generateStateTable,
 } from '@/lib/fsm/stateTableGenerator'
 import { FSM_PRESETS } from '@/lib/fsm/fsmPresets'
+import { applySymmetricalLayout } from '@/lib/fsm/fsmLayout'
 
 interface FSMStoreState {
   states: FSMState[]
@@ -56,6 +57,7 @@ interface FSMStoreState {
   resetSimulation: () => void
   setViewMode: (mode: 'diagram' | 'asm' | 'split') => void
   loadPreset: (presetId: string) => void
+  arrangeSymmetrical: () => void
   reset: () => void
 }
 
@@ -98,7 +100,7 @@ export const useFSMStore = create<FSMStoreState>((set, get) => ({
   machineType: defaultPreset.machineType,
   encoding: 'binary',
   activeStateId: defaultPreset.states[0]?.id ?? null,
-  inputValues: { X: 1 },
+  inputValues: { m: 1, X: 1 },
   viewMode: 'diagram',
   tableRows: initialRecompute.tableRows,
   equations: initialRecompute.equations,
@@ -313,6 +315,22 @@ export const useFSMStore = create<FSMStoreState>((set, get) => ({
         preset.outputs,
         preset.machineType,
         get().encoding
+      ),
+    })
+  },
+
+  arrangeSymmetrical: () => {
+    const { states, transitions, inputs, outputs, machineType, encoding } = get()
+    const arranged = applySymmetricalLayout(states)
+    set({
+      states: arranged,
+      ...recomputeAll(
+        arranged,
+        transitions,
+        inputs,
+        outputs,
+        machineType,
+        encoding
       ),
     })
   },

@@ -28,14 +28,14 @@ export default function StateNode({ data }: { data: StateNodeData }) {
       className={`group relative flex flex-col items-center justify-center w-24 h-24 rounded-full border-2 transition-all duration-200 cursor-pointer select-none bg-surface ${
         isActive
           ? 'border-[#4F6EF7] ring-4 ring-[#4F6EF7]/40 shadow-[0_0_25px_rgba(79,110,247,0.6)] scale-105'
-          : 'border-neutral-600 hover:border-[#4F6EF7]/70 shadow-md'
+          : 'border-neutral-500 hover:border-[#4F6EF7]/80 shadow-lg'
       }`}
     >
       {/* Reset / Initial State indicator arrow */}
       {data.isInitial && (
         <div
           title="Initial / Reset State"
-          className="absolute -top-3 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-green-500/20 text-green-400 border border-green-500/40 uppercase tracking-wider"
+          className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-green-500/25 text-green-400 border border-green-500/50 uppercase tracking-wider"
         >
           INIT
         </div>
@@ -71,11 +71,62 @@ export default function StateNode({ data }: { data: StateNodeData }) {
         </div>
       )}
 
-      {/* Connection Handles (all 4 sides) */}
-      <Handle type="target" position={Position.Top} className="!w-2 !h-2 !bg-[#4F6EF7]" />
-      <Handle type="source" position={Position.Right} className="!w-2 !h-2 !bg-[#4F6EF7]" />
-      <Handle type="target" position={Position.Bottom} className="!w-2 !h-2 !bg-[#4F6EF7]" />
-      <Handle type="source" position={Position.Left} className="!w-2 !h-2 !bg-[#4F6EF7]" />
+      {/* Connection Handles (all 4 cardinal directions) */}
+      {/* TOP */}
+      <Handle
+        id="top"
+        type="source"
+        position={Position.Top}
+        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border-none transition-transform hover:scale-125"
+      />
+      <Handle
+        id="top-in"
+        type="target"
+        position={Position.Top}
+        className="!w-2.5 !h-2.5 !bg-transparent !border-none pointer-events-none"
+      />
+
+      {/* RIGHT */}
+      <Handle
+        id="right"
+        type="source"
+        position={Position.Right}
+        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border-none transition-transform hover:scale-125"
+      />
+      <Handle
+        id="right-in"
+        type="target"
+        position={Position.Right}
+        className="!w-2.5 !h-2.5 !bg-transparent !border-none pointer-events-none"
+      />
+
+      {/* BOTTOM */}
+      <Handle
+        id="bottom"
+        type="source"
+        position={Position.Bottom}
+        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border-none transition-transform hover:scale-125"
+      />
+      <Handle
+        id="bottom-in"
+        type="target"
+        position={Position.Bottom}
+        className="!w-2.5 !h-2.5 !bg-transparent !border-none pointer-events-none"
+      />
+
+      {/* LEFT */}
+      <Handle
+        id="left"
+        type="source"
+        position={Position.Left}
+        className="!w-2.5 !h-2.5 !bg-[#4F6EF7] !border-none transition-transform hover:scale-125"
+      />
+      <Handle
+        id="left-in"
+        type="target"
+        position={Position.Left}
+        className="!w-2.5 !h-2.5 !bg-transparent !border-none pointer-events-none"
+      />
     </div>
   )
 }

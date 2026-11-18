@@ -21,16 +21,18 @@ export function generateASMChart(
 
   if (states.length === 0) return { blocks, edges }
 
-  // We lay out each state column-by-column or row-by-row
-  const stateSpacingX = 380
-  const startX = 60
+  // Pure vertical layout along a central spine
+  const spineX = 380
+  const stateBoxW = 180
+  const decDiamondW = 130
   const startY = 60
+  const stateSpacingY = 240
 
   states.forEach((state, stateIdx) => {
-    const colX = startX + stateIdx * stateSpacingX
-    let currentY = startY
-
+    const stateY = startY + stateIdx * stateSpacingY
     const stateBlockId = `asm-state-${state.id}`
+
+    // 1. State Box (centered on spine)
     blocks.push({
       id: stateBlockId,
       type: 'state',
@@ -38,144 +40,203 @@ export function generateASMChart(
       name: state.name,
       code: encodings[state.id] ?? '',
       outputs: machineType === 'moore' ? state.mooreOutputs : undefined,
-      x: colX,
-      y: currentY,
+      x: spineX - stateBoxW / 2,
+      y: stateY,
     })
 
-    currentY += 120
-
-    // Transitions from this state
     const outgoing = transitions.filter((t) => t.fromState === state.id)
+    if (outgoing.length === 0) return
 
-    if (outgoing.length === 0) {
-      // No transitions out, self-loop or dead-end
-      return
-    }
-
-    // Check if there are conditioned transitions (e.g. input dependent)
-    const primaryInput = inputNames[0] ?? 'X'
+    // Check if transitions are conditioned on an input variable
     const hasCondition = outgoing.some(
       (t) => t.condition && t.condition !== '1' && t.condition.toLowerCase() !== 'always'
     )
 
     if (hasCondition) {
-      // Create Decision diamond
+      // Determine condition variable name (e.g. "m" or "X")
+      let condVar = inputNames[0] ?? 'X'
+      for (const t of outgoing) {
+        if (t.condition.includes('=')) {
+          const varPart = t.condition.split('=')[0]?.trim()
+          if (varPart) {
+            condVar = varPart
+            break
+          }
+        }
+      }
+
+      const decY = stateY + 95
       const decisionBlockId = `asm-dec-${state.id}`
+
+      // 2. Decision Diamond (centered on spine beneath State Box)
       blocks.push({
         id: decisionBlockId,
         type: 'decision',
         stateId: state.id,
-        name: `${primaryInput} = 1?`,
-        conditionVar: primaryInput,
-        x: colX,
-        y: currentY,
+        name: condVar,
+        conditionVar: condVar,
+        x: spineX - decDiamondW / 2,
+        y: decY,
       })
 
-      // Edge from State box to Decision diamond
+      // Downward flow from State Box into Decision Diamond
       edges.push({
         id: `edge-${stateBlockId}-${decisionBlockId}`,
         source: stateBlockId,
         target: decisionBlockId,
+        sourceHandle: 'bottom',
+        targetHandle: 'top',
       })
 
-      currentY += 140
-
-      // Find branch where X=1 and branch where X=0
+      // Identify True (1) and False (0) transitions
       const trueTrans = outgoing.find(
-        (t) => t.condition.includes('=1') || t.condition === primaryInput || t.condition === '1'
+        (t) =>
+          t.condition.includes('=1') ||
+          t.condition.includes('= 1') ||
+          t.condition === condVar ||
+          t.condition === '1'
       )
       const falseTrans = outgoing.find(
-        (t) => t.condition.includes('=0') || t.condition.startsWith('!') || t.condition.startsWith('~')
+        (t) =>
+          t.condition.includes('=0') ||
+          t.condition.includes('= 0') ||
+          t.condition.startsWith('!') ||
+          t.condition.startsWith('~')
       )
 
-      // 1. True branch (drawn slightly to the right or straight)
+      const branchesToProcess: Array<{ trans: FSMTransition; label: string; isTrue: boolean }> = []
       if (trueTrans) {
+        branchesToProcess.push({ trans: trueTrans, label: '1', isTrue: true })
+      }
+      if (falseTrans && falseTrans.id !== trueTrans?.id) {
+        branchesToProcess.push({ trans: falseTrans, label: '0', isTrue: false })
+      }
+
+      // If neither matched by regex but we have outgoing edges, fall back to first and second
+      if (branchesToProcess.length === 0) {
+        if (outgoing[0]) branchesToProcess.push({ trans: outgoing[0], label: '1', isTrue: true })
+        if (outgoing[1]) branchesToProcess.push({ trans: outgoing[1], label: '0', isTrue: false })
+      }
+
+      branchesToProcess.forEach(({ trans, label, isTrue }) => {
+        const targetIdx = states.findIndex((s) => s.id === trans.toState)
+        const targetStateId = `asm-state-${trans.toState}`
+
         const hasMealy =
           machineType === 'mealy' &&
-          outputNames.some((o) => (trueTrans.mealyOutputs[o] ?? 0) === 1)
+          outputNames.some((o) => (trans.mealyOutputs[o] ?? 0) === 1)
 
-        let targetId = `asm-state-${trueTrans.toState}`
+        // Determine orthogonal routing handles based on vertical chart geometry
+        let sourceHandle: 'bottom' | 'left' | 'right' = 'bottom'
+        let targetHandle: 'top' | 'left' | 'right' = 'top'
+
+        const isSequentialNext = targetIdx === stateIdx + 1
+        const isWrapAroundToStart = targetIdx === 0 && stateIdx === states.length - 1
+        const isLoopBack = targetIdx <= stateIdx && !isWrapAroundToStart
+        const isForwardSkip = targetIdx > stateIdx + 1
+
+        if (isSequentialNext) {
+          // Straight down vertical spine
+          sourceHandle = 'bottom'
+          targetHandle = 'top'
+        } else if (isWrapAroundToStart) {
+          // Outer right rail wrapping around to the top
+          sourceHandle = 'right'
+          targetHandle = 'top'
+        } else if (isLoopBack) {
+          // Left rail looping back up to an earlier state
+          sourceHandle = 'left'
+          targetHandle = 'left'
+        } else if (isForwardSkip) {
+          // Right rail leaping forward
+          sourceHandle = 'right'
+          targetHandle = 'right'
+        } else {
+          sourceHandle = isTrue ? 'bottom' : 'left'
+          targetHandle = 'top'
+        }
 
         if (hasMealy) {
-          const condOutId = `asm-cond-${trueTrans.id}`
+          // Conditional Output Box (Oval / Rounded rectangle)
+          const condOutId = `asm-cond-${trans.id}`
+          let condX = spineX - 60
+          let condY = decY + 65
+
+          if (sourceHandle === 'left') {
+            condX = spineX - 160
+            condY = decY
+          } else if (sourceHandle === 'right') {
+            condX = spineX + 160
+            condY = decY
+          }
+
           blocks.push({
             id: condOutId,
             type: 'conditional_output',
             stateId: state.id,
             name: 'Outputs',
-            outputs: trueTrans.mealyOutputs,
-            x: colX + 90,
-            y: currentY,
+            outputs: trans.mealyOutputs,
+            x: condX,
+            y: condY,
           })
+
           edges.push({
             id: `edge-${decisionBlockId}-${condOutId}`,
             source: decisionBlockId,
             target: condOutId,
-            label: '1 (True)',
+            sourceHandle,
+            targetHandle: 'top',
+            label,
           })
+
           edges.push({
-            id: `edge-${condOutId}-${targetId}`,
+            id: `edge-${condOutId}-${targetStateId}`,
             source: condOutId,
-            target: targetId,
+            target: targetStateId,
+            sourceHandle: 'bottom',
+            targetHandle,
           })
         } else {
           edges.push({
-            id: `edge-${decisionBlockId}-${targetId}-true`,
+            id: `edge-${decisionBlockId}-${targetStateId}-${label}`,
             source: decisionBlockId,
-            target: targetId,
-            label: '1 (True)',
+            target: targetStateId,
+            sourceHandle,
+            targetHandle,
+            label,
           })
         }
-      }
-
-      // 2. False branch (drawn slightly to the left)
-      if (falseTrans) {
-        const hasMealy =
-          machineType === 'mealy' &&
-          outputNames.some((o) => (falseTrans.mealyOutputs[o] ?? 0) === 1)
-
-        let targetId = `asm-state-${falseTrans.toState}`
-
-        if (hasMealy) {
-          const condOutId = `asm-cond-${falseTrans.id}`
-          blocks.push({
-            id: condOutId,
-            type: 'conditional_output',
-            stateId: state.id,
-            name: 'Outputs',
-            outputs: falseTrans.mealyOutputs,
-            x: colX - 90,
-            y: currentY,
-          })
-          edges.push({
-            id: `edge-${decisionBlockId}-${condOutId}`,
-            source: decisionBlockId,
-            target: condOutId,
-            label: '0 (False)',
-          })
-          edges.push({
-            id: `edge-${condOutId}-${targetId}`,
-            source: condOutId,
-            target: targetId,
-          })
-        } else {
-          edges.push({
-            id: `edge-${decisionBlockId}-${targetId}-false`,
-            source: decisionBlockId,
-            target: targetId,
-            label: '0 (False)',
-          })
-        }
-      }
+      })
     } else {
-      // Unconditional transition directly to next state
+      // Unconditional transition (straight flow)
       const t = outgoing[0]
       if (t) {
+        const targetIdx = states.findIndex((s) => s.id === t.toState)
         const targetId = `asm-state-${t.toState}`
+
+        let sourceHandle: 'bottom' | 'left' | 'right' = 'bottom'
+        let targetHandle: 'top' | 'left' | 'right' = 'top'
+
+        if (targetIdx === stateIdx + 1) {
+          sourceHandle = 'bottom'
+          targetHandle = 'top'
+        } else if (targetIdx === 0 && stateIdx === states.length - 1) {
+          sourceHandle = 'right'
+          targetHandle = 'top'
+        } else if (targetIdx <= stateIdx) {
+          sourceHandle = 'left'
+          targetHandle = 'left'
+        } else {
+          sourceHandle = 'right'
+          targetHandle = 'right'
+        }
+
         edges.push({
           id: `edge-${stateBlockId}-${targetId}`,
           source: stateBlockId,
           target: targetId,
+          sourceHandle,
+          targetHandle,
         })
       }
     }
