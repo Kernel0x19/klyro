@@ -598,8 +598,8 @@ export const IC_LIBRARY: ICCategory[] = [
         packageType: 'DIP16',
         family: 'LSTTL',
         delay: 20,
-        vcc: 16,
-        gnd: 8,
+        vcc: 5,
+        gnd: 13,
         advanced: false,
         pins: [
           { number: 1, label: '1CLK', function: 'clock' },
@@ -825,8 +825,8 @@ export const IC_LIBRARY: ICCategory[] = [
         packageType: 'DIP16',
         family: 'LSTTL',
         delay: 24,
-        vcc: 16,
-        gnd: 8,
+        vcc: 5,
+        gnd: 13,
         advanced: false,
         pins: [
           { number: 1, label: 'A4', function: 'input' },

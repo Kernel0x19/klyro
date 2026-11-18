@@ -1,5 +1,14 @@
 import type { Edge } from '@xyflow/react'
 import { getNetColor } from '@/components/editor/canvas/SignalEdge'
+import { IC_LIBRARY } from '@/lib/icLibrary'
+
+function findIC(partNumber: string) {
+  for (const cat of IC_LIBRARY) {
+    const found = cat.ics.find((ic) => ic.part === partNumber)
+    if (found) return found
+  }
+  return null
+}
 
 export interface SynthesizedSlot {
   slotId: string
@@ -468,6 +477,33 @@ export function synthesizeCircuitFromSOP(
       handleId: 'pin-0',
     })
   )
+
+  // ── Step 5: Power each allocated IC slot (VCC & GND) ────────────────────
+  for (let i = 0; i < slots.length; i++) {
+    const slot = slots[i]!
+    const nodeId = `ic-chip-${i + 1}`
+    const ic = findIC(slot.partNumber)
+    if (!ic) continue
+    const vccPin = ic.pins.find((p) => p.function === 'vcc')
+    const gndPin = ic.pins.find((p) => p.function === 'gnd')
+
+    if (vccPin) {
+      edges.push(
+        createEdge(
+          { nodeId: 'main-output-panel', handleId: 'pin-VCC' },
+          { nodeId, handleId: `pin-${vccPin.number}` }
+        )
+      )
+    }
+    if (gndPin) {
+      edges.push(
+        createEdge(
+          { nodeId: 'main-input-clock-panel', handleId: 'input-gnd' },
+          { nodeId, handleId: `pin-${gndPin.number}` }
+        )
+      )
+    }
+  }
 
   return {
     success: true,
