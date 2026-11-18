@@ -45,24 +45,50 @@ function ColoredSOP({
   sop: string
   groups: KMapGroup[]
 }) {
+  const hoveredGroupId = useKMapStore((s) => s.hoveredGroupId)
+  const setHoveredGroupId = useKMapStore((s) => s.setHoveredGroupId)
+
   if (!sop || sop === '0') return <span className="text-neutral-500 font-mono text-lg md:text-xl font-medium">0</span>
   if (sop === '1') return <span className="text-green-500 font-mono text-lg md:text-xl font-bold">1</span>
 
   const terms = sop.split(' + ')
   return (
-    <span className="font-mono text-lg md:text-xl tracking-wide select-text">
+    <span className="font-mono text-lg md:text-xl tracking-wide select-text flex flex-wrap items-center gap-y-1">
       {terms.map((term, i) => {
         const group = groups.find((g) => g.implicant.expression === term)
+        const isHovered = Boolean(group && hoveredGroupId === group.id)
+        const groupNumber = group?.groupNumber ?? (group ? groups.indexOf(group) + 1 : i + 1)
+
         return (
-          <span key={i}>
+          <span key={i} className="inline-flex items-center">
             <span
-              style={{ color: group?.color ?? 'var(--color-text-primary)' }}
-              className="font-bold"
+              onMouseEnter={() => group && setHoveredGroupId(group.id)}
+              onMouseLeave={() => setHoveredGroupId(null)}
+              style={{
+                color: group?.color ?? 'var(--color-text-primary)',
+                backgroundColor: isHovered && group ? `${group.color}22` : 'transparent',
+                borderColor: isHovered && group ? group.color : 'transparent',
+              }}
+              className={`font-bold px-1.5 py-0.5 rounded transition-all cursor-pointer border inline-flex items-center gap-1 ${
+                isHovered ? 'ring-2 shadow-xs' : 'hover:bg-neutral-800/20'
+              }`}
+              title={group ? `Group ${groupNumber}: ${term}` : undefined}
             >
-              {term}
+              <span>{term}</span>
+              {group && (
+                <span
+                  className="text-[10px] px-1 py-0.2 rounded font-sans font-semibold tracking-wider uppercase opacity-85"
+                  style={{
+                    backgroundColor: `${group.color}33`,
+                    color: group.color,
+                  }}
+                >
+                  G{groupNumber}
+                </span>
+              )}
             </span>
             {i < terms.length - 1 && (
-              <span className="text-neutral-400 dark:text-neutral-500 mx-2 font-normal">+</span>
+              <span className="text-neutral-400 dark:text-neutral-500 mx-2 font-normal select-none">+</span>
             )}
           </span>
         )
@@ -84,6 +110,8 @@ export default function ExpressionOutput({ userId }: ExpressionOutputProps) {
     essentialPIs,
     primeImplicants,
     variableNames,
+    hoveredGroupId,
+    setHoveredGroupId,
   } = useKMapStore()
   const [showPIs, setShowPIs] = useState(false)
 
@@ -348,17 +376,29 @@ export default function ExpressionOutput({ userId }: ExpressionOutputProps) {
               <div className="flex flex-wrap gap-2">
                 {primeImplicants.map((pi, i) => {
                   const g = groups.find((g) => g.implicant.expression === pi.expression)
+                  const isHovered = Boolean(g && hoveredGroupId === g.id)
+                  const gNum = g?.groupNumber ?? (g ? groups.indexOf(g) + 1 : i + 1)
                   return (
                     <span
                       key={i}
-                      className="font-mono px-2 py-0.5 rounded text-xs sm:text-sm font-bold"
+                      onMouseEnter={() => g && setHoveredGroupId(g.id)}
+                      onMouseLeave={() => setHoveredGroupId(null)}
+                      className={`font-mono px-2 py-0.5 rounded text-xs sm:text-sm font-bold transition-all cursor-pointer border inline-flex items-center gap-1 ${
+                        isHovered ? 'ring-2' : ''
+                      }`}
                       style={{
                         color: g?.color ?? 'var(--color-text-primary)',
-                        backgroundColor: g ? g.color + '1a' : 'transparent',
-                        border: `1px solid ${g?.color ?? '#555'}40`,
+                        backgroundColor: g ? (isHovered ? `${g.color}33` : `${g.color}1a`) : 'transparent',
+                        borderColor: g ? (isHovered ? g.color : `${g.color}40`) : 'transparent',
                       }}
+                      title={g ? `Group ${gNum}: ${pi.expression}` : undefined}
                     >
-                      {pi.expression}
+                      <span>{pi.expression}</span>
+                      {g && (
+                        <span className="text-[10px] font-sans opacity-80 font-normal">
+                          (G{gNum})
+                        </span>
+                      )}
                     </span>
                   )
                 })}
@@ -372,17 +412,29 @@ export default function ExpressionOutput({ userId }: ExpressionOutputProps) {
                 ) : (
                   essentialPIs.map((pi, i) => {
                     const g = groups.find((g) => g.implicant.expression === pi.expression)
+                    const isHovered = Boolean(g && hoveredGroupId === g.id)
+                    const gNum = g?.groupNumber ?? (g ? groups.indexOf(g) + 1 : i + 1)
                     return (
                       <span
                         key={i}
-                        className="font-mono px-2 py-0.5 rounded text-xs sm:text-sm font-bold"
+                        onMouseEnter={() => g && setHoveredGroupId(g.id)}
+                        onMouseLeave={() => setHoveredGroupId(null)}
+                        className={`font-mono px-2 py-0.5 rounded text-xs sm:text-sm font-bold transition-all cursor-pointer border inline-flex items-center gap-1 ${
+                          isHovered ? 'ring-2' : ''
+                        }`}
                         style={{
                           color: g?.color ?? 'var(--color-text-primary)',
-                          backgroundColor: g ? g.color + '1a' : 'transparent',
-                          border: `1px solid ${g?.color ?? '#555'}`,
+                          backgroundColor: g ? (isHovered ? `${g.color}33` : `${g.color}1a`) : 'transparent',
+                          borderColor: g ? (isHovered ? g.color : `${g.color}60`) : 'transparent',
                         }}
+                        title={g ? `Group ${gNum}: ${pi.expression}` : undefined}
                       >
-                        {pi.expression}
+                        <span>{pi.expression}</span>
+                        {g && (
+                          <span className="text-[10px] font-sans opacity-80 font-normal">
+                            (G{gNum})
+                          </span>
+                        )}
                       </span>
                     )
                   })

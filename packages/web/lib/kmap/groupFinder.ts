@@ -21,7 +21,8 @@ export function buildKMapGroups(
   const essentialExprs = new Set(essential.map((pi) => pi.expression))
 
   return cover.map((pi, i) => ({
-    id: `group-${i}-${pi.expression}`,
+    id: `group-${i + 1}`,
+    groupNumber: i + 1,
     implicant: pi,
     color: GROUP_COLORS[i % GROUP_COLORS.length]!,
     isEssential: essentialExprs.has(pi.expression),
