@@ -1,13 +1,10 @@
 import pkg from '../package.json'
 
-const rawVersion =
-  process.env.NEXT_PUBLIC_VERSION ||
-  process.env.NEXT_PUBLIC_APP_VERSION ||
-  process.env.VERSION ||
-  process.env.APP_VERSION ||
-  pkg.version
+// package.json is the single source of truth for versioning, avoiding stale Vercel env vars
+const rawVersion = pkg.version || process.env.NEXT_PUBLIC_VERSION || '0.4.1'
 
 export const APP_VERSION = rawVersion.startsWith('v')
   ? rawVersion
   : `v${rawVersion}`
+
 
