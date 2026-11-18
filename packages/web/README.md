@@ -19,19 +19,24 @@ packages/web/
 ├── components/               # React components
 │   ├── board/                # Lab bench, DIP IC sockets, power switch, pin handles
 │   ├── canvas/               # React Flow canvas, Manhattan wires, custom nodes
+│   ├── fsm/                  # FSM state diagram, ASM chart canvas, state table panel
 │   ├── kmap/                 # 2-5 variable K-map grids, truth table, expression output
 │   ├── sidebar/              # IC library browser, search filter, categories
 │   └── ui/                   # Modals, tooltips, dialogs, buttons
 ├── lib/
+│   ├── fsm/                  # FSM layout geometry, ASM chart generator, state table, export
 │   ├── kmap/                 # Quine-McCluskey, Petrick's method, circuit synthesizer
+│   ├── icEvaluators/         # Combinational, sequential, counter, and shift register logic
 │   ├── supabase/             # Supabase client, server actions, and auth helpers
 │   ├── boardStateSerializer  # Board state serialization for Supabase persistence
-│   ├── circuitService.ts     # Save/load board & K-map state
+│   ├── circuitService.ts     # Save/load board, K-map & FSM state
 │   ├── icLibrary.ts          # 31 7400-series IC definitions with pinouts & logic
-│   └── manhattanRouter.ts    # Orthogonal wire routing between pins
+│   ├── manhattanRouter.ts    # Orthogonal wire routing between pins
+│   └── simulationEngine.ts   # Discrete IC logic evaluation and edge propagation loop
 └── stores/                   # Zustand stores
     ├── useBoardStore.ts      # Canvas state, IC placements, wires, undo/redo (zundo)
-    └── useKMapStore.ts       # K-map cells, variable count, truth table, minimized terms
+    ├── useKMapStore.ts       # K-map cells, variable count, truth table, minimized terms
+    └── useFSMStore.ts        # States, transitions, ASM chart, state table, active clock
 ```
 
 ---
@@ -43,9 +48,14 @@ packages/web/
   - **Outputs (Top)**: 16 output pins with real-time LEDs, master power toggle, and a 2-digit 7-segment hex display (`00`–`FF`).
   - **Breadboard Workspace (Middle)**: 5 standardized 20-pin DIP IC sockets labeled with part numbers and connection handles.
   - **Inputs (Bottom)**: 16 digital input switches (`HIGH`/`LOW`), `GND`/`VCC` rails, and an adjustable clock generator (0.5 Hz–10 Hz, single-pulse step).
+- **Physical Power & Simulation Rules**:
+  - Strict TTL IC power requirement: chips must have `VCC` connected to logic `HIGH` (`pin-VCC`) and `GND` connected to `LOW` (`input-gnd`) to operate; unpowered chips produce a constant `LOW` output.
+  - Reactive edge propagation: signal levels dynamically propagate across cascading gates on wire insertion, re-routing, or input state changes.
 - **Wiring & Routing**:
   - Manhattan orthogonal wire routing (`lib/manhattanRouter.ts`) with obstacle avoidance.
   - Pin connection validation (`lib/pinValidator.ts`) preventing short circuits.
+- **High-Resolution Export**:
+  - Fit-all viewport export (`lib/fsm/fsmExport.ts`): auto-computes the bounding box of placed components to capture a crisp, centered $1600 \times 900$ PNG regardless of current canvas pan or zoom.
 - **Editor Tool Modes**:
   - Select (`V`), Wire (`W`), Delete (`D`), Pan (`H`).
 
@@ -53,7 +63,8 @@ packages/web/
 - **2 to 5-Variable Karnaugh Maps**:
   - Supports 2, 3, 4, and 5-variable (dual 4×4 half-maps) K-Maps with Gray-code coordinate mapping.
   - Two-way sync: Clicking K-Map cells updates the truth table; editing the truth table updates the K-Map.
-  - Interactive two-way hover highlighting: Hovering on a truth table row highlights the corresponding K-Map cell, and hovering on a cell highlights the truth table row.
+  - Synchronized two-way hover highlighting: Hovering on a truth table row highlights the corresponding K-Map cell, and hovering on a cell highlights the truth table row.
+  - Numbered grouping rectangles: visually distinct prime implicant overlays labeled with group numbers (`1`, `2`, ...) with bidirectional hover synchronization with minimized expression terms.
   - Quick-Fill toolbar actions: 1-click "All 0", "All 1", and "Invert" buttons to rapidly populate or invert cell values.
 - **Minimization Algorithms & Output (`lib/kmap/`)**:
   - Quine-McCluskey solver (`quineMcCluskey.ts`) computes prime implicants.
@@ -68,22 +79,30 @@ packages/web/
 
 ### 3. FSM Builder & ASM Chart Generator (`components/fsm/`, `lib/fsm/`)
 - **Visual State Diagram Canvas**:
-  - State nodes with names, binary/gray encodings, initial state badges, and Moore outputs.
-  - Directed transition edges with condition expressions, self-loops, and Mealy outputs.
+  - **Symmetrical circular layout** (`applySymmetricalLayout`): positions state bubbles in a regular polygon with initial state $S_0$ anchored at the top 12 o'clock apex.
+  - **Radial outward self-loops**: self-loops point cleanly away from the center of the diagram.
+  - **Dual-lane mutual transition routing**: two-way transitions ($A \leftrightarrow B$) are split into outer clockwise and inner counter-clockwise lanes to eliminate overlapping curves.
+  - Contextual connection handles: connection dots are hidden on idle and appear only on hover in wire mode.
+  - State nodes with names, binary/gray/one-hot encodings, initial state badges, and Moore outputs.
+  - Directed transition edges with condition expressions and Mealy outputs.
   - Interactive clock stepper with input pin overrides and live glowing active state transitions.
   - Support for both Mealy and Moore sequential models.
-- **ASM Chart Auto-Generation**:
-  - Auto-translates state diagrams into standard ASM blocks: State Boxes, Decision Diamonds, and Conditional Output Ovals.
+- **Vertical ASM Chart with Orthogonal Rails**:
+  - Auto-translates state diagrams into standard ASM blocks strictly aligned along a vertical spine: State Boxes, Decision Diamonds, and Conditional Output Ovals.
+  - Multi-track orthogonal rails with staggered offsets for return loops, forward jumps, and wrap-arounds.
+  - Read-only immutable connection terminals preventing accidental edits in ASM view.
   - Diagram, ASM Chart, and Side-by-Side Split viewing modes.
 - **State Transition Tables & Logic Minimization**:
   - Binary, Gray Code, and One-Hot state encodings.
-  - Auto-derives minimized Boolean next-state ($D_k$) and output equations using Quine-McCluskey.
-  - 1-click export to Markdown, CSV, and LaTeX, plus high-res PNG export.
+  - Auto-derives minimized Boolean next-state ($D_k$) and output ($Z_m$) equations using Quine-McCluskey with exact bit minterm addressing and don't-care expansion.
+  - 1-click export to Markdown, CSV, and LaTeX.
+  - Fit-all $1600 \times 900$ PNG export centered on the full diagram.
 
 ### 4. State Management (`stores/`)
 - **`useBoardStore`**: Manages placed ICs, pin connections, wire paths, simulation power, and tool modes. Wrapped with `zundo` temporal middleware for full Undo (`Ctrl+Z`) and Redo (`Ctrl+Y`) history.
 - **`useKMapStore`**: Manages variable count (2–5), custom variable names, cell values (`0`, `1`, `X`), prime implicant groups, and active highlight states.
 - **`useFSMStore`**: Manages states, transitions, input/output variables, active simulation state, view modes, and derived state tables.
+
 
 ---
 
