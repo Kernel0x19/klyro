@@ -8,9 +8,7 @@ import {
   Building,
   Briefcase,
   CheckCircle2,
-  AlertTriangle,
   Loader2,
-  Sparkles,
 } from 'lucide-react'
 import Image from 'next/image'
 import NProgress from 'nprogress'

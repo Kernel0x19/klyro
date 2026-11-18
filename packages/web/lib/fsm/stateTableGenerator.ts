@@ -155,6 +155,35 @@ export function deriveFSMEquations(
   const allVarNames = [...stateVarNames, ...inputNames]
   const totalVars = allVarNames.length
 
+  // Helper to compute the exact binary minterm number for a given row
+  const getRowMinterm = (row: StateTableRow): number => {
+    let m = 0
+    for (let i = 0; i < numBits; i++) {
+      const bit = row.presentStateCode[i] === '1' ? 1 : 0
+      m = (m << 1) | bit
+    }
+    for (const name of inputNames) {
+      const bit = (row.inputs[name] ?? 0) === 1 ? 1 : 0
+      m = (m << 1) | bit
+    }
+    return m
+  }
+
+  // Identify all valid assigned minterm addresses and unused states (Don't Cares)
+  const validMinterms = new Set<number>()
+  rows.forEach((row) => validMinterms.add(getRowMinterm(row)))
+
+  const dontCares: number[] = []
+  // Only compute full don't-cares when totalVars is reasonable (<= 10 vars = 1024 cells)
+  if (totalVars <= 10) {
+    const totalPossible = 1 << totalVars
+    for (let m = 0; m < totalPossible; m++) {
+      if (!validMinterms.has(m)) {
+        dontCares.push(m)
+      }
+    }
+  }
+
   const equations: NextStateEquation[] = []
 
   // 1. Equations for each Next State Flip-Flop D_k
@@ -163,19 +192,19 @@ export function deriveFSMEquations(
     const bitVarName = `D${numBits - 1 - bitIdx}`
     const minterms: number[] = []
 
-    rows.forEach((row, rowIdx) => {
+    rows.forEach((row) => {
       const bitVal = row.nextStateCode[bitIdx]
       if (bitVal === '1') {
-        minterms.push(rowIdx)
+        minterms.push(getRowMinterm(row))
       }
     })
 
     if (minterms.length === 0) {
       equations.push({ variable: bitVarName, sop: '0' })
-    } else if (minterms.length === (1 << totalVars)) {
+    } else if (totalVars <= 10 && minterms.length + dontCares.length === (1 << totalVars)) {
       equations.push({ variable: bitVarName, sop: '1' })
     } else {
-      const pis = findPrimeImplicants(minterms, [], totalVars, allVarNames)
+      const pis = findPrimeImplicants(minterms, dontCares, totalVars, allVarNames)
       const { cover } = selectMinimalCover(pis, minterms)
       equations.push({ variable: bitVarName, sop: toSOP(cover) })
     }
@@ -185,18 +214,18 @@ export function deriveFSMEquations(
   for (const outName of outputNames) {
     const minterms: number[] = []
 
-    rows.forEach((row, rowIdx) => {
+    rows.forEach((row) => {
       if (row.outputs[outName] === 1) {
-        minterms.push(rowIdx)
+        minterms.push(getRowMinterm(row))
       }
     })
 
     if (minterms.length === 0) {
       equations.push({ variable: outName, sop: '0' })
-    } else if (minterms.length === (1 << totalVars)) {
+    } else if (totalVars <= 10 && minterms.length + dontCares.length === (1 << totalVars)) {
       equations.push({ variable: outName, sop: '1' })
     } else {
-      const pis = findPrimeImplicants(minterms, [], totalVars, allVarNames)
+      const pis = findPrimeImplicants(minterms, dontCares, totalVars, allVarNames)
       const { cover } = selectMinimalCover(pis, minterms)
       equations.push({ variable: outName, sop: toSOP(cover) })
     }

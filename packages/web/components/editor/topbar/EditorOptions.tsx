@@ -29,6 +29,8 @@ import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
 import { useKMapStore } from '@/stores/useKMapStore'
 import { useFSMStore } from '@/stores/useFSMStore'
 import { toPng } from 'html-to-image'
+import { exportReactFlowToPng } from '@/lib/fsm/fsmExport'
+import { generateASMChart } from '@/lib/fsm/asmGenerator'
 
 interface EditorActionsProps {
   avatarUrl: string | null
@@ -149,38 +151,95 @@ export default function EditorActions({
   // ── Export as PNG ───────────────────────────────────────────────────────
   async function handleExportPng() {
     setExportOpen(false)
-    const fsmArea = document.querySelector('#fsm-export-area') as HTMLElement | null
-    const kmapArea = document.querySelector('#kmap-export-area') as HTMLElement | null
-    const boardCanvas = !kmapArea && !fsmArea ? (document.querySelector('.react-flow__renderer') as HTMLElement | null) : null
-    const target = fsmArea || kmapArea || boardCanvas
-    if (!target) return
-
-    const isFSM = !!fsmArea
-    const isKMap = !isFSM && !!kmapArea
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light'
-    const bgColor = isDark ? '#000000' : '#ffffff'
 
-    try {
-      const dataUrl = await toPng(target, {
-        backgroundColor: bgColor,
-        pixelRatio: 2,
-        filter: (node) => {
-          // Exclude controls and panels from screenshot
-          if (node.classList?.contains('react-flow__controls')) return false
-          if (node.classList?.contains('react-flow__panel')) return false
-          return true
-        },
-      })
-      const a = document.createElement('a')
-      a.href = dataUrl
-      a.download = isFSM
-        ? `klyro-fsm-${projectId || 'export'}.png`
-        : isKMap
-          ? `klyro-kmap-${projectId || 'export'}.png`
-          : `klyro-circuit-${projectId || 'circuit'}.png`
-      a.click()
-    } catch (err) {
-      console.error('PNG export failed:', err)
+    // 1. FSM Export
+    const fsmArea = document.querySelector('#fsm-export-area') as HTMLElement | null
+    if (fsmArea) {
+      const diagramEl = document.getElementById('fsm-diagram-canvas')
+      const asmEl = document.getElementById('fsm-asm-canvas')
+      const fsmState = useFSMStore.getState()
+      try {
+        if (diagramEl && fsmState.viewMode !== 'asm') {
+          const nodes = fsmState.states.map((s) => ({
+            position: { x: s.x, y: s.y },
+            width: 96,
+            height: 96,
+          }))
+          await exportReactFlowToPng(
+            diagramEl,
+            nodes,
+            `klyro-fsm-${projectId || 'diagram'}.png`,
+            isDark
+          )
+          return
+        }
+        if (asmEl) {
+          const { blocks } = generateASMChart(
+            fsmState.states,
+            fsmState.transitions,
+            fsmState.inputs,
+            fsmState.outputs,
+            fsmState.machineType,
+            fsmState.encodings
+          )
+          const nodes = blocks.map((b) => ({
+            position: { x: b.x, y: b.y },
+            width: b.type === 'state' ? 180 : b.type === 'decision' ? 130 : 120,
+            height: b.type === 'state' ? 70 : b.type === 'decision' ? 90 : 60,
+          }))
+          await exportReactFlowToPng(
+            asmEl,
+            nodes,
+            `klyro-asm-${projectId || 'chart'}.png`,
+            isDark
+          )
+          return
+        }
+      } catch (err) {
+        console.error('FSM PNG export failed:', err)
+      }
+      return
+    }
+
+    // 2. K-Map Export
+    const kmapArea = document.querySelector('#kmap-export-area') as HTMLElement | null
+    if (kmapArea) {
+      const bgColor = isDark ? '#000000' : '#ffffff'
+      try {
+        const dataUrl = await toPng(kmapArea, {
+          backgroundColor: bgColor,
+          pixelRatio: 2,
+        })
+        const a = document.createElement('a')
+        a.href = dataUrl
+        a.download = `klyro-kmap-${projectId || 'export'}.png`
+        a.click()
+      } catch (err) {
+        console.error('KMap PNG export failed:', err)
+      }
+      return
+    }
+
+    // 3. Circuit Board Export
+    const boardContainer = (document.querySelector('.canvas-container') ||
+      document.querySelector('.react-flow__renderer')) as HTMLElement | null
+    if (boardContainer) {
+      try {
+        const boardNodes = [
+          { position: { x: 50, y: 20 }, width: 1400, height: 110 },
+          { position: { x: 50, y: 150 }, width: 1400, height: 420 },
+          { position: { x: 50, y: 590 }, width: 1400, height: 110 },
+        ]
+        await exportReactFlowToPng(
+          boardContainer,
+          boardNodes,
+          `klyro-circuit-${projectId || 'circuit'}.png`,
+          isDark
+        )
+      } catch (err) {
+        console.error('Board PNG export failed:', err)
+      }
     }
   }
 

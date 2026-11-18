@@ -49,12 +49,19 @@ export function deserializeBoardState(raw: SavedBoardState): {
   inputStates: Record<string, boolean>
   isPowerOn: boolean
 } {
-  const icSlots: ICSlot[] = raw.icSlots.map((s) => ({
-    slotId: s.slotId,
-    icDefinition: s.icDefinition,
+  const defaultSlots: ICSlot[] = Array.from({ length: 5 }, (_, i) => ({
+    slotId: `slot-${i + 1}`,
+    icDefinition: null,
     isSelected: false,
   }))
-  const edges: Edge[] = raw.edges.map((e) => ({
+  const slotMap = new Map((raw.icSlots || []).map((s) => [s.slotId, s]))
+  const icSlots: ICSlot[] = defaultSlots.map((ds) => {
+    const found = slotMap.get(ds.slotId)
+    return found
+      ? { slotId: found.slotId, icDefinition: found.icDefinition, isSelected: false }
+      : ds
+  })
+  const edges: Edge[] = (raw.edges || []).map((e) => ({
     id: e.id,
     source: e.source,
     sourceHandle: e.sourceHandle,

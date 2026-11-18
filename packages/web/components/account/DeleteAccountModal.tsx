@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { AlertTriangle, Loader2, X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import NProgress from 'nprogress'
 
 interface DeleteAccountModalProps {
@@ -16,7 +15,6 @@ export default function DeleteAccountModal({
   onClose,
   userEmail,
 }: DeleteAccountModalProps) {
-  const router = useRouter()
   const [confirmationInput, setConfirmationInput] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)

@@ -135,13 +135,12 @@ export function CircuitHistory({ circuits = [], onDelete }: CirHis) {
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <Link href={`/editor/${c.projectId}`}>
-                      <button
-                        title="Open Circuit"
-                        className="w-10 h-10 rounded-md bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-neutral-700 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] hover:border-neutral-300 dark:hover:border-neutral-600 hover:text-blue-500 dark:hover:text-blue-400 text-neutral-400 dark:text-neutral-500 hover:cursor-pointer"
-                      >
-                        <ExternalLink className="w-5 h-5" />
-                      </button>
+                    <Link
+                      href={`/editor/${c.projectId}`}
+                      title="Open Circuit"
+                      className="w-10 h-10 rounded-md bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-neutral-700 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-[#2e2e2e] hover:border-neutral-300 dark:hover:border-neutral-600 hover:text-blue-500 dark:hover:text-blue-400 text-neutral-400 dark:text-neutral-500 hover:cursor-pointer"
+                    >
+                      <ExternalLink className="w-5 h-5" />
                     </Link>
                     <button
                       title="Delete Circuit"

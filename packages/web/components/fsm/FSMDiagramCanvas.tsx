@@ -39,6 +39,8 @@ export default function FSMDiagramCanvas() {
       id: s.id,
       type: 'stateNode',
       position: { x: s.x, y: s.y },
+      width: 96,
+      height: 96,
       data: {
         id: s.id,
         name: s.name,
@@ -137,7 +139,7 @@ export default function FSMDiagramCanvas() {
   )
 
   return (
-    <div className="relative w-full h-full bg-black/40">
+    <div id="fsm-diagram-canvas" className="relative w-full h-full bg-black/40">
       <ReactFlow
         nodes={nodes}
         edges={edges}

@@ -39,10 +39,12 @@ export class EventScheduler {
     return true
   }
 
-  runToStable(): void {
+  runToStable(maxSteps = 50000): void {
     this.running = true
-    while (this.queue.length > 0 && this.running) {
+    let steps = 0
+    while (this.queue.length > 0 && this.running && steps < maxSteps) {
       this.step()
+      steps++
     }
   }
 

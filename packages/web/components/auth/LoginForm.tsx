@@ -9,7 +9,6 @@ import {
   Eye,
   EyeOff,
   KeyRound,
-  Mail,
   Loader2,
   Lock,
 } from 'lucide-react'

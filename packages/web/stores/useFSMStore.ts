@@ -232,7 +232,8 @@ export const useFSMStore = create<FSMStoreState>((set, get) => ({
   removeInput: (name) => {
     const { states, transitions, inputs, outputs, machineType, encoding, inputValues } = get()
     const newInputs = inputs.filter((i) => i !== name)
-    const { [name]: _, ...restInputValues } = inputValues
+    const restInputValues = { ...inputValues }
+    delete restInputValues[name]
     set({
       inputs: newInputs,
       inputValues: restInputValues,

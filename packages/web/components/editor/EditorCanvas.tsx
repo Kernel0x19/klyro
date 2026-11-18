@@ -252,6 +252,12 @@ function Canvas() {
   const nodeTypes = useMemo(() => NODE_TYPES, [])
   const edgeTypes = useMemo(() => EDGE_TYPES, [])
   const lastWaveformKeyRef = useRef<string>('')
+  const edgesTopologyKey = useMemo(() => {
+    return edges
+      .map((e) => `${e.source}:${e.sourceHandle ?? ''}->${e.target}:${e.targetHandle ?? ''}`)
+      .sort()
+      .join(';')
+  }, [edges])
   useEffect(() => {
     const {
       updatedEdges,
@@ -321,7 +327,7 @@ function Canvas() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputStates, clockStates, isPowerOn, icSlots])
+  }, [inputStates, clockStates, isPowerOn, icSlots, edgesTopologyKey])
   const obstacles = useMemo<BoundingBox[]>(() => {
     const posMap = new Map(liveNodes.map((n) => [n.id, n.position]))
     return liveNodes

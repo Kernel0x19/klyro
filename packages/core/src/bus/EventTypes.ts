@@ -2,7 +2,7 @@
 // All inter-module events in one place
 
 import type { Signal } from '../contracts/Signal'
-import type { Circuit, Wire } from '../contracts/Circuit'
+import type { Wire } from '../contracts/Circuit'
 import type { ComponentInstance } from '../contracts/Component'
 
 export interface KlyroBusEvents {
