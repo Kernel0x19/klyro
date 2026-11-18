@@ -1,14 +1,38 @@
+/**
+ * Klyro — Sequential Logic IC Evaluators
+ *
+ * Implements digital simulation behavior for bistable multivibrators / flip-flops:
+ * - 74LS74: Dual D-Type Positive-Edge-Triggered Flip-Flop with asynchronous Preset & Clear
+ * - 74LS76: Dual J-K Flip-Flop with asynchronous Preset & Clear (Negative-Edge Triggered)
+ *
+ * Priority Rules:
+ * 1. Asynchronous active-LOW Preset (/PRE) and Clear (/CLR) take immediate precedence over clock edges.
+ * 2. Synchronous clock transitions (rising or falling edge) transfer D or J-K inputs into internal state.
+ */
+
 import type { SignalState, ChipState } from '../simulationEngine'
 
+/**
+ * Execution context provided by simulationEngine to sequential IC evaluators.
+ */
 export interface SequentialEvaluatorContext {
+  /** Reads current signal state of an IC pin */
   getPinSignal: (pinNumber: number) => SignalState
+  /** Reads signal state of an IC pin from the preceding simulation tick */
   getPrevPinSignal: (pinNumber: number) => SignalState
+  /** Sets the new signal state on an IC pin */
   setPinSignal: (pinNumber: number, state: SignalState) => void
+  /** Retrieves persistent internal state across clock ticks */
   getChipState: () => ChipState
+  /** Updates persistent internal state */
   setChipState: (state: ChipState) => void
+  /** Detects whether a pin experienced an edge transition in the current tick */
   isClockTriggered: (pinNumber: number, edge: 'rising' | 'falling') => boolean
 }
 
+/**
+ * Helper: Converts SignalState into a boolean logic value with optional default for floating TTL pins.
+ */
 function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
   if (sig === 'HIGH') return true
   if (sig === 'LOW') return false
@@ -20,20 +44,22 @@ function toBool(sig: SignalState, defaultVal?: boolean): boolean | null {
  * 74LS74: Dual D-Type Positive-Edge-Triggered Flip-Flop with Preset & Clear
  *
  * Unit 1:
- * - 1/CLR: Pin 1 (Active LOW)
- * - 1D:    Pin 2
- * - 1CLK:  Pin 3 (Positive edge-triggered)
- * - 1/PRE: Pin 4 (Active LOW)
- * - 1Q:    Pin 5
- * - 1/Q:   Pin 6
+ * - 1/CLR: Pin 1 (Active LOW asynchronous reset)
+ * - 1D:    Pin 2 (Data input)
+ * - 1CLK:  Pin 3 (Positive edge-triggered clock)
+ * - 1/PRE: Pin 4 (Active LOW asynchronous set)
+ * - 1Q:    Pin 5 (True output)
+ * - 1/Q:   Pin 6 (Inverted output)
  *
  * Unit 2:
- * - 2/Q:   Pin 8
- * - 2Q:    Pin 9
- * - 2/PRE: Pin 10 (Active LOW)
- * - 2CLK:  Pin 11 (Positive edge-triggered)
- * - 2D:    Pin 12
- * - 2/CLR: Pin 13 (Active LOW)
+ * - 2/Q:   Pin 8 (Inverted output)
+ * - 2Q:    Pin 9 (True output)
+ * - 2/PRE: Pin 10 (Active LOW asynchronous set)
+ * - 2CLK:  Pin 11 (Positive edge-triggered clock)
+ * - 2D:    Pin 12 (Data input)
+ * - 2/CLR: Pin 13 (Active LOW asynchronous reset)
+ *
+ * Power: Pin 14 (VCC), Pin 7 (GND)
  */
 export function evaluate74LS74(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
@@ -67,6 +93,9 @@ export function evaluate74LS74(ctx: SequentialEvaluatorContext): void {
   ctx.setChipState({ ...state, q1, q2 })
 }
 
+/**
+ * Evaluates an isolated 74LS74 D Flip-Flop unit.
+ */
 function evaluate74LS74Unit({
   clrSig,
   preSig,
@@ -84,7 +113,7 @@ function evaluate74LS74Unit({
   const clr = toBool(clrSig, true) ?? true
   const pre = toBool(preSig, true) ?? true
 
-  // Asynchronous inputs take precedence
+  // Asynchronous inputs take precedence over clock
   if (!pre && clr) {
     return { q: 'HIGH', qBar: 'LOW', nextStoredQ: true }
   }
@@ -92,6 +121,7 @@ function evaluate74LS74Unit({
     return { q: 'LOW', qBar: 'HIGH', nextStoredQ: false }
   }
   if (!pre && !clr) {
+    // Unstable condition in real 74LS74: both Q and /Q are forced HIGH
     return { q: 'HIGH', qBar: 'HIGH', nextStoredQ: true }
   }
 
@@ -113,22 +143,24 @@ function evaluate74LS74Unit({
  * 74LS76: Dual J-K Flip-Flop with Preset & Clear (Negative-edge triggered)
  *
  * Unit 1:
- * - 1CLK:  Pin 1 (Negative edge-triggered)
- * - 1/PRE: Pin 2 (Active LOW)
- * - 1/CLR: Pin 3 (Active LOW)
- * - 1J:    Pin 4
- * - 1/Q:   Pin 14
- * - 1Q:    Pin 15
- * - 1K:    Pin 16
+ * - 1CLK:  Pin 1 (Negative edge-triggered clock)
+ * - 1/PRE: Pin 2 (Active LOW asynchronous set)
+ * - 1/CLR: Pin 3 (Active LOW asynchronous reset)
+ * - 1J:    Pin 4 (J input)
+ * - 1/Q:   Pin 14 (Inverted output)
+ * - 1Q:    Pin 15 (True output)
+ * - 1K:    Pin 16 (K input)
  *
  * Unit 2:
- * - 2CLK:  Pin 6 (Negative edge-triggered)
- * - 2/PRE: Pin 7 (Active LOW)
- * - 2/CLR: Pin 8 (Active LOW)
- * - 2J:    Pin 9
- * - 2K:    Pin 10
- * - 2Q:    Pin 11
- * - 2/Q:   Pin 12
+ * - 2CLK:  Pin 6 (Negative edge-triggered clock)
+ * - 2/PRE: Pin 7 (Active LOW asynchronous set)
+ * - 2/CLR: Pin 8 (Active LOW asynchronous reset)
+ * - 2J:    Pin 9 (J input)
+ * - 2K:    Pin 10 (K input)
+ * - 2Q:    Pin 11 (True output)
+ * - 2/Q:   Pin 12 (Inverted output)
+ *
+ * Power: Pin 5 (VCC), Pin 13 (GND)
  */
 export function evaluate74LS76(ctx: SequentialEvaluatorContext): void {
   const state = ctx.getChipState()
@@ -164,6 +196,9 @@ export function evaluate74LS76(ctx: SequentialEvaluatorContext): void {
   ctx.setChipState({ ...state, q1, q2 })
 }
 
+/**
+ * Evaluates an isolated 74LS76 J-K Flip-Flop unit.
+ */
 function evaluate74LS76Unit({
   clrSig,
   preSig,
@@ -182,6 +217,7 @@ function evaluate74LS76Unit({
   const clr = toBool(clrSig, true) ?? true
   const pre = toBool(preSig, true) ?? true
 
+  // Asynchronous controls override clock
   if (!pre && clr) {
     return { q: 'HIGH', qBar: 'LOW', nextStoredQ: true }
   }
@@ -199,11 +235,11 @@ function evaluate74LS76Unit({
     const k = toBool(kSig, false) ?? false
 
     if (!j && !k) {
-      // Hold
+      // Hold state: currentQ unchanged
     } else if (!j && k) {
-      currentQ = false // Reset
+      currentQ = false // Reset to 0
     } else if (j && !k) {
-      currentQ = true  // Set
+      currentQ = true  // Set to 1
     } else if (j && k) {
       currentQ = !currentQ // Toggle
     }
@@ -215,4 +251,5 @@ function evaluate74LS76Unit({
     nextStoredQ: currentQ,
   }
 }
+
 

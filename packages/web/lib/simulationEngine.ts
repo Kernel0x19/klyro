@@ -1,3 +1,14 @@
+/**
+ * Klyro — Digital Logic Simulation Engine
+ *
+ * Implements an iterative signal propagation and IC evaluation loop:
+ * - Multi-pass edge propagation connecting drivers (input panels, VCC, IC outputs) to inputs
+ * - IC power verification (strict VCC & GND requirement)
+ * - Combinational logic gate and MSI chip evaluation (Adders, Comparators, Decoders, Multiplexers)
+ * - Sequential logic flip-flop and counter evaluation with edge-triggered clock detection
+ * - Convergence detection up to MAX_PROPAGATION_PASSES
+ */
+
 import { IC_LIBRARY, type ICEntry } from './icLibrary'
 import type { Edge } from '@xyflow/react'
 import type { ICSlot } from '@/stores/useBoardStore'
@@ -21,12 +32,31 @@ import {
   evaluate74x191,
 } from './icEvaluators/counters'
 import { evaluate74x194 } from './icEvaluators/shiftRegisters'
+
+/**
+ * 4-state digital signal representing logic levels on breadboard pins and wire edges.
+ */
 export type SignalState = 'HIGH' | 'LOW' | 'X' | 'unconnected'
+
+/**
+ * Pin signal lookup table indexed by nodeId (e.g. 'ic-chip-1') and pinId (e.g. 'pin-3').
+ */
 export interface PinSignals {
   [nodeId: string]: {
     [pinId: string]: SignalState
   }
 }
+
+/** Maximum relaxation passes allowed for signals to settle across cascading gates */
+const MAX_PROPAGATION_PASSES = 10
+
+/**
+ * Evaluates an idealized primitive digital logic gate with given input states.
+ *
+ * @param type Gate function: 'AND', 'OR', 'NOT', 'NAND', 'NOR', 'XOR', 'XNOR'
+ * @param inputs Array of input signal states
+ * @returns Output SignalState ('HIGH', 'LOW', or 'X')
+ */
 function evaluateGate(type: string, inputs: SignalState[]): SignalState {
   if (inputs.some((i) => i === 'X' || i === 'unconnected')) return 'X'
   const bools = inputs.map((i) => i === 'HIGH')
@@ -50,6 +80,13 @@ function evaluateGate(type: string, inputs: SignalState[]): SignalState {
       return 'X'
   }
 }
+
+/**
+ * Maps standard TTL part number prefixes to primitive gate logic types.
+ *
+ * @param partNumber IC part number (e.g., '74LS08', '74LS00')
+ * @returns The primitive gate type string, or 'X' if unknown/complex
+ */
 function getGateType(partNumber: string): string {
   if (
     partNumber.includes('00') ||
@@ -75,11 +112,32 @@ function getGateType(partNumber: string): string {
   if (partNumber.includes('86')) return 'XOR'
   return 'X'
 }
+
+/**
+ * Finds an IC definition from the active IC library catalog.
+ *
+ * @param partNumber Part number string (e.g., '74LS08')
+ * @returns Matching ICEntry or undefined
+ */
 function findIC(partNumber: string): ICEntry | undefined {
   return IC_LIBRARY.flatMap((c) => c.ics).find((ic) => ic.part === partNumber)
 }
+
+/** Internal state snapshot of a sequential IC chip across simulation ticks */
 export type ChipState = Record<string, boolean | number | string | undefined>
 
+/**
+ * Executes a full discrete simulation cycle across the entire digital breadboard.
+ *
+ * @param edges Active wire edges connecting panels and IC pins
+ * @param icSlots Sockets on the breadboard containing IC chips
+ * @param inputStates Interactive logic switch inputs (true = HIGH, false = LOW)
+ * @param isPowerOn Master power switch state (VCC active)
+ * @param clockStates Manual or automatic clock generator pin levels
+ * @param chipStates Internal state registers for sequential ICs (flip-flops, counters)
+ * @param prevPinSignals Pin states from the previous tick (used for clock edge detection)
+ * @returns Updated edge colors, panel output LED states, pin signals, and chip states
+ */
 export function simulateBoard(
   edges: Edge[],
   icSlots: ICSlot[],
@@ -94,6 +152,7 @@ export function simulateBoard(
   pinSignals: PinSignals
   updatedChipStates: Record<string, ChipState>
 } {
+  // If master power is OFF, immediately zero out all wires, outputs, and IC states
   if (!isPowerOn) {
     return {
       updatedEdges: edges.map((e) => ({
@@ -105,27 +164,40 @@ export function simulateBoard(
       updatedChipStates: {},
     }
   }
+
   const pinSignals: PinSignals = {}
   const updatedChipStates: Record<string, ChipState> = { ...chipStates }
   const triggeredClockEdges = new Set<string>()
+
   const setSignal = (nodeId: string, pinId: string, state: SignalState) => {
     if (!pinSignals[nodeId]) pinSignals[nodeId] = {}
     pinSignals[nodeId][pinId] = state
   }
+
   const getSignal = (nodeId: string, pinId: string): SignalState => {
     return pinSignals[nodeId]?.[pinId] ?? 'unconnected'
   }
+
   const getPrevSignal = (nodeId: string, pinId: string): SignalState => {
     return prevPinSignals[nodeId]?.[pinId] ?? 'unconnected'
   }
+
+  // 1. Initialize fixed power and user input rails
   setSignal('main-output-panel', 'pin-VCC', 'HIGH')
   setSignal('main-input-clock-panel', 'input-gnd', 'LOW')
+
   for (const [pin, isHigh] of Object.entries(inputStates)) {
     setSignal('main-input-clock-panel', `input-${pin}`, isHigh ? 'HIGH' : 'LOW')
   }
+
   for (const [pin, isHigh] of Object.entries(clockStates)) {
     setSignal('main-input-clock-panel', `clock-${pin}`, isHigh ? 'HIGH' : 'LOW')
   }
+
+  /**
+   * Identifies whether a given node pin acts as an electrical output driver.
+   * Drivers push their state onto connected wires and sink pins.
+   */
   const isDriver = (nodeId: string, pinId: string): boolean => {
     if (nodeId === 'main-input-clock-panel') return true
     if (nodeId === 'main-output-panel' && pinId === 'pin-VCC') return true
@@ -142,6 +214,10 @@ export function simulateBoard(
     return false
   }
 
+  /**
+   * Propagates voltage signals across all connecting wire edges.
+   * Returns true if any target pin's state changed.
+   */
   const propagateEdges = (): boolean => {
     let changed = false
     for (const edge of edges) {
@@ -164,6 +240,7 @@ export function simulateBoard(
           changed = true
         }
       } else {
+        // If neither is explicitly an IC output driver, propagate connected signal across the net
         if (sSig !== 'unconnected' && tSig === 'unconnected') {
           setSignal(edge.target, tHandle, sSig)
           changed = true
@@ -175,6 +252,11 @@ export function simulateBoard(
     }
     return changed
   }
+
+  /**
+   * Evaluates logic functions for all seated IC chips.
+   * Checks VCC/GND connectivity and dispatches to specific chip evaluators.
+   */
   const evaluateAllICs = (): boolean => {
     let changed = false
     for (let i = 0; i < icSlots.length; i++) {
@@ -184,6 +266,7 @@ export function simulateBoard(
       const ic = findIC(slot.icDefinition.partNumber)
       if (!ic) continue
 
+      // Strict IC Power Requirement: VCC must be connected to HIGH and GND to LOW
       const vccPin = ic.pins.find((p) => p.function === 'vcc')
       const gndPin = ic.pins.find((p) => p.function === 'gnd')
 
@@ -195,6 +278,7 @@ export function simulateBoard(
         : true
 
       if (!isVccPowered || !isGndConnected) {
+        // If unpowered, force all outputs to unpowered LOW
         for (const pin of ic.pins) {
           if (pin.function === 'output') {
             const prev = getSignal(nodeId, `pin-${pin.number}`)
@@ -210,6 +294,7 @@ export function simulateBoard(
         continue
       }
 
+      // Context interface passed to combinational MSI evaluators
       const ctx: ICEvaluatorContext = {
         getPinSignal: (pinNumber: number) => getSignal(nodeId, `pin-${pinNumber}`),
         setPinSignal: (pinNumber: number, state: SignalState) => {
@@ -222,6 +307,8 @@ export function simulateBoard(
       }
 
       const part = slot.icDefinition.partNumber
+
+      // ── Combinational MSI Chips ──────────────────────────────────────────
       if (part === '74LS83') {
         evaluate74LS83(ctx)
         continue
@@ -247,6 +334,7 @@ export function simulateBoard(
         continue
       }
 
+      // Context interface passed to sequential IC evaluators
       const seqCtx: SequentialEvaluatorContext = {
         getPinSignal: (pinNumber: number) => getSignal(nodeId, `pin-${pinNumber}`),
         getPrevPinSignal: (pinNumber: number) => getPrevSignal(nodeId, `pin-${pinNumber}`),
@@ -278,6 +366,7 @@ export function simulateBoard(
         },
       }
 
+      // ── Sequential Flip-Flops & Counters ─────────────────────────────────
       if (part === '74LS74') {
         evaluate74LS74(seqCtx)
         continue
@@ -303,6 +392,7 @@ export function simulateBoard(
         continue
       }
 
+      // ── Standard Multi-Gate SSI Packages (74LS00, 74LS04, 74LS08, etc.) ─
       const gateType = getGateType(slot.icDefinition.partNumber)
       const gateGroups: Record<
         string,
@@ -311,6 +401,7 @@ export function simulateBoard(
           output: number
         }
       > = {}
+
       for (const pin of ic.pins) {
         if (
           pin.function === 'vcc' ||
@@ -331,6 +422,7 @@ export function simulateBoard(
           gateGroups[gateNum].output = pin.number
         }
       }
+
       for (const gate of Object.values(gateGroups)) {
         if (gate.output === -1) continue
         const inputSignals = gate.inputs.map((pinNum) =>
@@ -346,18 +438,23 @@ export function simulateBoard(
     }
     return changed
   }
-  for (let pass = 0; pass < 10; pass++) {
+
+  // Multi-pass relaxation loop: alternates edge propagation and IC evaluations until stable
+  for (let pass = 0; pass < MAX_PROPAGATION_PASSES; pass++) {
     const p1 = propagateEdges()
     const p2 = evaluateAllICs()
     const p3 = propagateEdges()
     if (!p1 && !p2 && !p3) break
   }
+
+  // 2. Read final logic states of the Output Panel LEDs
   const outputStates: Record<string, boolean> = {}
   const outputNode = pinSignals['main-output-panel'] ?? {}
   for (const [pinId, state] of Object.entries(outputNode)) {
     const pinName = pinId.replace('pin-', '')
     outputStates[pinName] = state === 'HIGH'
   }
+
   for (const edge of edges) {
     if (edge.source === 'main-output-panel' && edge.sourceHandle?.startsWith('pin-')) {
       const pinName = edge.sourceHandle.replace('pin-', '')
@@ -369,6 +466,8 @@ export function simulateBoard(
       if (sig === 'HIGH') outputStates[pinName] = true
     }
   }
+
+  // 3. Annotate wire edges with their resolved digital SignalState for live styling
   const updatedEdges = edges.map((edge) => {
     const sSig = getSignal(edge.source, edge.sourceHandle ?? '')
     const tSig = getSignal(edge.target, edge.targetHandle ?? '')
@@ -378,5 +477,7 @@ export function simulateBoard(
       data: { ...edge.data, signalState: signal },
     }
   })
+
   return { updatedEdges, outputStates, pinSignals, updatedChipStates }
 }
+

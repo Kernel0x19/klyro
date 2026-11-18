@@ -1,3 +1,15 @@
+/**
+ * Klyro — Finite State Machine (FSM) State Store (Zustand)
+ *
+ * Central state store managing:
+ * - State bubbles and directed transitions
+ * - Moore & Mealy machine models
+ * - State encoding schemes: Binary, Gray Code, One-Hot
+ * - Input/Output signal registers and interactive simulation stepping
+ * - Automatic re-derivation of State Tables and minimized Boolean SOP equations
+ * - Preset loading and symmetrical layout arrangement
+ */
+
 import { create } from 'zustand'
 import type {
   FSMState,
@@ -16,6 +28,7 @@ import { FSM_PRESETS } from '@/lib/fsm/fsmPresets'
 import { applySymmetricalLayout } from '@/lib/fsm/fsmLayout'
 
 interface FSMStoreState {
+
   states: FSMState[]
   transitions: FSMTransition[]
   inputs: string[]

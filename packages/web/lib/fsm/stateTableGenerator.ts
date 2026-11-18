@@ -1,3 +1,14 @@
+/**
+ * Klyro — FSM State Table & Logic Equation Derivation
+ *
+ * Implements truth table synthesis and Boolean equation derivation for Finite State Machines:
+ * - Condition parser: Evaluates input conditions ("X=1", "X & !Y", "~X", "always", etc.)
+ * - Cartesian combination generator for input vectors
+ * - State transition table generation with Mealy and Moore output resolution
+ * - Logic minimization: Derives minimal Sum-of-Products (SOP) next-state excitation equations
+ *   for D flip-flops (D0, D1, ...) and outputs (Z0, Z1, ...) using Quine-McCluskey and Petrick's method.
+ */
+
 import type {
   FSMState,
   FSMTransition,
@@ -11,12 +22,22 @@ import { findPrimeImplicants } from '../kmap/quineMcCluskey'
 import { selectMinimalCover } from '../kmap/petrick'
 import { toSOP } from '../kmap/expressionBuilder'
 
+/** Maximum number of variables for which full don't-care minterm expansion is computed (10 vars = 1024 cells) */
+const MAX_VARS_FOR_DONT_CARE_EXPANSION = 10
+
 /**
- * Checks whether an input assignment matches a transition condition.
- * Supports:
- * - Empty, "1", "always", or "true" -> unconditionally true
- * - "X=1", "X=0", "X", "!X", "~X"
- * - Comma / AND separated conditions: "X=1, Y=0" or "X & !Y"
+ * Checks whether a given input variable assignment satisfies a transition condition string.
+ *
+ * Supported formats:
+ * - Empty string, `"1"`, `"always"`, or `"true"` -> unconditionally satisfied
+ * - Explicit equality: `"X=1"`, `"X=0"`, `"m=1"`, `"m=0"`
+ * - Negation operators: `"!X"`, `"~X"` (evaluates to true when X is 0)
+ * - Positive assertion: `"X"` (evaluates to true when X is 1)
+ * - Conjunctions: Comma- or ampersand-separated clauses like `"X=1, Y=0"` or `"X & !Y"`
+ *
+ * @param condition Transition condition expression
+ * @param inputs Current binary assignment of input variables
+ * @returns `true` if all clauses match the input state; `false` otherwise
  */
 export function evaluateCondition(
   condition: string,
@@ -52,8 +73,11 @@ export function evaluateCondition(
 }
 
 /**
- * Generates Cartesian combinations for an array of input variable names.
- * e.g. ['X'] -> [{X:0}, {X:1}]
+ * Generates the full Cartesian combination table of binary assignments for a list of input variables.
+ * For example: `['X', 'Y']` -> `[{X:0, Y:0}, {X:0, Y:1}, {X:1, Y:0}, {X:1, Y:1}]`.
+ *
+ * @param inputNames List of input variable names
+ * @returns Array of input combination dictionaries of length 2^(inputNames.length)
  */
 export function generateInputCombinations(
   inputNames: string[]
@@ -75,6 +99,22 @@ export function generateInputCombinations(
   return combinations
 }
 
+/**
+ * Synthesizes a tabular State Transition Table from FSM states, transitions, and inputs.
+ *
+ * For each present state and each possible input combination:
+ * 1. Finds the matching outgoing transition whose condition is satisfied
+ * 2. Determines the next state (defaults to self-loop if no transition fires)
+ * 3. Resolves output variables (state-dependent for Moore, transition-dependent for Mealy)
+ *
+ * @param states List of states in the FSM
+ * @param transitions List of directed transitions between states
+ * @param inputNames Active input variables
+ * @param outputNames Active output variables
+ * @param machineType 'mealy' or 'moore'
+ * @param encoding State encoding scheme ('binary', 'gray', or 'one-hot')
+ * @returns Table rows, number of state flip-flop bits, and binary encoding map
+ */
 export function generateStateTable(
   states: FSMState[],
   transitions: FSMTransition[],
@@ -111,9 +151,10 @@ export function generateStateTable(
       const outputs: Record<string, 0 | 1> = {}
       for (const outName of outputNames) {
         if (machineType === 'moore') {
+          // Moore machine: outputs depend exclusively on present state
           outputs[outName] = state.mooreOutputs[outName] ?? 0
         } else {
-          // Mealy output
+          // Mealy machine: outputs depend on present state AND inputs (associated with transition)
           outputs[outName] = matching ? matching.mealyOutputs[outName] ?? 0 : 0
         }
       }
@@ -136,8 +177,18 @@ export function generateStateTable(
 }
 
 /**
- * Derives minimized Boolean SOP equations for Next State bits (D_k) and Outputs (Z_m)
- * using the Quine-McCluskey & Petrick solver.
+ * Derives minimal Boolean Sum-of-Products (SOP) equations for each Next State bit (D_k)
+ * and each Output variable (Z_m) using Quine-McCluskey minimization and Petrick's cover algorithm.
+ *
+ * Minterm addressing strictly matches the concatenated binary vector:
+ * [ Q_{numBits-1} ... Q_0 , X_0 ... X_{n-1} ]
+ * Unused state codes are treated as Don't Cares (d) to maximize logic simplification.
+ *
+ * @param rows Generated State Transition Table rows
+ * @param numBits Number of state register bits (flip-flops)
+ * @param inputNames Input variable names
+ * @param outputNames Output variable names
+ * @returns Array of minimal SOP equations for each flip-flop input and output
  */
 export function deriveFSMEquations(
   rows: StateTableRow[],
@@ -155,7 +206,10 @@ export function deriveFSMEquations(
   const allVarNames = [...stateVarNames, ...inputNames]
   const totalVars = allVarNames.length
 
-  // Helper to compute the exact binary minterm number for a given row
+  /**
+   * Helper: Computes the exact binary minterm number for a given row.
+   * Encodes presentStateCode bits concatenated with input bits.
+   */
   const getRowMinterm = (row: StateTableRow): number => {
     let m = 0
     for (let i = 0; i < numBits; i++) {
@@ -175,7 +229,7 @@ export function deriveFSMEquations(
 
   const dontCares: number[] = []
   // Only compute full don't-cares when totalVars is reasonable (<= 10 vars = 1024 cells)
-  if (totalVars <= 10) {
+  if (totalVars <= MAX_VARS_FOR_DONT_CARE_EXPANSION) {
     const totalPossible = 1 << totalVars
     for (let m = 0; m < totalPossible; m++) {
       if (!validMinterms.has(m)) {
@@ -186,7 +240,7 @@ export function deriveFSMEquations(
 
   const equations: NextStateEquation[] = []
 
-  // 1. Equations for each Next State Flip-Flop D_k
+  // 1. Equations for each Next State Flip-Flop D_k (D0, D1, ...)
   for (let bitIdx = 0; bitIdx < numBits; bitIdx++) {
     // In code string, index 0 is MSB, numBits-1 is LSB
     const bitVarName = `D${numBits - 1 - bitIdx}`
@@ -201,7 +255,10 @@ export function deriveFSMEquations(
 
     if (minterms.length === 0) {
       equations.push({ variable: bitVarName, sop: '0' })
-    } else if (totalVars <= 10 && minterms.length + dontCares.length === (1 << totalVars)) {
+    } else if (
+      totalVars <= MAX_VARS_FOR_DONT_CARE_EXPANSION &&
+      minterms.length + dontCares.length === (1 << totalVars)
+    ) {
       equations.push({ variable: bitVarName, sop: '1' })
     } else {
       const pis = findPrimeImplicants(minterms, dontCares, totalVars, allVarNames)
@@ -210,7 +267,7 @@ export function deriveFSMEquations(
     }
   }
 
-  // 2. Equations for each Output variable
+  // 2. Equations for each Output variable (Z0, Z1, ...)
   for (const outName of outputNames) {
     const minterms: number[] = []
 
@@ -222,7 +279,10 @@ export function deriveFSMEquations(
 
     if (minterms.length === 0) {
       equations.push({ variable: outName, sop: '0' })
-    } else if (totalVars <= 10 && minterms.length + dontCares.length === (1 << totalVars)) {
+    } else if (
+      totalVars <= MAX_VARS_FOR_DONT_CARE_EXPANSION &&
+      minterms.length + dontCares.length === (1 << totalVars)
+    ) {
       equations.push({ variable: outName, sop: '1' })
     } else {
       const pis = findPrimeImplicants(minterms, dontCares, totalVars, allVarNames)
@@ -233,3 +293,4 @@ export function deriveFSMEquations(
 
   return equations
 }
+

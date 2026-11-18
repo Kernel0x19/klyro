@@ -1,8 +1,20 @@
-// Klyro — Basic Gate IC Definitions
-// 74LS series standard logic gates
+/**
+ * Klyro — Basic Gate IC Definitions
+ *
+ * Provides physical pin mappings, internal gate configurations, propagation
+ * delays, and datasheet references for standard 74LS series dual-in-line
+ * logic ICs (74LS00, 74LS08, 74LS32).
+ */
 
 import type { ComponentDefinition } from '../../contracts/Component'
 
+/**
+ * 74LS08: Quadruple 2-Input Positive-AND Gates
+ * - 4 independent 2-input AND gates
+ * - Typical propagation delay: 9 ns
+ * - Package: DIP-14
+ * - Power: Pin 14 (VCC), Pin 7 (GND)
+ */
 export const IC_74LS08: ComponentDefinition = {
   partNumber: '74LS08',
   name: 'Quad 2-Input AND Gate',
@@ -39,6 +51,13 @@ export const IC_74LS08: ComponentDefinition = {
   datasheetUrl: 'https://www.ti.com/lit/ds/symlink/sn74ls08.pdf',
 }
 
+/**
+ * 74LS00: Quadruple 2-Input Positive-NAND Gates
+ * - 4 independent 2-input NAND gates
+ * - Typical propagation delay: 9 ns
+ * - Package: DIP-14
+ * - Power: Pin 14 (VCC), Pin 7 (GND)
+ */
 export const IC_74LS00: ComponentDefinition = {
   partNumber: '74LS00',
   name: 'Quad 2-Input NAND Gate',
@@ -75,6 +94,13 @@ export const IC_74LS00: ComponentDefinition = {
   datasheetUrl: 'https://www.ti.com/lit/ds/symlink/sn74ls00.pdf',
 }
 
+/**
+ * 74LS32: Quadruple 2-Input Positive-OR Gates
+ * - 4 independent 2-input OR gates
+ * - Typical propagation delay: 14 ns
+ * - Package: DIP-14
+ * - Power: Pin 14 (VCC), Pin 7 (GND)
+ */
 export const IC_74LS32: ComponentDefinition = {
   partNumber: '74LS32',
   name: 'Quad 2-Input OR Gate',
@@ -110,3 +136,4 @@ export const IC_74LS32: ComponentDefinition = {
   ],
   datasheetUrl: 'https://www.ti.com/lit/ds/symlink/sn74ls32.pdf',
 }
+

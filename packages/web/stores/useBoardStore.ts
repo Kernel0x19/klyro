@@ -1,6 +1,21 @@
+/**
+ * Klyro — Digital Breadboard State Store (Zustand)
+ *
+ * Central state store managing:
+ * - Canvas editor tool state ('select', 'wire', 'pan', 'delete')
+ * - IC socket assignments across the 5 breadboard chip bays
+ * - Digital input switch states, clock generator pulses, and frequencies
+ * - Master power rail toggle (VCC)
+ * - Simulation outputs (LED states, 7-segment display values)
+ * - Live logic analyzer oscilloscope waveform history
+ * - Unsaved changes dirty tracking against snapshots
+ */
+
 import { create } from 'zustand'
 import { useEditorEdgesStore } from './useEditorEdgesStore'
 import type { ChipState, PinSignals } from '@/lib/simulationEngine'
+
+/** Summary definition of an IC assigned to a physical breadboard socket bay */
 export interface ICDefinitionSlot {
   partNumber: string
   name: string
@@ -10,12 +25,18 @@ export interface ICDefinitionSlot {
   vcc: number
   gnd: number
 }
+
+/** Active canvas interaction mode */
 export type EditorTool = 'select' | 'wire' | 'pan' | 'delete'
+
+/** Physical breadboard socket bay */
 export interface ICSlot {
   slotId: string
   icDefinition: ICDefinitionSlot | null
   isSelected: boolean
 }
+
+/** State interface for the digital breadboard workbench */
 interface BoardState {
   activeTool: EditorTool
   setActiveTool: (tool: EditorTool) => void
@@ -66,12 +87,15 @@ interface BoardState {
     isPowerOn: boolean
   }) => void
 }
+
+/** Default 5 physical IC bays available on the breadboard */
 const createDefaultSlots = (): ICSlot[] =>
   Array.from({ length: 5 }, (_, i) => ({
     slotId: `slot-${i + 1}`,
     icDefinition: null,
     isSelected: false,
   }))
+
 export const useBoardStore = create<BoardState>((set, get) => ({
   activeTool: 'select',
   setActiveTool: (tool) => set({ activeTool: tool }),
