@@ -75,7 +75,7 @@ export default function ASMChartCanvas() {
       ...(e.sourceHandle ? { sourceHandle: e.sourceHandle } : {}),
       ...(e.targetHandle ? { targetHandle: e.targetHandle } : {}),
       type: 'smoothstep',
-      pathOptions: { borderRadius: 8 },
+      pathOptions: { borderRadius: 8, offset: e.offset ?? 28 },
       ...(e.label ? { label: e.label } : {}),
       labelStyle: { fill: '#93c5fd', fontSize: 11, fontWeight: 700, fontFamily: 'monospace' },
       labelBgStyle: { fill: '#0c1020', stroke: '#4F6EF7', strokeWidth: 1, rx: 4, ry: 4 },

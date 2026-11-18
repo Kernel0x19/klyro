@@ -86,6 +86,7 @@ export function generateASMChart(
         target: decisionBlockId,
         sourceHandle: 'bottom',
         targetHandle: 'top',
+        offset: 15,
       })
 
       // Identify True (1) and False (0) transitions
@@ -126,9 +127,10 @@ export function generateASMChart(
           machineType === 'mealy' &&
           outputNames.some((o) => (trans.mealyOutputs[o] ?? 0) === 1)
 
-        // Determine orthogonal routing handles based on vertical chart geometry
+        // Determine orthogonal routing handles and track offsets to prevent overlaps
         let sourceHandle: 'bottom' | 'left' | 'right' = 'bottom'
         let targetHandle: 'top' | 'left' | 'right' = 'top'
+        let offset = 20
 
         const isSequentialNext = targetIdx === stateIdx + 1
         const isWrapAroundToStart = targetIdx === 0 && stateIdx === states.length - 1
@@ -139,21 +141,27 @@ export function generateASMChart(
           // Straight down vertical spine
           sourceHandle = 'bottom'
           targetHandle = 'top'
+          offset = 20
         } else if (isWrapAroundToStart) {
-          // Outer right rail wrapping around to the top
+          // Outer right rail: wide track (offset 90) so it never collides with inner rail
           sourceHandle = 'right'
           targetHandle = 'top'
+          offset = 90
         } else if (isLoopBack) {
           // Left rail looping back up to an earlier state
+          // Stagger offsets across states so each return loop has its own dedicated track!
           sourceHandle = 'left'
           targetHandle = 'left'
+          offset = 35 + ((stateIdx % 4) * 25)
         } else if (isForwardSkip) {
-          // Right rail leaping forward
+          // Inner right rail: forward jump track (offset 40) runs inside the wrap-around rail
           sourceHandle = 'right'
           targetHandle = 'right'
+          offset = 40
         } else {
           sourceHandle = isTrue ? 'bottom' : 'left'
           targetHandle = 'top'
+          offset = 25
         }
 
         if (hasMealy) {
@@ -187,6 +195,7 @@ export function generateASMChart(
             sourceHandle,
             targetHandle: 'top',
             label,
+            offset: 15,
           })
 
           edges.push({
@@ -195,6 +204,7 @@ export function generateASMChart(
             target: targetStateId,
             sourceHandle: 'bottom',
             targetHandle,
+            offset,
           })
         } else {
           edges.push({
@@ -204,6 +214,7 @@ export function generateASMChart(
             sourceHandle,
             targetHandle,
             label,
+            offset,
           })
         }
       })
@@ -216,19 +227,24 @@ export function generateASMChart(
 
         let sourceHandle: 'bottom' | 'left' | 'right' = 'bottom'
         let targetHandle: 'top' | 'left' | 'right' = 'top'
+        let offset = 20
 
         if (targetIdx === stateIdx + 1) {
           sourceHandle = 'bottom'
           targetHandle = 'top'
+          offset = 20
         } else if (targetIdx === 0 && stateIdx === states.length - 1) {
           sourceHandle = 'right'
           targetHandle = 'top'
+          offset = 90
         } else if (targetIdx <= stateIdx) {
           sourceHandle = 'left'
           targetHandle = 'left'
+          offset = 35 + ((stateIdx % 4) * 25)
         } else {
           sourceHandle = 'right'
           targetHandle = 'right'
+          offset = 40
         }
 
         edges.push({
@@ -237,6 +253,7 @@ export function generateASMChart(
           target: targetId,
           sourceHandle,
           targetHandle,
+          offset,
         })
       }
     }
