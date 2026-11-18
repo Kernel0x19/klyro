@@ -12,21 +12,26 @@ simplified Boolean expressions into circuits.
 
 - **Build circuits** with 31 simulated 7400-series ICs, including logic gates,
   multiplexers, flip-flops, counters, and shift registers. The board has five
-  IC sockets, 16 digital inputs, and 16 outputs.
+  IC sockets, 16 digital inputs, 16 outputs, and enforces physical TTL power
+  rail requirements (VCC & GND).
 - **Inspect signals** with live pin states, output LEDs, a two-digit hex display,
   and a waveform viewer. Run a continuous clock or step through one pulse at a
   time.
-- **Simplify Boolean logic** using 2–5-variable Karnaugh maps, a synced truth
-  table, minimal sum-of-products (SOP) and product-of-sums (POS), and canonical
+- **Simplify Boolean logic** using 2–5-variable Karnaugh maps with numbered
+  grouping overlays, a synced truth table with bidirectional hover highlights,
+  minimal sum-of-products (SOP) and product-of-sums (POS), and canonical
   minterm ($\Sigma m$) and maxterm ($\Pi M$) notation.
 - **Build a circuit from a K-map** by converting the minimized SOP expression
   into wired ICs. The generated circuit must fit within the board’s five slots.
-- **Design Finite State Machines (FSM)** and auto-generate Algorithmic State
-  Machine (ASM) charts with interactive clock stepping, binary/gray/one-hot
-  encodings, state transition table export (Markdown, CSV, LaTeX), and minimal
-  next-state Boolean logic derivation.
+- **Design Finite State Machines (FSM)** with symmetrical circular layouts,
+  outward radial self-loops, and dual-lane mutual transition routing. Auto-generate
+  vertical Algorithmic State Machine (ASM) charts with non-overlapping orthogonal
+  rail tracks, interactive clock stepping, binary/gray/one-hot encodings, state
+  transition table export (Markdown, CSV, LaTeX), and minimal next-state Boolean
+  logic derivation.
 - **Keep and share your work** by signing in to save projects or exporting the
-  board, K-map, or FSM diagram as a PNG.
+  board, K-map, or FSM diagrams as centered, fit-all high-resolution $1600 \times 900$ PNGs.
+
 
 ## Try the editor
 

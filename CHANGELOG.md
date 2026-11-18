@@ -7,7 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.1] - 2026-11-18
+
+### Added
+- **Symmetrical Circular FSM Diagram & Clean Routing**:
+  - Regular polygon layout geometry (`fsmLayout.ts`) distributing state bubbles symmetrically around an orbit with initial state $S_0$ anchored at the 12 o'clock apex ($-\pi/2$).
+  - Outward radial self-loop routing: self-loops now point cleanly outward away from the center of the diagram.
+  - Multi-lane orthogonal curve routing: mutual two-way transitions ($A \to B$ and $B \to A$) are split into outer clockwise and inner counter-clockwise tracks to prevent overlapping arcs.
+  - Contextual connection handles: connection dots on state bubbles are hidden when idle and only appear on hover during wire creation, eliminating visual noise.
+  - Repositioned `INIT` state badge to avoid overlapping top connection terminals and incoming wires.
+- **Vertical ASM Chart with Orthogonal Multi-Track Rails**:
+  - Rebuilt ASM chart generator (`asmGenerator.ts`) to align blocks strictly along a vertical central spine (State Box $\to$ Decision Diamond $\to$ Conditional Output Box).
+  - Dedicated non-overlapping orthogonal wire rails:
+    - Vertical spine for sequential transitions ($S_i \to S_{i+1}$).
+    - Staggered left rails with dedicated offsets for loopbacks to earlier states ($S_i \to S_j, j \le i$).
+    - Inner right rail for forward skips ($S_i \to S_j, j > i+1$).
+    - Outer right rail for wrap-around transitions from terminal state back to origin ($S_n \to S_0$).
+  - Immutable ASM chart terminals: connection points are permanently rendered in read-only mode, disabling accidental dragging or wire creation in the ASM view.
+- **Fit-All High-Resolution Viewport PNG Export**:
+  - Re-engineered React Flow canvas export engine (`fsmExport.ts`) used across the Circuit Board, FSM Diagram, and ASM Chart.
+  - Automatically calculates the aggregate bounding box of all placed components/nodes and applies exact scaling and translation to center the entire diagram within a fixed $1600 \times 900$ high-resolution PNG, regardless of user pan or zoom level.
+- **K-Map Group Numbering & Clean Hover Sync**:
+  - Added discrete group number badges (`1`, `2`, ...) on K-Map grouping rectangles with bidirectional hover synchronization between expression terms and groups.
+  - Removed intrusive blue hover box artifacts on K-Map grid cells in favor of clean high-contrast cell accents.
+- **Strict Physical TTL IC Powering**:
+  - Integrated circuits now enforce strict physical TTL power rail requirements: IC logic outputs remain unpowered (`LOW`) unless `VCC` is wired to logic `HIGH` (`pin-VCC`) and `GND` is wired to logic `LOW` (`input-gnd`).
+- **Comprehensive Core Testing Suite & JSDoc Documentation**:
+  - Added unit test suite for `@klyro/core` covering `EventScheduler`, `ComponentRegistry`, `NetlistCompiler`, and `EventBus` with Vitest.
+  - Migrated both `@klyro/core` and `@klyro/web` to ESLint 9 flat configuration.
+  - Added comprehensive JSDoc documentation, pinout descriptions, and algorithmic comments across all core contracts and web IC evaluators.
+
+### Fixed
+- **Simulation Edge-Trigger Reactivity**: Added topology dependency hashing to ensure immediate digital simulation re-evaluation whenever wires are added, re-routed, or deleted without requiring manual input toggling.
+- **FSM Equation Minterm Addressing**: Corrected binary address calculation in `deriveFSMEquations` when using Gray Code and One-Hot state encodings, properly deriving minterm indices from present state bits and input bits with full don't-care coverage.
+- **Save State Backward Compatibility**: Hardened `deserializeBoardState` to guarantee 5 standard socket bays even when loading legacy or partial circuit saves.
+- **Editor Dirty State Sensitivity**: Refined dirty state tracking in `useBoardStore` to trigger only on genuine component, wire, or slot alterations, preventing false-positive unsaved changes warnings.
+- **Next.js & React 19 Hydration Warnings**: Converted nested `<button>` elements inside Next.js `<Link>` tags to styled navigation links in `CircuitHistory.tsx`.
+
+---
+
 ## [0.4.0] - 2026-11-16
+
 
 ### Added
 - **Visual FSM Builder**:
