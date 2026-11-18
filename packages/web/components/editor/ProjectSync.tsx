@@ -1,11 +1,12 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useBoardStore } from '@/stores/useBoardStore'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
 import { useKMapStore } from '@/stores/useKMapStore'
 import { useFSMStore } from '@/stores/useFSMStore'
 import { loadBoardState } from '@/lib/circuitService'
 import { deserializeBoardState } from '@/lib/boardStateSerializer'
+import { computeCircuitSnapshot } from '@/lib/circuitSnapshot'
 
 interface Props {
   projectId: string
@@ -17,26 +18,21 @@ export default function ProjectSync({ projectId, isLoggedIn, userId }: Props) {
   const resetBoard = useBoardStore((s) => s.resetBoard)
   const loadBoardState2 = useBoardStore((s) => s.loadBoardState)
   const setDirty = useBoardStore((s) => s.setDirty)
-  const icSlots = useBoardStore((s) => s.icSlots)
+  const setLastSavedSnapshot = useBoardStore((s) => s.setLastSavedSnapshot)
   const setEditorEdges = useEditorEdgesStore((s) => s.setEdges)
-  const edges = useEditorEdgesStore((s) => s.edges)
-
-  // Track initial load to avoid marking dirty on first hydration
-  const isLoaded = useRef(false)
-  const initialEdgeCount = useRef(-1)
-  const initialSlotSnapshot = useRef('')
 
   // ── Load saved state on project change ──────────────────────────────────
   useEffect(() => {
-    isLoaded.current = false
-    initialEdgeCount.current = -1
-    initialSlotSnapshot.current = ''
+    setLastSavedSnapshot(null)
+    setDirty(false)
     resetBoard()
     useKMapStore.getState().reset()
     useFSMStore.getState().reset()
 
     if (!isLoggedIn || !userId) {
-      isLoaded.current = true
+      const emptySnap = computeCircuitSnapshot(useBoardStore.getState().icSlots, [])
+      setLastSavedSnapshot(emptySnap)
+      setDirty(false)
       return
     }
 
@@ -44,38 +40,24 @@ export default function ProjectSync({ projectId, isLoggedIn, userId }: Props) {
       await new Promise((resolve) => setTimeout(resolve, 100))
       const { data, error } = await loadBoardState(projectId, userId)
       if (error || !data) {
-        isLoaded.current = true
+        const emptySnap = computeCircuitSnapshot(useBoardStore.getState().icSlots, [])
+        setLastSavedSnapshot(emptySnap)
+        setDirty(false)
         return
       }
-      const { icSlots, edges, inputStates, isPowerOn } = deserializeBoardState(data)
-      loadBoardState2({ icSlots, inputStates, isPowerOn })
-      setEditorEdges(edges)
+      const { icSlots: loadedSlots, edges: loadedEdges, inputStates, isPowerOn } =
+        deserializeBoardState(data)
+      loadBoardState2({ icSlots: loadedSlots, inputStates, isPowerOn })
+      setEditorEdges(loadedEdges)
       // Reset temporal undo/redo history after load
       useEditorEdgesStore.temporal.getState().clear()
-      initialEdgeCount.current = edges.length
-      initialSlotSnapshot.current = JSON.stringify(icSlots.map((s) => s.icDefinition?.partNumber ?? null))
-      isLoaded.current = true
+      const loadedSnap = computeCircuitSnapshot(loadedSlots, loadedEdges)
+      setLastSavedSnapshot(loadedSnap)
+      setDirty(false)
     }
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
-
-  // ── Mark dirty when edges change after initial load ──────────────────────
-  useEffect(() => {
-    if (!isLoaded.current) return
-    if (initialEdgeCount.current === -1) return // haven't loaded yet
-    setDirty(true)
-  }, [edges, setDirty])
-
-  // ── Mark dirty when IC slots change after initial load ───────────────────
-  useEffect(() => {
-    if (!isLoaded.current) return
-    if (!initialSlotSnapshot.current) return
-    const snap = JSON.stringify(icSlots.map((s) => s.icDefinition?.partNumber ?? null))
-    if (snap !== initialSlotSnapshot.current) {
-      setDirty(true)
-    }
-  }, [icSlots, setDirty])
 
   // ── Track recent projects in localStorage ───────────────────────────────
   useEffect(() => {

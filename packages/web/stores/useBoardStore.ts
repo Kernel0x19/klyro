@@ -23,6 +23,8 @@ interface BoardState {
   toggleShowGrid: () => void
   isDirty: boolean
   setDirty: (dirty: boolean) => void
+  lastSavedSnapshot: string | null
+  setLastSavedSnapshot: (snapshot: string | null) => void
   isPowerOn: boolean
   inputStates: Record<string, boolean>
   clockStates: Record<string, boolean>
@@ -77,6 +79,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   toggleShowGrid: () => set((s) => ({ showGrid: !s.showGrid })),
   isDirty: false,
   setDirty: (dirty) => set({ isDirty: dirty }),
+  lastSavedSnapshot: null,
+  setLastSavedSnapshot: (snapshot) => set({ lastSavedSnapshot: snapshot }),
   isPowerOn: true,
   inputStates: {},
   clockStates: {},

@@ -24,6 +24,7 @@ import { signOut } from '@/lib/supabase/auth'
 import { useBoardStore } from '@/stores/useBoardStore'
 import { saveBoardState } from '@/lib/circuitService'
 import { serializeBoardState } from '@/lib/boardStateSerializer'
+import { computeCircuitSnapshot } from '@/lib/circuitSnapshot'
 import { useEditorEdgesStore } from '@/stores/useEditorEdgesStore'
 import { useKMapStore } from '@/stores/useKMapStore'
 import { useFSMStore } from '@/stores/useFSMStore'
@@ -67,8 +68,19 @@ export default function EditorActions({
   const profileTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const { icSlots, inputStates, isPowerOn, resetBoard, togglePower, isDirty, setDirty, showGrid, toggleShowGrid } =
-    useBoardStore()
+  const {
+    icSlots,
+    inputStates,
+    isPowerOn,
+    resetBoard,
+    togglePower,
+    isDirty,
+    setDirty,
+    showGrid,
+    toggleShowGrid,
+    lastSavedSnapshot,
+    setLastSavedSnapshot,
+  } = useBoardStore()
   const { edges } = useEditorEdgesStore()
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
 
@@ -80,12 +92,14 @@ export default function EditorActions({
     const { error } = await saveBoardState(projectId, userId, boardState)
     if (!error) {
       setSaveState('saved')
+      const currentSnap = computeCircuitSnapshot(icSlots, edges)
+      setLastSavedSnapshot(currentSnap)
       setDirty(false)
       setTimeout(() => setSaveState('idle'), 2000)
     } else {
       setSaveState('idle')
     }
-  }, [saveState, icSlots, edges, inputStates, isPowerOn, projectId, userId, setDirty])
+  }, [saveState, icSlots, edges, inputStates, isPowerOn, projectId, userId, setLastSavedSnapshot, setDirty])
 
   // ── Auto-save (debounced 30s when dirty) ────────────────────────────────
   useEffect(() => {
@@ -99,10 +113,15 @@ export default function EditorActions({
     }
   }, [isDirty, icSlots, edges, handleSave, userId])
 
-  // Mark edges dirty when they change (wire drawn/deleted)
+  // ── Sync dirty state with last saved snapshot ─────────────────────────────
   useEffect(() => {
-    if (edges.length > 0) setDirty(true)
-  }, [edges, setDirty])
+    if (lastSavedSnapshot === null) return
+    const current = computeCircuitSnapshot(icSlots, edges)
+    const dirty = current !== lastSavedSnapshot
+    if (dirty !== isDirty) {
+      setDirty(dirty)
+    }
+  }, [icSlots, edges, lastSavedSnapshot, isDirty, setDirty])
 
   // ── Ctrl+S shortcut ──────────────────────────────────────────────────────
   useEffect(() => {

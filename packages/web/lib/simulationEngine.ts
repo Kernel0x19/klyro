@@ -184,6 +184,32 @@ export function simulateBoard(
       const ic = findIC(slot.icDefinition.partNumber)
       if (!ic) continue
 
+      const vccPin = ic.pins.find((p) => p.function === 'vcc')
+      const gndPin = ic.pins.find((p) => p.function === 'gnd')
+
+      const isVccPowered = vccPin
+        ? getSignal(nodeId, `pin-${vccPin.number}`) === 'HIGH'
+        : true
+      const isGndConnected = gndPin
+        ? getSignal(nodeId, `pin-${gndPin.number}`) === 'LOW'
+        : true
+
+      if (!isVccPowered || !isGndConnected) {
+        for (const pin of ic.pins) {
+          if (pin.function === 'output') {
+            const prev = getSignal(nodeId, `pin-${pin.number}`)
+            if (prev !== 'LOW') {
+              setSignal(nodeId, `pin-${pin.number}`, 'LOW')
+              changed = true
+            }
+          }
+        }
+        if (updatedChipStates[nodeId] && Object.keys(updatedChipStates[nodeId]).length > 0) {
+          updatedChipStates[nodeId] = {}
+        }
+        continue
+      }
+
       const ctx: ICEvaluatorContext = {
         getPinSignal: (pinNumber: number) => getSignal(nodeId, `pin-${pinNumber}`),
         setPinSignal: (pinNumber: number, state: SignalState) => {
