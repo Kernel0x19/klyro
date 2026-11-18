@@ -9,8 +9,8 @@ import {
   type Edge,
   type Connection,
   type NodeChange,
-  applyNodeChanges,
   MarkerType,
+  ConnectionMode,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useFSMStore } from '@/stores/useFSMStore'
@@ -18,6 +18,7 @@ import StateNode from './StateNode'
 import TransitionEdge from './TransitionEdge'
 import EditStateModal from './EditStateModal'
 import EditTransitionModal from './EditTransitionModal'
+import { getOptimalEdgeRouting } from '@/lib/fsm/fsmLayout'
 
 export default function FSMDiagramCanvas() {
   const states = useFSMStore((s) => s.states)
@@ -49,26 +50,68 @@ export default function FSMDiagramCanvas() {
     }))
   }, [states, encodings])
 
-  // Map FSM transitions to ReactFlow edges
+  // Map FSM transitions to ReactFlow edges with symmetrical arc calculation
   const edges: Edge[] = useMemo(() => {
-    return transitions.map((t) => ({
-      id: t.id,
-      source: t.fromState,
-      target: t.toState,
-      type: 'transitionEdge',
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        color: '#4F6EF7',
-        width: 14,
-        height: 14,
-      },
-      data: {
-        condition: t.condition,
-        mealyOutputs: t.mealyOutputs,
-        onEdit: (id: string) => setEditTransitionId(id),
-      },
-    }))
-  }, [transitions])
+    let cx = 380
+    let cy = 260
+    if (states.length > 0) {
+      cx = states.reduce((acc, s) => acc + s.x + 48, 0) / states.length
+      cy = states.reduce((acc, s) => acc + s.y + 48, 0) / states.length
+    }
+
+    const stateMap = new Map(states.map((s) => [s.id, s]))
+
+    return transitions.map((t) => {
+      const fromS = stateMap.get(t.fromState)
+      const toS = stateMap.get(t.toState)
+
+      if (!fromS || !toS) {
+        return {
+          id: t.id,
+          source: t.fromState,
+          target: t.toState,
+          type: 'transitionEdge',
+          data: {
+            condition: t.condition,
+            mealyOutputs: t.mealyOutputs,
+            onEdit: (id: string) => setEditTransitionId(id),
+          },
+        }
+      }
+
+      const hasMutual = transitions.some(
+        (other) =>
+          other.id !== t.id &&
+          ((other.fromState === t.toState && other.toState === t.fromState) ||
+            (other.fromState === t.fromState && other.toState === t.toState))
+      )
+
+      const routing = getOptimalEdgeRouting(fromS, toS, hasMutual, cx, cy)
+
+      return {
+        id: t.id,
+        source: t.fromState,
+        target: t.toState,
+        sourceHandle: routing.sourceHandle,
+        targetHandle: routing.targetHandle,
+        type: 'transitionEdge',
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: '#4F6EF7',
+          width: 14,
+          height: 14,
+        },
+        data: {
+          condition: t.condition,
+          mealyOutputs: t.mealyOutputs,
+          curveOffset: routing.curveOffset,
+          isSelfLoop: routing.isSelfLoop,
+          loopDirection: routing.loopDirection,
+          onEdit: (id: string) => setEditTransitionId(id),
+        },
+      }
+    })
+  }, [transitions, states])
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -100,6 +143,7 @@ export default function FSMDiagramCanvas() {
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
+        connectionMode={ConnectionMode.Loose}
         onNodesChange={onNodesChange}
         onConnect={onConnect}
         fitView
@@ -118,12 +162,21 @@ export default function FSMDiagramCanvas() {
         />
       </ReactFlow>
 
-      {/* Edit Modals */}
-      <EditStateModal stateId={editStateId} onClose={() => setEditStateId(null)} />
-      <EditTransitionModal
-        transitionId={editTransitionId}
-        onClose={() => setEditTransitionId(null)}
-      />
+      {/* Edit State Modal */}
+      {editStateId && (
+        <EditStateModal
+          stateId={editStateId}
+          onClose={() => setEditStateId(null)}
+        />
+      )}
+
+      {/* Edit Transition Modal */}
+      {editTransitionId && (
+        <EditTransitionModal
+          transitionId={editTransitionId}
+          onClose={() => setEditTransitionId(null)}
+        />
+      )}
     </div>
   )
 }
