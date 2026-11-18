@@ -11,6 +11,7 @@ export interface Implicant {
 
 export interface KMapGroup {
   id: string
+  groupNumber?: number
   implicant: Implicant
   color: string
   isEssential: boolean

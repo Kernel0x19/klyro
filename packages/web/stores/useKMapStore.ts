@@ -32,6 +32,10 @@ interface KMapState {
   hoveredMinterm: number | null
   setHoveredMinterm: (m: number | null) => void
 
+  // Active hover highlighting for K-Map groups
+  hoveredGroupId: string | null
+  setHoveredGroupId: (id: string | null) => void
+
   // Actions
   setVariables: (n: VarCount) => void
   setVariableName: (index: number, name: string) => void
@@ -239,8 +243,10 @@ export const useKMapStore = create<KMapState>((set, get) => {
     cellValues: initCells,
     ...initDerived,
     hoveredMinterm: null,
+    hoveredGroupId: null,
 
     setHoveredMinterm: (m) => set({ hoveredMinterm: m }),
+    setHoveredGroupId: (id) => set({ hoveredGroupId: id }),
 
     fillAll: (val) => {
       const { variables, variableNames } = get()
@@ -286,7 +292,7 @@ export const useKMapStore = create<KMapState>((set, get) => {
     reset: () => {
       const { variables, variableNames } = get()
       const cellValues = makeDefaultCells(variables)
-      set({ cellValues, hoveredMinterm: null, ...recompute(variables, variableNames, cellValues) })
+      set({ cellValues, hoveredMinterm: null, hoveredGroupId: null, ...recompute(variables, variableNames, cellValues) })
     },
 
     loadFromSOP: (sop) => {
