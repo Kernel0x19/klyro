@@ -10,7 +10,7 @@ export default function ASMCondOutputNode({ data }: { data: ASMCondOutputNodeDat
   const outputList = Object.entries(data.outputs ?? {})
 
   return (
-    <div className="group relative w-36 py-2 px-3 border-2 border-emerald-500 rounded-2xl bg-surface shadow-md font-mono select-none flex flex-col items-center justify-center">
+    <div className="relative w-36 py-2 px-3 border-2 border-emerald-500 rounded-2xl bg-surface shadow-md font-mono select-none flex flex-col items-center justify-center">
       <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-1">
         Conditional Out
       </span>
@@ -31,17 +31,20 @@ export default function ASMCondOutputNode({ data }: { data: ASMCondOutputNodeDat
         <span className="text-[10px] text-neutral-500 italic">None</span>
       )}
 
+      {/* Connection points: Always visible, non-editable */}
       <Handle
         type="target"
         position={Position.Top}
         id="top"
-        className="!w-2.5 !h-2.5 !bg-emerald-500 !border-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-crosshair"
+        isConnectable={false}
+        className="!w-2.5 !h-2.5 !bg-emerald-500 !border !border-surface shadow-sm cursor-default"
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="bottom"
-        className="!w-2.5 !h-2.5 !bg-emerald-500 !border-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-crosshair"
+        isConnectable={false}
+        className="!w-2.5 !h-2.5 !bg-emerald-500 !border !border-surface shadow-sm cursor-default"
       />
     </div>
   )

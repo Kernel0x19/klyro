@@ -8,7 +8,7 @@ interface ASMDecisionNodeData {
 
 export default function ASMDecisionNode({ data }: { data: ASMDecisionNodeData }) {
   return (
-    <div className="group relative flex items-center justify-center w-32 h-18 select-none font-mono">
+    <div className="relative flex items-center justify-center w-32 h-18 select-none font-mono">
       {/* SVG Diamond */}
       <svg className="absolute inset-0 w-full h-full overflow-visible pointer-events-none">
         <polygon
@@ -22,30 +22,34 @@ export default function ASMDecisionNode({ data }: { data: ASMDecisionNodeData })
         {data.condition}
       </div>
 
-      {/* Handles (hidden by default, fade in on hover) */}
+      {/* Connection points: Always visible, non-editable */}
       <Handle
         type="target"
         position={Position.Top}
         id="top"
-        className="!w-2.5 !h-2.5 !bg-amber-500 !border-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-crosshair"
+        isConnectable={false}
+        className="!w-2.5 !h-2.5 !bg-amber-500 !border !border-surface shadow-sm cursor-default"
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="bottom"
-        className="!w-2.5 !h-2.5 !bg-amber-500 !border-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-crosshair"
+        isConnectable={false}
+        className="!w-2.5 !h-2.5 !bg-amber-500 !border !border-surface shadow-sm cursor-default"
       />
       <Handle
         type="source"
         position={Position.Right}
         id="right"
-        className="!w-2.5 !h-2.5 !bg-green-500 !border-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-crosshair"
+        isConnectable={false}
+        className="!w-2.5 !h-2.5 !bg-green-500 !border !border-surface shadow-sm cursor-default"
       />
       <Handle
         type="source"
         position={Position.Left}
         id="left"
-        className="!w-2.5 !h-2.5 !bg-red-500 !border-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-crosshair"
+        isConnectable={false}
+        className="!w-2.5 !h-2.5 !bg-red-500 !border !border-surface shadow-sm cursor-default"
       />
     </div>
   )

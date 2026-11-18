@@ -105,6 +105,12 @@ export default function ASMChartCanvas() {
         minZoom={0.2}
         maxZoom={2.5}
         nodesDraggable={true}
+        nodesConnectable={false}
+        edgesReconnectable={false}
+        edgesFocusable={false}
+        elementsSelectable={false}
+        deleteKeyCode={null}
+        proOptions={{ hideAttribution: true }}
       >
         <Background color="#333" gap={20} size={1} />
         <Controls className="!bg-surface !border-border-theme !rounded !shadow-md" />
