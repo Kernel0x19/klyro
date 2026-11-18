@@ -58,6 +58,7 @@ export interface ASMEdge {
   sourceHandle?: string | undefined
   targetHandle?: string | undefined
   label?: string | undefined
+  offset?: number | undefined
 }
 
 export interface ASMChartData {
